@@ -1,4 +1,5 @@
-﻿using FoodEcomerce.Entity;
+﻿using FoodEcomerce.Abstract;
+using FoodEcomerce.Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
@@ -16,6 +17,10 @@ var settings = builder.Configuration
                 .GetRequiredSection("ConnectionStrings");
 builder.Services.AddDbContext<FoodDbContex>(options =>
         options.UseSqlServer(settings["DefaultConnection"]));
+
+builder.Services.AddScoped<UnitOfWork>();
+
+
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "Ecommerce APIs", Version = "v1" });
