@@ -1,13 +1,14 @@
 ﻿using FoodEcomerce.Modal;
+using System.Linq.Expressions;
 
 namespace FoodEcomerce.Reposiroty
 {
     public interface IBaseRepository<T , TModal, TDto , TId> where T : class
     {
-        Task<List<TDto>> GetAll();
-        Task<TDto> GetById(T entity);
+        Task<List<TDto>> GetAll(params Expression<Func<T, object>>[] includes);
+        Task<TDto> GetById(object id , params Expression<Func<T, object>>[] includes);
         Task<ResultModal> Create(TModal entity);
-        Task<ResultModal> Update(TModal entity);
-        Task<ResultModal> Delete(TId id);
+        Task<ResultModal> Update(TModal entity );
+        Task<ResultModal> Delete(object id);
     }
 }

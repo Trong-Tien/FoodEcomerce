@@ -19,7 +19,7 @@ namespace FoodEcomerce.Controllers
         {
             try
             {
-                var result = await _unitOfWork.Users.GetAll();  
+                var result = await _unitOfWork.UserRepository.GetAll();  
                 return Ok(result);
             }
             catch (Exception ex) { 

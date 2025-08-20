@@ -1,4 +1,5 @@
-﻿using FoodEcomerce.Abstract;
+﻿using AutoMapper;
+using FoodEcomerce.Abstract;
 using FoodEcomerce.Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -19,7 +20,7 @@ builder.Services.AddDbContext<FoodDbContex>(options =>
         options.UseSqlServer(settings["DefaultConnection"]));
 
 builder.Services.AddScoped<UnitOfWork>();
-
+builder.Services.AddAutoMapper(typeof(Program));
 
 builder.Services.AddSwaggerGen(options =>
 {
