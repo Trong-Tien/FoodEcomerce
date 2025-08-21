@@ -1,6 +1,9 @@
 ﻿using static System.Net.Mime.MediaTypeNames;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
+using System;
+using System.Security.Cryptography;
+using System.Text;
 namespace FoodEcomerce.Helpper
 {
     public static class Untils
@@ -102,6 +105,34 @@ namespace FoodEcomerce.Helpper
                 return false;
             }
 
+        }
+        public static string EncrypePassword(string password, string salt = null) {
+            if (string.IsNullOrEmpty(password))
+            {
+                return string.Empty;
+            }
+            string combinedString = password + salt;
+
+            using (SHA256 sha256Hash = SHA256.Create())
+            {
+                // Convert the input string to a byte array
+                byte[] bytes = Encoding.UTF8.GetBytes(combinedString);
+
+                // Compute the hash
+                byte[] hashBytes = sha256Hash.ComputeHash(bytes);
+
+                StringBuilder builder = new StringBuilder();
+                for (int i = 0; i < hashBytes.Length; i++)
+                {
+                    builder.Append(hashBytes[i].ToString("x2")); 
+                }
+                return builder.ToString();
+            }
+        }
+        public static bool VerifyPassword(string enteredPassword, string storedHash)
+        {
+            string hashedEnteredPassword = EncrypePassword(enteredPassword);
+            return hashedEnteredPassword.Equals(storedHash, StringComparison.OrdinalIgnoreCase);
         }
     }
 }

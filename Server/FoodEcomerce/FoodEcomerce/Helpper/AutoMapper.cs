@@ -16,6 +16,7 @@ namespace FoodEcomerce.Helpper
                     ForMember(dest => dest.ImageUrl , opt => opt.
                     MapFrom(src => src.ImageUrl != null ?  Helpper.Untils.UploadFileImage(src.ImageUrl, "Banner")  
                     : null));
+           CreateMap<RegisterModal, User>();
 
 
 
