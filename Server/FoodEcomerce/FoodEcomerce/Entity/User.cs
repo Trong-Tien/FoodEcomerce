@@ -11,7 +11,7 @@
         public bool? Acvite { get; set; }
         public bool? IsAdmin { get; set; }
         public int? StatusId { get; set; }   
-        public Guid? RoleId { get; set; }
+        public Guid RoleId { get; set; }
         public Role? Role { get; set; }
         public Status? Status { get; set; }
         public Cart? Cart { get; set; } 

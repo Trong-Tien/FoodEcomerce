@@ -1,9 +1,12 @@
-﻿using static System.Net.Mime.MediaTypeNames;
+﻿using Microsoft.IdentityModel.Tokens;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using static System.Net.Mime.MediaTypeNames;
 namespace FoodEcomerce.Helpper
 {
     public static class Untils
@@ -133,6 +136,37 @@ namespace FoodEcomerce.Helpper
         {
             string hashedEnteredPassword = EncrypePassword(enteredPassword);
             return hashedEnteredPassword.Equals(storedHash, StringComparison.OrdinalIgnoreCase);
+        }
+
+        public static string GenerateAccessToken(string userId , string username , Guid role)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(AppSettingsProvider.Get("JWT:IssuerSigningKey") ?? "");
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new Claim[]
+               {
+                        new Claim("UserId",userId.ToString()),
+                        new Claim("UserName", username.ToString()),
+                        new Claim("Role", role.ToString()),
+               }),
+                Expires = DateTime.UtcNow.AddMinutes(15),
+                SigningCredentials = new SigningCredentials
+                   (new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var jwtToken = tokenHandler.WriteToken(token);
+
+            return jwtToken;
+        }
+        public static string GenerateRefreshToken()
+        {
+            var randomNumber = new byte[32];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(randomNumber);
+            }
+            return Convert.ToBase64String(randomNumber);
         }
     }
 }

@@ -3,6 +3,10 @@ using FoodEcomerce.DTO;
 using FoodEcomerce.Entity;
 using FoodEcomerce.Modal;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace FoodEcomerce.Reposiroty.Auths
 {
@@ -21,21 +25,37 @@ namespace FoodEcomerce.Reposiroty.Auths
             if (modal.PhoneNumber == null || modal.Password == null) {
                 return new LoginDTO();
             }
+            LoginDTO result = new LoginDTO();
             var paswordHash = Helpper.Untils.EncrypePassword(modal.Password);
-            var db = _context.Users.FirstOrDefault(x=> x.PhoneNumber == modal.PhoneNumber && modal.Password == paswordHash);
+            var db =  await _context.Users.FirstOrDefaultAsync(x => x.PhoneNumber == modal.PhoneNumber && x.Password == paswordHash);
             if(db != null)
             {
-                LoginDTO loginDTO = new LoginDTO()
+                result = new LoginDTO()
                 {
                     Id = db.Id,
                     Email = db.Email,
                     Address = db.Address,
                     PhoneNumber = db.PhoneNumber,
-                    UserName = db.UserName, 
+                    UserName = db.UserName,
+                    RoleId = db.RoleId, 
+                    Status = 200
                 };
+               if (!string.IsNullOrEmpty(result.Email) || !string.IsNullOrEmpty(result.UserName))
+                    {
+                        result.AccessToken = Helpper.Untils.GenerateAccessToken(result.PhoneNumber, result.UserName, result.RoleId);
+                    }
+                    else
+                    {
+                        result.AccessToken = null;
+                    }
 
-            }    
-            throw new NotImplementedException();
+
+                result.RefeshToken = Helpper.Untils.GenerateRefreshToken();
+                result.Expires = DateTime.UtcNow.AddMinutes(15);
+            }
+
+          
+            return result;
         }
 
         public Task<ResultModal> LoginWithMail(string token)
