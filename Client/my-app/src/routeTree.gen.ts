@@ -11,6 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as DangNhapIndexRouteImport } from './routes/DangNhap/index'
+import { Route as DangKyIndexRouteImport } from './routes/DangKy/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,30 +24,48 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/admin/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DangNhapIndexRoute = DangNhapIndexRouteImport.update({
+  id: '/DangNhap/',
+  path: '/DangNhap/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DangKyIndexRoute = DangKyIndexRouteImport.update({
+  id: '/DangKy/',
+  path: '/DangKy/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/DangKy': typeof DangKyIndexRoute
+  '/DangNhap': typeof DangNhapIndexRoute
   '/admin': typeof AdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/DangKy': typeof DangKyIndexRoute
+  '/DangNhap': typeof DangNhapIndexRoute
   '/admin': typeof AdminIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/DangKy/': typeof DangKyIndexRoute
+  '/DangNhap/': typeof DangNhapIndexRoute
   '/admin/': typeof AdminIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin'
+  fullPaths: '/' | '/DangKy' | '/DangNhap' | '/admin'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin'
-  id: '__root__' | '/' | '/admin/'
+  to: '/' | '/DangKy' | '/DangNhap' | '/admin'
+  id: '__root__' | '/' | '/DangKy/' | '/DangNhap/' | '/admin/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DangKyIndexRoute: typeof DangKyIndexRoute
+  DangNhapIndexRoute: typeof DangNhapIndexRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
@@ -65,11 +85,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/DangNhap/': {
+      id: '/DangNhap/'
+      path: '/DangNhap'
+      fullPath: '/DangNhap'
+      preLoaderRoute: typeof DangNhapIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/DangKy/': {
+      id: '/DangKy/'
+      path: '/DangKy'
+      fullPath: '/DangKy'
+      preLoaderRoute: typeof DangKyIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DangKyIndexRoute: DangKyIndexRoute,
+  DangNhapIndexRoute: DangNhapIndexRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 export const routeTree = rootRouteImport

@@ -21,6 +21,8 @@ namespace FoodEcomerce.Helpper
                    MapFrom(src => src.ImageUrl != null ? Helpper.Untils.UploadFileImage(src.ImageUrl, "Categorys")
                    : null));
             CreateMap<RegisterModal, User>();
+            CreateMap<UnitCaculate, UnitCaculateModal>();
+            CreateMap<UnitCaculateModal, UnitCaculate>();
 
 
 

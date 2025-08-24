@@ -1,6 +1,6 @@
-﻿namespace FoodEcomerce.DTO
+﻿namespace FoodEcomerce.Modal
 {
-    public class TradeMarkDTO
+    public class TradeMarkModal
     {
         public int Id { get; set; }
         public string? Name { get; set; }
