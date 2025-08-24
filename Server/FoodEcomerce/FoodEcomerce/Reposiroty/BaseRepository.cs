@@ -8,24 +8,53 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace FoodEcomerce.Reposiroty
 {
-    public abstract class BaseRepository<T, TModal, TDto, TId> : IBaseRepository<T, TModal, TDto, TId> where T : class
+    public class BaseRepository<T, TModal, TDto, TId> : IBaseRepository<T, TModal, TDto, TId> where T : class
     {
         private readonly FoodDbContex _dbContext;
         private readonly IMapper _mapper;
+
+
+       
 
         public BaseRepository(FoodDbContex dbContext , IMapper mapper )
         {
             _dbContext = dbContext;
             _mapper = mapper;   
         }
-        public async Task<List<TDto>> GetAll(params Expression<Func<T, object>>[] includes)
+
+        public async Task<BaseResult<T>> GetAllWithPaginationAsync<T>(
+                IQueryable<T> query,
+                int pageNumber,
+                int pageSize) where T : class
+        {
+            if (pageNumber < 1) pageNumber = 1;
+            if (pageSize < 1) pageSize = 10;
+
+            var totalCount = await query.CountAsync();
+            var items = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new BaseResult<T>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
+
+
+        public async Task<List<TDto>> GetAll(int pageNumber, int pageSize,params Expression<Func<T, object>>[] includes)
         {
             IQueryable<T> values = _dbContext.Set<T>();
             foreach (var include in includes)
             {
                 values = values.Include(include);
             }
-            return _mapper.Map<List<TDto>>(await values.ToListAsync());
+            var result = await GetAllWithPaginationAsync(values.AsQueryable() , pageNumber , pageSize);
+            return _mapper.Map<List<TDto>>(result);
         }
         public async Task<TDto> GetById(object id, params Expression<Func<T, object>>[] includes)
         {
@@ -105,4 +134,5 @@ namespace FoodEcomerce.Reposiroty
 
      
     }
+
 }

@@ -15,11 +15,11 @@ namespace FoodEcomerce.Controllers
         }
 
         [HttpGet("getAll")]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll(int pageNumber , int PageSize)
         {
             try
             {
-                var result = await _unitOfWork.UserRepository.GetAll();  
+                var result = await _unitOfWork.UserRepository.GetAll(pageNumber, PageSize);  
                 return Ok(result);
             }
             catch (Exception ex) { 
