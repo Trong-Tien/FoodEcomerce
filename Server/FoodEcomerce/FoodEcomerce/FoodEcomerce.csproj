@@ -29,7 +29,7 @@
     <Folder Include="Services\" />
     <Folder Include="wwwroot\UploadFiles\Images\Banner\" />
     <Folder Include="wwwroot\UploadFiles\Images\Products\" />
-    <Folder Include="wwwroot\UploadFiles\" />
+    <Folder Include="wwwroot\UploadFiles\Categorys\" />
   </ItemGroup>
 
 </Project>

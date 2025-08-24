@@ -2,8 +2,8 @@
 using FoodEcomerce.Entity;
 using FoodEcomerce.Reposiroty.Auths;
 using FoodEcomerce.Reposiroty.Banners;
+using FoodEcomerce.Reposiroty.Categorys;
 using FoodEcomerce.Reposiroty.Users;
-using Microsoft.EntityFrameworkCore;
 
 namespace FoodEcomerce.Abstract
 {
@@ -11,21 +11,24 @@ namespace FoodEcomerce.Abstract
     {
         private readonly FoodDbContex _dbContext;
         private readonly IMapper _mapper;
-        private  IUserRepository  _userRepository;
+        private IUserRepository _userRepository;
         private IBannerRepository _bannerRepository;
         private IAuthRepository _authRepository;
+        private ICategoryDepository _categoryRepository;
 
-        public UnitOfWork(FoodDbContex dbContext , IMapper mapper ) 
+        public UnitOfWork(FoodDbContex dbContext, IMapper mapper)
         {
             _dbContext = dbContext;
             _mapper = mapper;
         }
         public IUserRepository UserRepository
         => _userRepository ??= new UserRepository(_dbContext, _mapper);
-        public IBannerRepository PannerRepository 
-        => _bannerRepository ??= new PannerRepository(_dbContext, _mapper);  
-        public IAuthRepository AuthRepository 
+        public IBannerRepository PannerRepository
+        => _bannerRepository ??= new PannerRepository(_dbContext, _mapper);
+        public IAuthRepository AuthRepository
         => _authRepository ??= new AuthRepository(_dbContext, _mapper);
+        public ICategoryDepository CategoryDepository
+      => _categoryRepository ??= new CategoryRepository(_dbContext, _mapper);
         public bool Save()
         {
             bool isSuccess = _dbContext.SaveChanges() > 0;
