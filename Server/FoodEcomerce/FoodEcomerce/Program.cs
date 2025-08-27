@@ -18,6 +18,16 @@ builder.Services.AddDbContext<FoodDbContex>(options =>
 
 builder.Services.AddScoped<UnitOfWork>();
 builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("*",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:5173") 
+                  .AllowAnyHeader()
+                  .AllowAnyMethod(); // GET, POST, PUT, DELETE
+        });
+});
 
 builder.Services.AddSwaggerGen(options =>
 {
@@ -57,6 +67,8 @@ var app = builder.Build();
 //}
 app.UseSwagger();
 app.UseSwaggerUI();
+
+app.UseCors("*");
 
 app.UseHttpsRedirection();
 

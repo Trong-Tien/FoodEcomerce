@@ -6,6 +6,6 @@ namespace FoodEcomerce.Reposiroty.Users
 {
     public interface IUserRepository : IBaseRepository<User , UserModal , UserDTO , Guid>
     {
-
+        Task<ResultModal> CreateWithQuery(UserModal modal);
     }
 }

@@ -8,6 +8,7 @@ namespace FoodEcomerce.Reposiroty.Auths
     {
         Task<ResultModal> Register(RegisterModal modal);
         Task<LoginDTO> Login(LoginModal modal);
+        Task<LoginDTO> LoginWithWebUser(LoginWithWebUserModal modal);
         Task<ResultModal> LoginWithMail(string token);
         Task<ResultModal> ResetPassword(ResetPasswordModal modal);
     }

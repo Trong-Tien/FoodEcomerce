@@ -63,6 +63,43 @@ namespace FoodEcomerce.Reposiroty.Auths
             throw new NotImplementedException();
         }
 
+        public async Task<LoginDTO> LoginWithWebUser(LoginWithWebUserModal modal)
+        {
+            if (modal.UserName == null || modal.Password == null)
+            {
+                return new LoginDTO();
+            }
+            LoginDTO result = new LoginDTO();
+            var paswordHash = Helpper.Untils.EncrypePassword(modal.Password);
+            var db = await _context.Users.FirstOrDefaultAsync(x => x.UserName == modal.UserName && x.Password == paswordHash);
+            if (db != null)
+            {
+                result = new LoginDTO()
+                {
+                    Id = db.Id,
+                    Email = db.Email,
+                    Address = db.Address,
+                    PhoneNumber = db.PhoneNumber,
+                    UserName = db.UserName,
+                    RoleId = db.RoleId,
+                    Status = 200
+                };
+                if (!string.IsNullOrEmpty(result.Email) || !string.IsNullOrEmpty(result.UserName))
+                {
+                    result.AccessToken = Helpper.Untils.GenerateAccessToken(result.PhoneNumber, result.UserName, result.RoleId);
+                }
+                else
+                {
+                    result.AccessToken = null;
+                }
+
+
+                result.RefeshToken = Helpper.Untils.GenerateRefreshToken();
+                result.Expires = DateTime.UtcNow.AddMinutes(30);
+            }
+            return result;
+        }
+
         public async Task<ResultModal> Register(RegisterModal modal)
         {
             var dbUser  = await _context.Users.FirstOrDefaultAsync(x=> x.PhoneNumber == modal.PhoneNumber);

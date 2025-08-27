@@ -46,7 +46,7 @@ namespace FoodEcomerce.Reposiroty
         }
 
 
-        public async Task<List<TDto>> GetAll(int pageNumber, int pageSize,params Expression<Func<T, object>>[] includes)
+        public async Task<BaseResult<T>> GetAll(int pageNumber, int pageSize,params Expression<Func<T, object>>[] includes)
         {
             IQueryable<T> values = _dbContext.Set<T>();
             foreach (var include in includes)
@@ -54,7 +54,7 @@ namespace FoodEcomerce.Reposiroty
                 values = values.Include(include);
             }
             var result = await GetAllWithPaginationAsync(values.AsQueryable() , pageNumber , pageSize);
-            return _mapper.Map<List<TDto>>(result);
+            return result;
         }
         public async Task<TDto> GetById(object id, params Expression<Func<T, object>>[] includes)
         {

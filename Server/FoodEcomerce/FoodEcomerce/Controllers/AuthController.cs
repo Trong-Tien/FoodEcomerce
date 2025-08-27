@@ -27,6 +27,19 @@ namespace FoodEcomerce.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpPost("LoginWithWebUser")]
+        public async Task<IActionResult> LoginWithWebUser(LoginWithWebUserModal modal)
+        {
+            try
+            {
+                var result = await unitOfWork.AuthRepository.LoginWithWebUser(modal);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
         [HttpPost("Register")]
         public async Task<IActionResult> Register(RegisterModal register)
