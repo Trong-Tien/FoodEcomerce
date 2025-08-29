@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useForm, type SubmitHandler } from "react-hook-form"
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -41,6 +41,8 @@ const theme = createTheme({
 
 
 const login = async (data: Login) => {
+
+  // call API Login
   const response = await fetch(`https://localhost:7004/api/Auth/LoginWithWebUser`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -52,6 +54,7 @@ const login = async (data: Login) => {
   return response.json();
 }
 function RouteComponent() {
+  const navigate = useNavigate()
   const queryClient = useQueryClient();
   const [showPass, setShowPass] = useState<boolean>(false)
 
@@ -65,7 +68,12 @@ function RouteComponent() {
   const mutation = useMutation({
     mutationFn: login,
     onSuccess: (data) => {
-      console.log("Login thành công:", data?.accessToken);
+      if(data?.status === 200)
+      {
+        localStorage.setItem("tokenCheckLogin", JSON.stringify(data?.accessToken));
+        goToDashBoard()
+      }
+      else alert("Đăng nhập thất bại")
       queryClient.invalidateQueries({ queryKey: ["Auth"] });
     },
     onError: (error: any) => {
@@ -73,11 +81,13 @@ function RouteComponent() {
     },
   });
 
-  const onSubmit: SubmitHandler<Login> = async (data) => {
-    const response =  mutation.mutate(data)
-    console.log(response)
+  const goToDashBoard = () => {
+    navigate({
+      to: '/admin/Dashboard/',
+    })
+  }
 
-  };
+  const onSubmit: SubmitHandler<Login> = async (data) => { mutation.mutate(data)};
 
   const handleClickShowPassword = () => {
     setShowPass(true)

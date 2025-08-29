@@ -23,7 +23,8 @@ namespace FoodEcomerce.Helpper
             CreateMap<RegisterModal, User>();
             CreateMap<UnitCaculate, UnitCaculateModal>();
             CreateMap<UnitCaculateModal, UnitCaculate>();
-
+            CreateMap<Menu, MenuModal>();
+            CreateMap<MenuModal, Menu>();
 
 
         }

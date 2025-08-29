@@ -13,7 +13,9 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as DangNhapIndexRouteImport } from './routes/DangNhap/index'
 import { Route as DangKyIndexRouteImport } from './routes/DangKy/index'
-import { Route as AdminDashboardIndexRouteImport } from './routes/admin/Dashboard/index'
+import { Route as AdminDashboardRouteRouteImport } from './routes/admin/Dashboard/route'
+import { Route as AdminDashboardMenuIndexRouteImport } from './routes/admin/Dashboard/Menu/index'
+import { Route as AdminDashboardDanhMucIndexRouteImport } from './routes/admin/Dashboard/DanhMuc/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -35,54 +37,87 @@ const DangKyIndexRoute = DangKyIndexRouteImport.update({
   path: '/DangKy/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminDashboardIndexRoute = AdminDashboardIndexRouteImport.update({
-  id: '/admin/Dashboard/',
-  path: '/admin/Dashboard/',
+const AdminDashboardRouteRoute = AdminDashboardRouteRouteImport.update({
+  id: '/admin/Dashboard',
+  path: '/admin/Dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminDashboardMenuIndexRoute = AdminDashboardMenuIndexRouteImport.update({
+  id: '/Menu/',
+  path: '/Menu/',
+  getParentRoute: () => AdminDashboardRouteRoute,
+} as any)
+const AdminDashboardDanhMucIndexRoute =
+  AdminDashboardDanhMucIndexRouteImport.update({
+    id: '/DanhMuc/',
+    path: '/DanhMuc/',
+    getParentRoute: () => AdminDashboardRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin/Dashboard': typeof AdminDashboardRouteRouteWithChildren
   '/DangKy': typeof DangKyIndexRoute
   '/DangNhap': typeof DangNhapIndexRoute
   '/admin': typeof AdminIndexRoute
-  '/admin/Dashboard': typeof AdminDashboardIndexRoute
+  '/admin/Dashboard/DanhMuc': typeof AdminDashboardDanhMucIndexRoute
+  '/admin/Dashboard/Menu': typeof AdminDashboardMenuIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin/Dashboard': typeof AdminDashboardRouteRouteWithChildren
   '/DangKy': typeof DangKyIndexRoute
   '/DangNhap': typeof DangNhapIndexRoute
   '/admin': typeof AdminIndexRoute
-  '/admin/Dashboard': typeof AdminDashboardIndexRoute
+  '/admin/Dashboard/DanhMuc': typeof AdminDashboardDanhMucIndexRoute
+  '/admin/Dashboard/Menu': typeof AdminDashboardMenuIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin/Dashboard': typeof AdminDashboardRouteRouteWithChildren
   '/DangKy/': typeof DangKyIndexRoute
   '/DangNhap/': typeof DangNhapIndexRoute
   '/admin/': typeof AdminIndexRoute
-  '/admin/Dashboard/': typeof AdminDashboardIndexRoute
+  '/admin/Dashboard/DanhMuc/': typeof AdminDashboardDanhMucIndexRoute
+  '/admin/Dashboard/Menu/': typeof AdminDashboardMenuIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/DangKy' | '/DangNhap' | '/admin' | '/admin/Dashboard'
+  fullPaths:
+    | '/'
+    | '/admin/Dashboard'
+    | '/DangKy'
+    | '/DangNhap'
+    | '/admin'
+    | '/admin/Dashboard/DanhMuc'
+    | '/admin/Dashboard/Menu'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/DangKy' | '/DangNhap' | '/admin' | '/admin/Dashboard'
+  to:
+    | '/'
+    | '/admin/Dashboard'
+    | '/DangKy'
+    | '/DangNhap'
+    | '/admin'
+    | '/admin/Dashboard/DanhMuc'
+    | '/admin/Dashboard/Menu'
   id:
     | '__root__'
     | '/'
+    | '/admin/Dashboard'
     | '/DangKy/'
     | '/DangNhap/'
     | '/admin/'
-    | '/admin/Dashboard/'
+    | '/admin/Dashboard/DanhMuc/'
+    | '/admin/Dashboard/Menu/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminDashboardRouteRoute: typeof AdminDashboardRouteRouteWithChildren
   DangKyIndexRoute: typeof DangKyIndexRoute
   DangNhapIndexRoute: typeof DangNhapIndexRoute
   AdminIndexRoute: typeof AdminIndexRoute
-  AdminDashboardIndexRoute: typeof AdminDashboardIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -115,22 +150,49 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DangKyIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/Dashboard/': {
-      id: '/admin/Dashboard/'
+    '/admin/Dashboard': {
+      id: '/admin/Dashboard'
       path: '/admin/Dashboard'
       fullPath: '/admin/Dashboard'
-      preLoaderRoute: typeof AdminDashboardIndexRouteImport
+      preLoaderRoute: typeof AdminDashboardRouteRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/Dashboard/Menu/': {
+      id: '/admin/Dashboard/Menu/'
+      path: '/Menu'
+      fullPath: '/admin/Dashboard/Menu'
+      preLoaderRoute: typeof AdminDashboardMenuIndexRouteImport
+      parentRoute: typeof AdminDashboardRouteRoute
+    }
+    '/admin/Dashboard/DanhMuc/': {
+      id: '/admin/Dashboard/DanhMuc/'
+      path: '/DanhMuc'
+      fullPath: '/admin/Dashboard/DanhMuc'
+      preLoaderRoute: typeof AdminDashboardDanhMucIndexRouteImport
+      parentRoute: typeof AdminDashboardRouteRoute
     }
   }
 }
 
+interface AdminDashboardRouteRouteChildren {
+  AdminDashboardDanhMucIndexRoute: typeof AdminDashboardDanhMucIndexRoute
+  AdminDashboardMenuIndexRoute: typeof AdminDashboardMenuIndexRoute
+}
+
+const AdminDashboardRouteRouteChildren: AdminDashboardRouteRouteChildren = {
+  AdminDashboardDanhMucIndexRoute: AdminDashboardDanhMucIndexRoute,
+  AdminDashboardMenuIndexRoute: AdminDashboardMenuIndexRoute,
+}
+
+const AdminDashboardRouteRouteWithChildren =
+  AdminDashboardRouteRoute._addFileChildren(AdminDashboardRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminDashboardRouteRoute: AdminDashboardRouteRouteWithChildren,
   DangKyIndexRoute: DangKyIndexRoute,
   DangNhapIndexRoute: DangNhapIndexRoute,
   AdminIndexRoute: AdminIndexRoute,
-  AdminDashboardIndexRoute: AdminDashboardIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -33,6 +33,14 @@ namespace FoodEcomerce.Controllers
             try
             {
                 var result = await unitOfWork.AuthRepository.LoginWithWebUser(modal);
+                var cookieOptions = new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Strict,
+                    Expires = DateTime.UtcNow.AddHours(1)
+                };
+                Response.Cookies.Append("jwt", result.AccessToken, cookieOptions);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -52,6 +60,12 @@ namespace FoodEcomerce.Controllers
             catch (Exception ex) {
                 return BadRequest(ex.Message);
             }
+        }
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+            Response.Cookies.Delete("jwt");
+            return Ok(new ResultModal{ Status = 200 , Message  = "Logged out" ,Success = true });
         }
     }
 }

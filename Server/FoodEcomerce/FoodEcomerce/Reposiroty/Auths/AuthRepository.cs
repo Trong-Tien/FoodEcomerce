@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Azure;
 using FoodEcomerce.DTO;
 using FoodEcomerce.Entity;
 using FoodEcomerce.Modal;
@@ -92,8 +93,7 @@ namespace FoodEcomerce.Reposiroty.Auths
                 {
                     result.AccessToken = null;
                 }
-
-
+              
                 result.RefeshToken = Helpper.Untils.GenerateRefreshToken();
                 result.Expires = DateTime.UtcNow.AddMinutes(30);
             }
