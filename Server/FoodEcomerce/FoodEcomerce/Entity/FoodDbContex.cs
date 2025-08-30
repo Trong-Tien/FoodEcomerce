@@ -1,21 +1,21 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
 
 
 namespace FoodEcomerce.Entity
 {
-    public class FoodDbContex : DbContext 
+    public class FoodDbContex : DbContext
     {
         public FoodDbContex(DbContextOptions<FoodDbContex> options) : base(options)
         {
-           
+
         }
         public virtual DbSet<Role> Roles { get; set; }
         public virtual DbSet<MenuRole> MenuRoles { get; set; }
-        public virtual DbSet<Status> Status { get; set; }  
+        public virtual DbSet<Status> Status { get; set; }
         public virtual DbSet<User> Users { get; set; }
         public virtual DbSet<Product> Products { get; set; }
         public virtual DbSet<ProductCategory> ProductCategorys { get; set; }
+        public virtual DbSet<OTP> OTPs { get; set; }
 
 
 
@@ -28,7 +28,7 @@ namespace FoodEcomerce.Entity
                 entity.ToTable("Status");
 
                 entity.Property(x => x.Id).ValueGeneratedOnAdd();
-                entity.Property(x=> x.Name).HasMaxLength(50);
+                entity.Property(x => x.Name).HasMaxLength(50);
             });
             modelBuilder.Entity<Role>(entity =>
             {
@@ -41,7 +41,7 @@ namespace FoodEcomerce.Entity
             });
             // many - to - many
             modelBuilder.Entity<MenuRole>().HasKey(e => new { e.RoleId, e.MenuId });
-            modelBuilder.Entity<MenuRole>().HasOne(e=> e.Role).WithMany(s=> s.MenuRoles).HasForeignKey(d => d.RoleId).HasConstraintName("FK_MenuRole_Role");
+            modelBuilder.Entity<MenuRole>().HasOne(e => e.Role).WithMany(s => s.MenuRoles).HasForeignKey(d => d.RoleId).HasConstraintName("FK_MenuRole_Role");
             modelBuilder.Entity<MenuRole>().HasOne(e => e.Menu).WithMany(s => s.MenuRoles).HasForeignKey(d => d.MenuId).HasConstraintName("FK_MenuRole_Menu");
 
             modelBuilder.Entity<User>(entity =>
@@ -49,17 +49,17 @@ namespace FoodEcomerce.Entity
                 entity.HasKey(x => x.Id).HasName("PK_User");
                 entity.ToTable("User");
                 entity.Property(x => x.Id).ValueGeneratedNever();
-                entity.Property(x=> x.UserName).HasMaxLength(50);
+                entity.Property(x => x.UserName).HasMaxLength(50);
                 entity.Property(x => x.Password).HasColumnType("nvarchar(max)");
-                entity.Property(x=> x.Email).HasMaxLength(50);
+                entity.Property(x => x.Email).HasMaxLength(50);
                 entity.Property(x => x.PhoneNumber).HasMaxLength(11);
                 entity.Property(x => x.Address).HasMaxLength(300);
                 entity.Property(x => x.IsDelete).HasColumnType("bit");
                 entity.Property(x => x.Acvite).HasColumnType("bit");
                 entity.Property(x => x.IsAdmin).HasColumnType("bit");
                 entity.HasOne(d => d.Status)
-                      .WithMany(d=> d.Users)
-                      .HasForeignKey(x=> x.StatusId)
+                      .WithMany(d => d.Users)
+                      .HasForeignKey(x => x.StatusId)
                       .OnDelete(DeleteBehavior.ClientSetNull)
                       .HasConstraintName("FK_Status_User");
                 entity.HasOne(d => d.Role)
@@ -113,16 +113,16 @@ namespace FoodEcomerce.Entity
                 entity.Property(x => x.Name).HasMaxLength(50);
                 entity.Property(x => x.Description).HasMaxLength(300);
                 entity.Property(x => x.ImageUrl).HasMaxLength(300);
-                entity.HasOne(e=> e.ParentCategory)
-                                    .WithMany(e=> e.ChildCategories)
-                                    .HasForeignKey(e=> e.CategoryParentId)
+                entity.HasOne(e => e.ParentCategory)
+                                    .WithMany(e => e.ChildCategories)
+                                    .HasForeignKey(e => e.CategoryParentId)
                                     .HasConstraintName("FK_ParentCategory")
                                     .OnDelete(DeleteBehavior.ClientSetNull);
 
             });
             // many - to - many
-            modelBuilder.Entity<ProductCategory>().HasKey(r=>  new {r.ProductId , r.CategoryId});
-            modelBuilder.Entity<ProductCategory>().HasOne(e=> e.Products).WithMany(r=> r.ProductCategories).HasForeignKey(r=> r.ProductId).HasConstraintName("FK_Product_ProductCategory");
+            modelBuilder.Entity<ProductCategory>().HasKey(r => new { r.ProductId, r.CategoryId });
+            modelBuilder.Entity<ProductCategory>().HasOne(e => e.Products).WithMany(r => r.ProductCategories).HasForeignKey(r => r.ProductId).HasConstraintName("FK_Product_ProductCategory");
             modelBuilder.Entity<ProductCategory>().HasOne(e => e.Categories).WithMany(r => r.ProductCategories).HasForeignKey(r => r.CategoryId).HasConstraintName("FK_Category_ProductCategory");
 
             modelBuilder.Entity<UnitCaculate>(entity =>
@@ -135,9 +135,9 @@ namespace FoodEcomerce.Entity
                 entity.Property(x => x.Description).HasMaxLength(300);
                 entity.Property(x => x.ConservationRate).HasColumnType("decimal");
                 entity.Property(x => x.IsBaseUnit).HasColumnType("bit");
-                entity.HasOne(x=> x.ParentUnitCaculate)
-                        .WithMany(x=> x.SubUnitCaculates)
-                        .HasForeignKey(e=> e.BaseUnitId)
+                entity.HasOne(x => x.ParentUnitCaculate)
+                        .WithMany(x => x.SubUnitCaculates)
+                        .HasForeignKey(e => e.BaseUnitId)
                         .HasConstraintName("FK_ParentUnitCaculate")
                         .OnDelete(DeleteBehavior.ClientSetNull);
             });
@@ -161,8 +161,8 @@ namespace FoodEcomerce.Entity
                 entity.Property(x => x.DeleteAt).HasColumnType("datetime");
                 entity.Property(x => x.CreateUser).HasMaxLength(100);
                 entity.Property(x => x.UpdateUser).HasMaxLength(100);
-                entity.HasOne(x=> x.TradeMark).WithMany(x=> x.Products)
-                                                .HasForeignKey(x=> x.PlaceProductId)
+                entity.HasOne(x => x.TradeMark).WithMany(x => x.Products)
+                                                .HasForeignKey(x => x.PlaceProductId)
                                                 .HasConstraintName("FK_TradeMark_Products")
                                                 .OnDelete(DeleteBehavior.ClientSetNull);
                 entity.HasOne(x => x.UnitCaculate).WithMany(x => x.Products)
@@ -228,9 +228,9 @@ namespace FoodEcomerce.Entity
                 entity.Property(x => x.Quantity).HasColumnType("int");
                 entity.Property(x => x.UnitPrice).HasColumnType("decimal");
                 entity.Property(x => x.TotalPrice).HasColumnType("decimal");
-                entity.HasOne(x=> x.Cart)
-                    .WithMany(x=> x.CartItems)
-                    .HasForeignKey(x=> x.CartId)
+                entity.HasOne(x => x.Cart)
+                    .WithMany(x => x.CartItems)
+                    .HasForeignKey(x => x.CartId)
                     .HasConstraintName("FK_Cart_CartItem")
                     .OnDelete(DeleteBehavior.ClientSetNull);
                 entity.HasOne(x => x.Product)
@@ -296,6 +296,15 @@ namespace FoodEcomerce.Entity
                    .OnDelete(DeleteBehavior.ClientSetNull);
             });
 
+            modelBuilder.Entity<OTP>(entity =>
+            {
+                entity.HasKey(x => x.Id).HasName("PK_OTP");
+                entity.ToTable("OTP");
+                entity.Property(x => x.Id).ValueGeneratedNever();
+                entity.Property(x => x.Email).HasMaxLength(50);
+                entity.Property(x => x.Code).HasColumnType("nvarchar(max)");
+                entity.Property(x => x.Expiry).HasColumnType("datetime");
+            });
 
         }
     }

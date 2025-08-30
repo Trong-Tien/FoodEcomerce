@@ -26,7 +26,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("*",
         policy =>
         {
-            policy.WithOrigins("http://localhost:5173") 
+            policy.WithOrigins("http://localhost:5173")
                   .AllowAnyHeader()
                   .AllowAnyMethod(); // GET, POST, PUT, DELETE
         });
@@ -101,11 +101,14 @@ var app = builder.Build();
 
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
+//if (app.Environment.IsDevelopment())
+//{
+//app.UseSwagger();
+//app.UseSwaggerUI();
+//}
+
 app.UseSwagger();
 app.UseSwaggerUI();
-}
 
 app.UseCors("*");
 

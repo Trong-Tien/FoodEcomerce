@@ -1,20 +1,15 @@
 ﻿using AutoMapper;
-using Azure;
 using FoodEcomerce.DTO;
 using FoodEcomerce.Entity;
 using FoodEcomerce.Modal;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 
 namespace FoodEcomerce.Reposiroty.Auths
 {
     public class AuthRepository : IAuthRepository
     {
         private readonly FoodDbContex _context;
-        private readonly IMapper _mapper;   
+        private readonly IMapper _mapper;
 
         public AuthRepository(FoodDbContex contex, IMapper mapper)
         {
@@ -23,13 +18,14 @@ namespace FoodEcomerce.Reposiroty.Auths
         }
         public async Task<LoginDTO> Login(LoginModal modal)
         {
-            if (modal.PhoneNumber == null || modal.Password == null) {
+            if (modal.PhoneNumber == null || modal.Password == null)
+            {
                 return new LoginDTO();
             }
             LoginDTO result = new LoginDTO();
             var paswordHash = Helpper.Untils.EncrypePassword(modal.Password);
-            var db =  await _context.Users.FirstOrDefaultAsync(x => x.PhoneNumber == modal.PhoneNumber && x.Password == paswordHash);
-            if(db != null)
+            var db = await _context.Users.FirstOrDefaultAsync(x => x.PhoneNumber == modal.PhoneNumber && x.Password == paswordHash);
+            if (db != null)
             {
                 result = new LoginDTO()
                 {
@@ -38,24 +34,24 @@ namespace FoodEcomerce.Reposiroty.Auths
                     Address = db.Address,
                     PhoneNumber = db.PhoneNumber,
                     UserName = db.UserName,
-                    RoleId = db.RoleId, 
+                    RoleId = db.RoleId,
                     Status = 200
                 };
-               if (!string.IsNullOrEmpty(result.Email) || !string.IsNullOrEmpty(result.UserName))
-                    {
-                        result.AccessToken = Helpper.Untils.GenerateAccessToken(result.PhoneNumber, result.UserName, result.RoleId);
-                    }
-                    else
-                    {
-                        result.AccessToken = null;
-                    }
+                if (!string.IsNullOrEmpty(result.Email) || !string.IsNullOrEmpty(result.UserName))
+                {
+                    result.AccessToken = Helpper.Untils.GenerateAccessToken(result.PhoneNumber, result.UserName, result.RoleId);
+                }
+                else
+                {
+                    result.AccessToken = null;
+                }
 
 
                 result.RefeshToken = Helpper.Untils.GenerateRefreshToken();
                 result.Expires = DateTime.UtcNow.AddMinutes(15);
             }
 
-          
+
             return result;
         }
 
@@ -93,7 +89,7 @@ namespace FoodEcomerce.Reposiroty.Auths
                 {
                     result.AccessToken = null;
                 }
-              
+
                 result.RefeshToken = Helpper.Untils.GenerateRefreshToken();
                 result.Expires = DateTime.UtcNow.AddMinutes(30);
             }
@@ -102,20 +98,42 @@ namespace FoodEcomerce.Reposiroty.Auths
 
         public async Task<ResultModal> Register(RegisterModal modal)
         {
-            var dbUser  = await _context.Users.FirstOrDefaultAsync(x=> x.PhoneNumber == modal.PhoneNumber);
-            if (dbUser == null) {
-                var user = _mapper.Map<User>(modal);
-                user.Password = Helpper.Untils.EncrypePassword(modal.Password);
-                user.RoleId = Guid.Parse("e791c54a-15fc-401a-b376-b4f3e088c284");
-                user.StatusId = 6;
-                user.IsAdmin = false;
-                user.Acvite = true;
-                user.CreateUser = modal.UserName;
-                _context.Users.Add(user);
-                await _context.SaveChangesAsync();
-                return new ResultModal() { Status = 200, Message = "Đăng ký thành công", Success = false };
-            } return new ResultModal() {Status = 400 , Message="Số điện thoại đã tồn tại" , Success = false};
+            var dbUser = await _context.Users.FirstOrDefaultAsync(x => x.PhoneNumber == modal.PhoneNumber);
+            // veriy OTP 
+            var otpValue = await _context.OTPs.FirstOrDefaultAsync(x => x.Code == modal.OTP && x.Email == modal.Email);
+            if (otpValue != null)
+            {
+                if (otpValue.Expiry > DateTime.UtcNow)
+                {
+                    if (dbUser == null)
+                    {
+                        var user = _mapper.Map<User>(modal);
+                        user.Id = Guid.NewGuid();
+                        user.Password = Helpper.Untils.EncrypePassword(modal.Password);
+                        user.RoleId = Guid.Parse("e791c54a-15fc-401a-b376-b4f3e088c284");
+                        user.StatusId = 1;
+                        user.IsAdmin = false;
+                        user.Acvite = true;
+                        user.CreateUser = modal.UserName;
+                        _context.Users.Add(user);
+                        _context.OTPs.Remove(otpValue);
+                        await _context.SaveChangesAsync();
+                        return new ResultModal() { Status = 200, Message = "Đăng ký thành công", Success = false };
+                    }
+                }
+                else
+                {
+                    _context.OTPs.Remove(otpValue);
+                    await _context.SaveChangesAsync();
+                    return new ResultModal() { Status = 400, Message = "OTP đã hết hạn , vui lòng gửi lại OTP để đăng ký", Success = false };
+                };
+
+            }
+            return new ResultModal() { Status = 400, Message = "OTP không hợp lệ", Success = false };
+
+
         }
+
 
         public Task<ResultModal> ResetPassword(ResetPasswordModal modal)
         {
