@@ -10,5 +10,6 @@ namespace FoodEcomerce.Reposiroty.Menus
         public MenuRepository(FoodDbContex dbContext, IMapper mapper) : base(dbContext, mapper)
         {
         }
+
     }
 }

@@ -19,13 +19,18 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-
+import Swal from 'sweetalert2'
+import { useGetMenus } from "@/Hooks/Menu";
+import type { Menu } from "@/Type/Menu";
 const drawerWidth = 240;
 
 
 
 const logout = async () => {
 
+  const { data, isError: isLoadingMenuError } = useGetMenus();
+
+  const items: Menu[] = data?.items ?? [];
   // call API Login
   const response = await fetch(`https://localhost:7004/api/Auth/logout`, {
     method: 'POST',
@@ -46,7 +51,6 @@ const AppSidebar = () => {
     mutationFn: logout,
     onSuccess: (data) => {
       if (data?.status === 200) {
-
         goToAdmin()
         localStorage.clear()
       }
@@ -58,9 +62,11 @@ const AppSidebar = () => {
     },
   });
 
-   const goToAdmin = () => {
+  const goToAdmin = () => {
     navigate({
       to: '/admin/',
+    }).finally(() => {
+      Swal.fire("Đăng xuất thành công", "success");
     })
   }
 
@@ -87,13 +93,14 @@ const AppSidebar = () => {
       {/* Logo / Header */}
       <Toolbar>
         <Typography variant="h6" noWrap component="div">
-          
+
         </Typography>
       </Toolbar>
       <Divider sx={{ borderColor: "rgba(255,255,255,0.2)" }} />
 
       {/* Navigation */}
       <Box sx={{ overflow: "auto" }}>
+        
         <List>
           <ListItem disablePadding>
             <ListItemButton
@@ -153,7 +160,7 @@ const AppSidebar = () => {
           </ListItem>
 
           <ListItem disablePadding>
-            <ListItemButton onClick={()=> mutation.mutate()}>
+            <ListItemButton onClick={() => mutation.mutate()}>
               <ListItemIcon sx={{ color: "white" }}>
                 <LogoutIcon />
               </ListItemIcon>

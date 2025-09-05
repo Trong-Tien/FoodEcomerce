@@ -9,11 +9,12 @@ export type AddMenu = {
   parentId : string
 }
 
-export type MenuForm = Pick<AddMenu, "name" | "url" | "icon" | "orderNumber">;
+export type MenuForm = Pick<AddMenu, "name" | "url" | "icon" | "orderNumber" | "isActive">;
 
 export const addMenuSchema = yup.object({
   name: yup.string().required("Tên menu là bắt buộc"),
-  url: yup.string().url("URL không hợp lệ").required("Đường dẫn là bắt buộc"),
+  url: yup.string().required("Đường dẫn là bắt buộc"),
   icon: yup.string().required(),
   orderNumber: yup.number().required(),
+  isActive : yup.boolean().required()
 });

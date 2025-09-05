@@ -1,5 +1,5 @@
-import type { AddMenu } from "@/Type/Addmenu";
-import type { UpdateMenu } from "@/Type/UpdateMenu";
+import type { MenuForm } from "@/Type/Addmenu";
+import type { Menu } from "@/Type/Menu";
 import axios from "axios";
 
 const api = axios.create({
@@ -11,13 +11,13 @@ export const getAll = async () => {
   return data;
 };
 
-export const create = async (menu: AddMenu) => {
+export const create = async (menu: MenuForm) => {
   const { data } = await api.post("/create", menu);
   return data;
 };
 
-export const update = async (id: string, menu: UpdateMenu) => {
-  const { data } = await api.put(`/update/${id}`, menu);
+export const update = async (menu: Menu) => {
+  const { data } = await api.put(`/Update/`, menu);
   return data;
 };
 

@@ -1,5 +1,6 @@
 export type Menu = {
   id: string,
+  name : string,
   orderNumber: number,
   icon : string,
   url : string,

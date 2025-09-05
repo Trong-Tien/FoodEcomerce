@@ -6,5 +6,6 @@ namespace FoodEcomerce.Reposiroty.Menus
 {
     public interface IMenuRepository : IBaseRepository<Menu , MenuModal , MenuDTO , Guid>
     {
+       
     }
 }
