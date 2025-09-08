@@ -1,9 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
+import Dangky from '@/Pages/Dangky'
 
 export const Route = createFileRoute('/DangKy/')({
-  component: RouteComponent,
+  component: Dangky,
 })
-
-function RouteComponent() {
-  return <div>Hello "/DangKy/"!</div>
-}

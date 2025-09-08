@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as DangNhapOTPIndexRouteImport } from './routes/DangNhapOTP/index'
 import { Route as DangNhapIndexRouteImport } from './routes/DangNhap/index'
 import { Route as DangKyIndexRouteImport } from './routes/DangKy/index'
 import { Route as AdminDashboardRouteRouteImport } from './routes/admin/Dashboard/route'
@@ -25,6 +26,11 @@ const IndexRoute = IndexRouteImport.update({
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/admin/',
   path: '/admin/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DangNhapOTPIndexRoute = DangNhapOTPIndexRouteImport.update({
+  id: '/DangNhapOTP/',
+  path: '/DangNhapOTP/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DangNhapIndexRoute = DangNhapIndexRouteImport.update({
@@ -59,6 +65,7 @@ export interface FileRoutesByFullPath {
   '/admin/Dashboard': typeof AdminDashboardRouteRouteWithChildren
   '/DangKy': typeof DangKyIndexRoute
   '/DangNhap': typeof DangNhapIndexRoute
+  '/DangNhapOTP': typeof DangNhapOTPIndexRoute
   '/admin': typeof AdminIndexRoute
   '/admin/Dashboard/DanhMuc': typeof AdminDashboardDanhMucIndexRoute
   '/admin/Dashboard/Menu': typeof AdminDashboardMenuIndexRoute
@@ -68,6 +75,7 @@ export interface FileRoutesByTo {
   '/admin/Dashboard': typeof AdminDashboardRouteRouteWithChildren
   '/DangKy': typeof DangKyIndexRoute
   '/DangNhap': typeof DangNhapIndexRoute
+  '/DangNhapOTP': typeof DangNhapOTPIndexRoute
   '/admin': typeof AdminIndexRoute
   '/admin/Dashboard/DanhMuc': typeof AdminDashboardDanhMucIndexRoute
   '/admin/Dashboard/Menu': typeof AdminDashboardMenuIndexRoute
@@ -78,6 +86,7 @@ export interface FileRoutesById {
   '/admin/Dashboard': typeof AdminDashboardRouteRouteWithChildren
   '/DangKy/': typeof DangKyIndexRoute
   '/DangNhap/': typeof DangNhapIndexRoute
+  '/DangNhapOTP/': typeof DangNhapOTPIndexRoute
   '/admin/': typeof AdminIndexRoute
   '/admin/Dashboard/DanhMuc/': typeof AdminDashboardDanhMucIndexRoute
   '/admin/Dashboard/Menu/': typeof AdminDashboardMenuIndexRoute
@@ -89,6 +98,7 @@ export interface FileRouteTypes {
     | '/admin/Dashboard'
     | '/DangKy'
     | '/DangNhap'
+    | '/DangNhapOTP'
     | '/admin'
     | '/admin/Dashboard/DanhMuc'
     | '/admin/Dashboard/Menu'
@@ -98,6 +108,7 @@ export interface FileRouteTypes {
     | '/admin/Dashboard'
     | '/DangKy'
     | '/DangNhap'
+    | '/DangNhapOTP'
     | '/admin'
     | '/admin/Dashboard/DanhMuc'
     | '/admin/Dashboard/Menu'
@@ -107,6 +118,7 @@ export interface FileRouteTypes {
     | '/admin/Dashboard'
     | '/DangKy/'
     | '/DangNhap/'
+    | '/DangNhapOTP/'
     | '/admin/'
     | '/admin/Dashboard/DanhMuc/'
     | '/admin/Dashboard/Menu/'
@@ -117,6 +129,7 @@ export interface RootRouteChildren {
   AdminDashboardRouteRoute: typeof AdminDashboardRouteRouteWithChildren
   DangKyIndexRoute: typeof DangKyIndexRoute
   DangNhapIndexRoute: typeof DangNhapIndexRoute
+  DangNhapOTPIndexRoute: typeof DangNhapOTPIndexRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
@@ -134,6 +147,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/DangNhapOTP/': {
+      id: '/DangNhapOTP/'
+      path: '/DangNhapOTP'
+      fullPath: '/DangNhapOTP'
+      preLoaderRoute: typeof DangNhapOTPIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/DangNhap/': {
@@ -192,6 +212,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminDashboardRouteRoute: AdminDashboardRouteRouteWithChildren,
   DangKyIndexRoute: DangKyIndexRoute,
   DangNhapIndexRoute: DangNhapIndexRoute,
+  DangNhapOTPIndexRoute: DangNhapOTPIndexRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 export const routeTree = rootRouteImport

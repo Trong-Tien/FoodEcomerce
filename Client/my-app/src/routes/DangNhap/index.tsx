@@ -1,9 +1,6 @@
+import Dangnhap from '@/Pages/Dangnhap'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/DangNhap/')({
-  component: RouteComponent,
+  component: Dangnhap,
 })
-
-function RouteComponent() {
-  return <div>Hello "/DangNhap/"!</div>
-}
