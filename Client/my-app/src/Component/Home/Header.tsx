@@ -20,7 +20,7 @@ function Header() {
         <div className="flex flex-col justify-between relative">
           <div
             className="icon__logo ml-[22px] mt-[6px] cursor-pointer"
-            onClick={() => navigate({to:"/"})}
+            onClick={() => navigate({ to: "/" })}
           >
             <img
               src="/images/logo2.png"
@@ -73,23 +73,35 @@ function Header() {
           </div>
         </div>
 
-        {/* Địa điểm + Đăng nhập */}
         <div className="flex flex-col items-end">
           <div
             id="btn_choose_location"
             onClick={() => setShowLocationModal(true)}
-            className="relative mt-3 mr-[16px] flex w-[272px] cursor-pointer items-center justify-center bg-white border border-[#4CAF50] rounded-md px-2 py-1"
+            className="relative mt-3 mr-[16px] flex w-[272px] cursor-pointer items-center justify-start
+               bg-white border border-[#4CAF50] rounded-md px-3 py-1.5 min-h-[36px]
+               hover:shadow-sm transition"
           >
             {locationInput ? (
               <span className="text-sm text-gray-700 truncate">
                 {locationInput}
               </span>
             ) : (
-              <img
-                alt="Select Location"
-                src="https://cdnv2.tgdd.vn/bhx/product-fe/cart/home/_next/public/static/images/unselect-location.svg"
-                className="w-full h-[36px] object-contain"
-              />
+              <div className="flex items-center gap-2">
+                {/* icon nhỏ, KHÔNG dùng w-full */}
+                <img
+                  alt="Select Location"
+                  src="https://cdnv2.tgdd.vn/bhx/product-fe/cart/home/_next/public/static/images/unselect-location.svg"
+                  className="h-5 w-5 object-contain"
+                  onError={(e) => {
+                    // nếu ảnh bị chặn/404, fallback sang emoji/icon
+                    (e.currentTarget as HTMLImageElement).style.display =
+                      "none";
+                  }}
+                />
+                <span className="text-sm text-gray-600">
+                  Chọn vị trí nhận hàng
+                </span>
+              </div>
             )}
           </div>
 
@@ -109,8 +121,13 @@ function Header() {
         <LocationModal
           onClose={() => setShowLocationModal(false)}
           onConfirm={(address) => {
-            const fullAddress = `${address.addressDetail}, ${address.ward}, ${address.district}, ${address.province}`;
-            setLocationInput(fullAddress);
+            // address: { province: string; ward: string; addressDetail: string }
+            const parts = [
+              address.addressDetail,
+              address.ward,
+              address.province,
+            ].filter(Boolean);
+            setLocationInput(parts.join(", "));
             setShowLocationModal(false);
           }}
         />
