@@ -70,7 +70,7 @@ namespace FoodEcomerce.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [HttpDelete("Delete")]
+        [HttpDelete("Delete/{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
             try

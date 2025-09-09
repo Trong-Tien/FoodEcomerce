@@ -6,8 +6,8 @@ const api = axios.create({
   baseURL: "https://localhost:7004/api/Menu",
 });
 
-export const getAll = async () => {
-  const { data } = await api.get("/GetAll");
+export const getAll = async (pageNumber: number , pageSize : number) => {
+  const { data } = await api.get(`GetAll?pageNumber=${pageNumber}&pagesize=${pageSize}`);
   return data;
 };
 
@@ -22,6 +22,6 @@ export const update = async (menu: Menu) => {
 };
 
 export const deleteMenu = async (id: string) => {
-  const { data } = await api.delete(`/delete/${id}`);
+  const { data } = await api.delete(`/Delete/${id}`);
   return data;
 };

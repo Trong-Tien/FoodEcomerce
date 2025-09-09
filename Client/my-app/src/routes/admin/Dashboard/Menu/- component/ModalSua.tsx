@@ -44,6 +44,7 @@ const ModalSua: React.FC<props> = ({ openModal, handleClose, initialValues }) =>
     useEffect(() => {
         if (initialValues) reset(initialValues);
     }, [initialValues, reset]);
+    
     return (
         <Dialog open={openModal} onClose={handleClose} fullWidth maxWidth={'sm'}>
             <DialogTitle>

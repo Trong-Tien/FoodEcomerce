@@ -83,7 +83,7 @@ function RouteComponent() {
 
   const goToDashBoard = () => {
     navigate({
-      to: '/admin/Dashboard/',
+      to: '/admin/Dashboard/BanLamViec',
     })
   }
 

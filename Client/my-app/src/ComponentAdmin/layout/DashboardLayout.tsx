@@ -1,5 +1,5 @@
 import { Box } from "@mui/material";
-import { PropsWithChildren } from "react";
+import type { PropsWithChildren } from "react";
 import AppHeader from "@/ComponentAdmin/AppHeader"
 import AppSidebar from "@/ComponentAdmin/AppSidebar";
 import { Outlet } from "@tanstack/react-router";

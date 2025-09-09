@@ -13,24 +13,18 @@ import {
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 
 // Icons MUI
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import PeopleIcon from "@mui/icons-material/People";
 import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
-import BarChartIcon from "@mui/icons-material/BarChart";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Swal from 'sweetalert2'
 import { useGetMenus } from "@/Hooks/Menu";
 import type { Menu } from "@/Type/Menu";
+import { useEffect, useState } from "react";
 const drawerWidth = 240;
 
 
 
 const logout = async () => {
-
-  const { data, isError: isLoadingMenuError } = useGetMenus();
-
-  const items: Menu[] = data?.items ?? [];
   // call API Login
   const response = await fetch(`https://localhost:7004/api/Auth/logout`, {
     method: 'POST',
@@ -43,9 +37,12 @@ const logout = async () => {
 }
 
 const AppSidebar = () => {
+  const [menu, setmenu] = useState<Menu[]>()
   const queryClient = useQueryClient();
   const routerState = useRouterState();
   const navigate = useNavigate()
+
+  const { data: dataMenu } = useGetMenus(1, 20)
 
   const mutation = useMutation({
     mutationFn: logout,
@@ -74,12 +71,18 @@ const AppSidebar = () => {
   // check active route
   const isActive = (path: string) => routerState.location.pathname.startsWith(path);
 
+  useEffect(() => {
+    if (dataMenu)
+      setmenu(dataMenu?.items)
+    else setmenu([])
+  }, [dataMenu])
+
   return (
     <Drawer
       variant="permanent"
       sx={{
         width: drawerWidth,
-        maxHeight: "100vh",
+        maxHeight: "100%",
         flexShrink: 0,
         [`& .MuiDrawer-paper`]: {
           width: drawerWidth,
@@ -100,45 +103,23 @@ const AppSidebar = () => {
 
       {/* Navigation */}
       <Box sx={{ overflow: "auto" }}>
-        
+
         <List>
+          {menu?.map(menu => (
+            <ListItem disablePadding key={menu.id}>
+              <ListItemButton
+                component={Link}
+                to={menu?.url}
+                selected={isActive(menu?.url)}
+              >
+                <ListItemIcon sx={{ color: "white" }}>
+                  <span className="material-icons">{menu?.icon}</span>
+                </ListItemIcon>
+                <ListItemText primary={menu?.name} />
+              </ListItemButton>
+            </ListItem>
+          ))}
           <ListItem disablePadding>
-            <ListItemButton
-              component={Link}
-              to="/admin/Dashboard"
-              selected={isActive("/admin/Dashboard")}
-            >
-              <ListItemIcon sx={{ color: "white" }}>
-                <DashboardIcon />
-              </ListItemIcon>
-              <ListItemText primary="Bàn làm việc" />
-            </ListItemButton>
-          </ListItem>
-
-          <ListItem disablePadding>
-            <ListItemButton
-              component={Link}
-              to="/admin/Dashboard/DanhMuc"
-              selected={isActive("/admin/Dashboard/DanhMuc")}
-            >
-              <ListItemIcon sx={{ color: "white" }}>
-                <PeopleIcon />
-              </ListItemIcon>
-              <ListItemText primary="Danh Mục" />
-            </ListItemButton>
-          </ListItem>
-
-          <ListItem disablePadding>
-            <ListItemButton
-              component={Link}
-              to="/admin/Dashboard/Menu/"
-              selected={isActive("/admin/Dashboard/Menu/")}
-            >
-              <ListItemIcon sx={{ color: "white" }}>
-                <BarChartIcon />
-              </ListItemIcon>
-              <ListItemText primary="Menu" />
-            </ListItemButton>
           </ListItem>
         </List>
 
@@ -146,7 +127,7 @@ const AppSidebar = () => {
 
         {/* Settings & Logout */}
         <List>
-          <ListItem disablePadding sx={{ marginTop: "50vh" }}>
+          <ListItem disablePadding >
             <ListItemButton
               component={Link}
               to="/admin/settings"

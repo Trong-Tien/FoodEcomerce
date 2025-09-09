@@ -1,12 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   MaterialReactTable,
   useMaterialReactTable,
   type MRT_ColumnDef,
 } from 'material-react-table';
 import type { Menu } from '@/Type/Menu';
-import { useGetMenus } from '@/Hooks/Menu';
+import { useDeleteMenu, useGetMenus } from '@/Hooks/Menu';
 import {
   Box,
   Button,
@@ -21,7 +21,8 @@ import ModalSua from './- component/ModalSua';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-
+import Swal from 'sweetalert2';
+import type { ResponseType } from '@/Type/ResponseType';
 export const Route = createFileRoute('/admin/Dashboard/Menu/')({
   component: RouteComponent,
 })
@@ -30,8 +31,10 @@ function RouteComponent() {
   const [openModal, setOpenModal] = useState(false)
   const [openModalUpdate, setOpenModalUpdate] = useState(false)
   const [selectedRow, setSelectedRow] = useState<Menu>();
-  const { data, isError: isLoadingMenuError } = useGetMenus();
-
+  const [pageNumber, setPageNumber] = useState<number>(0)
+  const [pageSizes, setPageSize] = useState<number>(0)
+  const { data, isError: isLoadingMenuError } = useGetMenus(pageNumber , pageSizes);
+  const deleteMenu = useDeleteMenu()
   const items: Menu[] = data?.items ?? [];
 
   const columns = useMemo<MRT_ColumnDef<Menu>[]>(
@@ -84,6 +87,28 @@ function RouteComponent() {
   const handleCloseModal = () => setOpenModal(false);
   const handleCloseModalUpdate = () => setOpenModalUpdate(false);
 
+  const handleDelete = (id: string) => {
+    Swal.fire({
+      title: "Bạn có muốn xóa dữ liệu này ? ",
+      text: "Lưu ý dữ liệu này sẽ mất vĩnh viễn",
+      showDenyButton: true,
+      confirmButtonText: "Xác nhận",
+      denyButtonText: `Không`
+    }).then(async (result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        const response: ResponseType = await deleteMenu.mutateAsync(
+          id,
+        );
+        if (response?.status === 200) {
+          Swal.fire("Xóa dữ liệu thành công");
+        } else {
+          Swal.fire("Đã có lỗi xảy ra");
+        }
+      }
+    });
+  }
+
   const table = useMaterialReactTable({
     columns,
     data: items,
@@ -113,7 +138,7 @@ function RouteComponent() {
           </IconButton>
         </Tooltip>
         <Tooltip title="Xóa">
-          <IconButton color="error">
+          <IconButton color="error" onClick={() => handleDelete(row.original.id)}>
             <DeleteIcon />
           </IconButton>
         </Tooltip>
@@ -143,6 +168,15 @@ function RouteComponent() {
       </Box>
     ),
   });
+
+  const { pageIndex, pageSize } = table.getState().pagination;
+
+  useEffect(() => {
+     if(pageIndex && pageSize) 
+      setPageNumber(pageIndex)
+      setPageSize(pageSize)
+  }, [])
+
 
   return (
     <Card elevation={3} sx={{ p: 2 }}>

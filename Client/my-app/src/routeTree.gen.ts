@@ -15,6 +15,7 @@ import { Route as DangNhapIndexRouteImport } from './routes/DangNhap/index'
 import { Route as DangKyIndexRouteImport } from './routes/DangKy/index'
 import { Route as AdminDashboardRouteRouteImport } from './routes/admin/Dashboard/route'
 import { Route as AdminDashboardMenuIndexRouteImport } from './routes/admin/Dashboard/Menu/index'
+import { Route as AdminDashboardLoaiTaiKhoanIndexRouteImport } from './routes/admin/Dashboard/LoaiTaiKhoan/index'
 import { Route as AdminDashboardDanhMucIndexRouteImport } from './routes/admin/Dashboard/DanhMuc/index'
 
 const IndexRoute = IndexRouteImport.update({
@@ -47,6 +48,12 @@ const AdminDashboardMenuIndexRoute = AdminDashboardMenuIndexRouteImport.update({
   path: '/Menu/',
   getParentRoute: () => AdminDashboardRouteRoute,
 } as any)
+const AdminDashboardLoaiTaiKhoanIndexRoute =
+  AdminDashboardLoaiTaiKhoanIndexRouteImport.update({
+    id: '/LoaiTaiKhoan/',
+    path: '/LoaiTaiKhoan/',
+    getParentRoute: () => AdminDashboardRouteRoute,
+  } as any)
 const AdminDashboardDanhMucIndexRoute =
   AdminDashboardDanhMucIndexRouteImport.update({
     id: '/DanhMuc/',
@@ -61,6 +68,7 @@ export interface FileRoutesByFullPath {
   '/DangNhap': typeof DangNhapIndexRoute
   '/admin': typeof AdminIndexRoute
   '/admin/Dashboard/DanhMuc': typeof AdminDashboardDanhMucIndexRoute
+  '/admin/Dashboard/LoaiTaiKhoan': typeof AdminDashboardLoaiTaiKhoanIndexRoute
   '/admin/Dashboard/Menu': typeof AdminDashboardMenuIndexRoute
 }
 export interface FileRoutesByTo {
@@ -70,6 +78,7 @@ export interface FileRoutesByTo {
   '/DangNhap': typeof DangNhapIndexRoute
   '/admin': typeof AdminIndexRoute
   '/admin/Dashboard/DanhMuc': typeof AdminDashboardDanhMucIndexRoute
+  '/admin/Dashboard/LoaiTaiKhoan': typeof AdminDashboardLoaiTaiKhoanIndexRoute
   '/admin/Dashboard/Menu': typeof AdminDashboardMenuIndexRoute
 }
 export interface FileRoutesById {
@@ -80,6 +89,7 @@ export interface FileRoutesById {
   '/DangNhap/': typeof DangNhapIndexRoute
   '/admin/': typeof AdminIndexRoute
   '/admin/Dashboard/DanhMuc/': typeof AdminDashboardDanhMucIndexRoute
+  '/admin/Dashboard/LoaiTaiKhoan/': typeof AdminDashboardLoaiTaiKhoanIndexRoute
   '/admin/Dashboard/Menu/': typeof AdminDashboardMenuIndexRoute
 }
 export interface FileRouteTypes {
@@ -91,6 +101,7 @@ export interface FileRouteTypes {
     | '/DangNhap'
     | '/admin'
     | '/admin/Dashboard/DanhMuc'
+    | '/admin/Dashboard/LoaiTaiKhoan'
     | '/admin/Dashboard/Menu'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -100,6 +111,7 @@ export interface FileRouteTypes {
     | '/DangNhap'
     | '/admin'
     | '/admin/Dashboard/DanhMuc'
+    | '/admin/Dashboard/LoaiTaiKhoan'
     | '/admin/Dashboard/Menu'
   id:
     | '__root__'
@@ -109,6 +121,7 @@ export interface FileRouteTypes {
     | '/DangNhap/'
     | '/admin/'
     | '/admin/Dashboard/DanhMuc/'
+    | '/admin/Dashboard/LoaiTaiKhoan/'
     | '/admin/Dashboard/Menu/'
   fileRoutesById: FileRoutesById
 }
@@ -164,6 +177,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminDashboardMenuIndexRouteImport
       parentRoute: typeof AdminDashboardRouteRoute
     }
+    '/admin/Dashboard/LoaiTaiKhoan/': {
+      id: '/admin/Dashboard/LoaiTaiKhoan/'
+      path: '/LoaiTaiKhoan'
+      fullPath: '/admin/Dashboard/LoaiTaiKhoan'
+      preLoaderRoute: typeof AdminDashboardLoaiTaiKhoanIndexRouteImport
+      parentRoute: typeof AdminDashboardRouteRoute
+    }
     '/admin/Dashboard/DanhMuc/': {
       id: '/admin/Dashboard/DanhMuc/'
       path: '/DanhMuc'
@@ -176,11 +196,13 @@ declare module '@tanstack/react-router' {
 
 interface AdminDashboardRouteRouteChildren {
   AdminDashboardDanhMucIndexRoute: typeof AdminDashboardDanhMucIndexRoute
+  AdminDashboardLoaiTaiKhoanIndexRoute: typeof AdminDashboardLoaiTaiKhoanIndexRoute
   AdminDashboardMenuIndexRoute: typeof AdminDashboardMenuIndexRoute
 }
 
 const AdminDashboardRouteRouteChildren: AdminDashboardRouteRouteChildren = {
   AdminDashboardDanhMucIndexRoute: AdminDashboardDanhMucIndexRoute,
+  AdminDashboardLoaiTaiKhoanIndexRoute: AdminDashboardLoaiTaiKhoanIndexRoute,
   AdminDashboardMenuIndexRoute: AdminDashboardMenuIndexRoute,
 }
 
