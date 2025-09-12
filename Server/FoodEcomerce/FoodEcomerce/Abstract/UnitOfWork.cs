@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using FoodEcomerce.Entity;
+using FoodEcomerce.Entity.StoreProcedure;
 using FoodEcomerce.Reposiroty.Auths;
 using FoodEcomerce.Reposiroty.Banners;
 using FoodEcomerce.Reposiroty.Categorys;
+using FoodEcomerce.Reposiroty.MenuRoles;
 using FoodEcomerce.Reposiroty.Menus;
 using FoodEcomerce.Reposiroty.Roles;
 using FoodEcomerce.Reposiroty.UnitCaculates;
@@ -13,6 +15,7 @@ namespace FoodEcomerce.Abstract
     public sealed class UnitOfWork : IDisposable
     {
         private readonly FoodDbContex _dbContext;
+        private readonly StoreDbcontext _storeDbcontext;
         private readonly IMapper _mapper;
         private IUserRepository _userRepository;
         private IBannerRepository _bannerRepository;
@@ -21,11 +24,13 @@ namespace FoodEcomerce.Abstract
         private IUnitCaculateRepository _unitCaculateRepository;
         private IMenuRepository _menuRepository;
         private IRoleRepository _roleRepository;
+        private IMenuRoleRepository _menuRoleRepository;
 
-        public UnitOfWork(FoodDbContex dbContext, IMapper mapper)
+        public UnitOfWork(FoodDbContex dbContext, IMapper mapper, StoreDbcontext storeDbcontext)
         {
             _dbContext = dbContext;
             _mapper = mapper;
+            _storeDbcontext = storeDbcontext;
         }
         public IUserRepository UserRepository
         => _userRepository ??= new UserRepository(_dbContext, _mapper);
@@ -38,9 +43,11 @@ namespace FoodEcomerce.Abstract
         public IUnitCaculateRepository UnitCaculateRepository
            => _unitCaculateRepository ??= new UnitCaculateRepository(_dbContext, _mapper);
         public IMenuRepository MenuRepository
-          => _menuRepository ??= new MenuRepository(_dbContext, _mapper);
+          => _menuRepository ??= new MenuRepository(_dbContext, _mapper , _storeDbcontext);
         public IRoleRepository RoleRepository
         => _roleRepository ??= new RoleRepository(_dbContext, _mapper);
+        public IMenuRoleRepository MenuRoleReposirory
+       => _menuRoleRepository ??= new MenuRoleRepository(_dbContext, _mapper);
         public bool Save()
         {
             bool isSuccess = _dbContext.SaveChanges() > 0;

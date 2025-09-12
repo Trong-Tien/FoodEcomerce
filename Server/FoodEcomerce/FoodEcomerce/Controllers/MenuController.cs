@@ -44,6 +44,19 @@ namespace FoodEcomerce.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpGet("GetByPermission/{roleId}")]
+        public async Task<IActionResult> GetByPermission(Guid roleId)
+        {
+            try
+            {
+                var result = await _unitOfWork.MenuRepository.GetMenuPermission(roleId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
         [HttpPost("Create")]
         public async Task<IActionResult> Create(MenuModal modal)
         {

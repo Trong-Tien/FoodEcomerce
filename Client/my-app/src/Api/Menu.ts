@@ -6,15 +6,21 @@ const api = axios.create({
   baseURL: "https://localhost:7004/api/Menu",
 });
 
-export const getAll = async (pageNumber: number , pageSize : number) => {
+export const getAll = async (pageNumber: number, pageSize: number) => {
   const { data } = await api.get(`GetAll?pageNumber=${pageNumber}&pagesize=${pageSize}`);
   return data;
 };
+
+export const getByPermission = async (roleId: string) => {
+  const { data } = await api.get(`GetByPermission/${roleId}`)
+  return data;
+}
 
 export const create = async (menu: MenuForm) => {
   const { data } = await api.post("/create", menu);
   return data;
 };
+
 
 export const update = async (menu: Menu) => {
   const { data } = await api.put(`/Update/`, menu);

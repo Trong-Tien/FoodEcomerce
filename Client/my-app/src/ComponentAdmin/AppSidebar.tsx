@@ -11,71 +11,67 @@ import {
   Box,
 } from "@mui/material";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-
-// Icons MUI
 import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import Swal from 'sweetalert2'
-import { useGetMenus } from "@/Hooks/Menu";
-import type { Menu } from "@/Type/Menu";
-import { useEffect, useState } from "react";
+import Swal from "sweetalert2";
+import { useGetMenusByPermission } from "@/Hooks/Menu";
+import type { MenuPermission } from "@/Type/MenuPermission";
+import { useMemo } from "react";
+
 const drawerWidth = 240;
 
-
-
+// API logout
 const logout = async () => {
-  // call API Login
-  const response = await fetch(`https://localhost:7004/api/Auth/logout`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+  const response = await fetch("https://localhost:7004/api/Auth/logout", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
   });
   if (!response.ok) {
-    throw new Error('Failed to update todo');
+    throw new Error("Logout failed");
   }
   return response.json();
-}
+};
 
 const AppSidebar = () => {
-  const [menu, setmenu] = useState<Menu[]>()
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const routerState = useRouterState();
-  const navigate = useNavigate()
 
-  const { data: dataMenu } = useGetMenus(1, 20)
+  // Lấy roleId từ localStorage
+  const dataRole: string | null = localStorage.getItem("role");
+  const roleId = dataRole ? JSON.parse(dataRole) : null;
 
+  // API menus theo quyền
+  const { data } = useGetMenusByPermission(roleId);
+
+  const menu: MenuPermission[] = useMemo(
+    () => (Array.isArray(data) ? data : []),
+    [data]
+  );
+
+  // Mutation logout
   const mutation = useMutation({
     mutationFn: logout,
-    onSuccess: (data) => {
-      if (data?.status === 200) {
-        goToAdmin()
-        localStorage.clear()
+    onSuccess: (res) => {
+      if (res?.status === 200) {
+        localStorage.clear();
+        queryClient.invalidateQueries({ queryKey: ["Auth"] });
+        navigate({ to: "/admin/" }).finally(() => {
+          Swal.fire("Đăng xuất thành công", "", "success");
+        });
+      } else {
+        Swal.fire("Đăng xuất thất bại", "", "error");
       }
-      else alert("Đăng nhập thất bại")
-      queryClient.invalidateQueries({ queryKey: ["Auth"] });
     },
     onError: (error: any) => {
-      console.error("Login thất bại:", error.message);
+      Swal.fire("Lỗi khi đăng xuất", error.message, "error");
     },
   });
 
-  const goToAdmin = () => {
-    navigate({
-      to: '/admin/',
-    }).finally(() => {
-      Swal.fire("Đăng xuất thành công", "success");
-    })
-  }
-
-
-  // check active route
-  const isActive = (path: string) => routerState.location.pathname.startsWith(path);
-
-  useEffect(() => {
-    if (dataMenu)
-      setmenu(dataMenu?.items)
-    else setmenu([])
-  }, [dataMenu])
+  // Check active route
+  const isActive = (path: string) =>
+    routerState.location.pathname.startsWith(path);
 
   return (
     <Drawer
@@ -84,50 +80,46 @@ const AppSidebar = () => {
         width: drawerWidth,
         maxHeight: "100%",
         flexShrink: 0,
-        [`& .MuiDrawer-paper`]: {
+        "& .MuiDrawer-paper": {
           width: drawerWidth,
           boxSizing: "border-box",
           backgroundColor: "#1e293b", // Tailwind slate-800
           color: "white",
-
         },
       }}
     >
-      {/* Logo / Header */}
+      {/* Header */}
       <Toolbar>
         <Typography variant="h6" noWrap component="div">
-
+          {/* Logo hoặc tên app */}
         </Typography>
       </Toolbar>
       <Divider sx={{ borderColor: "rgba(255,255,255,0.2)" }} />
 
       {/* Navigation */}
       <Box sx={{ overflow: "auto" }}>
-
         <List>
-          {menu?.map(menu => (
-            <ListItem disablePadding key={menu.id}>
+          {menu.map((m) => (
+            <ListItem disablePadding key={m.menuId}>
               <ListItemButton
                 component={Link}
-                to={menu?.url}
-                selected={isActive(menu?.url)}
+                to={m.url}
+                selected={isActive(m.url)}
               >
                 <ListItemIcon sx={{ color: "white" }}>
-                  <span className="material-icons">{menu?.icon}</span>
+                  <span className="material-icons">{m.icon}</span>
                 </ListItemIcon>
-                <ListItemText primary={menu?.name} />
+                <ListItemText primary={m.name} />
               </ListItemButton>
             </ListItem>
           ))}
-          <ListItem disablePadding>
-          </ListItem>
         </List>
 
         <Divider sx={{ borderColor: "rgba(255,255,255,0.2)", my: 1 }} />
 
         {/* Settings & Logout */}
         <List>
-          <ListItem disablePadding >
+          <ListItem disablePadding>
             <ListItemButton
               component={Link}
               to="/admin/settings"
