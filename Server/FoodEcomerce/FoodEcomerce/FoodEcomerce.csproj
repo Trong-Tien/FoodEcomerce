@@ -27,7 +27,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Reposiroty\Orders\" />
     <Folder Include="wwwroot\UploadFiles\Images\Banner\" />
+    <Folder Include="wwwroot\UploadFiles\Images\Categorys\" />
     <Folder Include="wwwroot\UploadFiles\Images\Products\" />
     <Folder Include="wwwroot\UploadFiles\Categorys\" />
   </ItemGroup>

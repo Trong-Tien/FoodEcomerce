@@ -15,5 +15,6 @@
         public Guid UnitCaculateId { get; set; }
         public int TradeMarkId { get; set; }
         public int PlaceProductId { get; set; }
+        List<IFormFile> Image { get; set; }
     }
 }

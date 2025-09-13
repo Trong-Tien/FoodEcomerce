@@ -16,7 +16,7 @@ namespace FoodEcomerce.Entity
         public virtual DbSet<Product> Products { get; set; }
         public virtual DbSet<ProductCategory> ProductCategorys { get; set; }
         public virtual DbSet<OTP> OTPs { get; set; }
-
+        public virtual DbSet<Category> Categories { get; set; }
 
 
 

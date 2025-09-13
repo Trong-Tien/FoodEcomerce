@@ -1,12 +1,10 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
-using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using static System.Net.Mime.MediaTypeNames;
 namespace FoodEcomerce.Helpper
 {
     public static class Untils
@@ -15,7 +13,7 @@ namespace FoodEcomerce.Helpper
 
         private static long _fileSizeLimit = 2097152000;
 
-        public static string UploadFileImage(IFormFile file ,string Folder )
+        public static string UploadFileImage(IFormFile file, string Folder)
         {
             try
             {
@@ -109,7 +107,8 @@ namespace FoodEcomerce.Helpper
             }
 
         }
-        public static string EncrypePassword(string password, string salt = null) {
+        public static string EncrypePassword(string password, string salt = null)
+        {
             if (string.IsNullOrEmpty(password))
             {
                 return string.Empty;
@@ -127,7 +126,7 @@ namespace FoodEcomerce.Helpper
                 StringBuilder builder = new StringBuilder();
                 for (int i = 0; i < hashBytes.Length; i++)
                 {
-                    builder.Append(hashBytes[i].ToString("x2")); 
+                    builder.Append(hashBytes[i].ToString("x2"));
                 }
                 return builder.ToString();
             }
@@ -138,7 +137,7 @@ namespace FoodEcomerce.Helpper
             return hashedEnteredPassword.Equals(storedHash, StringComparison.OrdinalIgnoreCase);
         }
 
-        public static string GenerateAccessToken(string userId , string username , Guid role)
+        public static string GenerateAccessToken(string userId, string username, Guid role)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(AppSettingsProvider.Get("JWT:IssuerSigningKey") ?? "");
