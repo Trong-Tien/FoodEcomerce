@@ -11,83 +11,87 @@ import {
   Box,
 } from "@mui/material";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-
-// Icons MUI
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import PeopleIcon from "@mui/icons-material/People";
 import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
-import BarChartIcon from "@mui/icons-material/BarChart";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import Swal from "sweetalert2";
+import { useGetMenusByPermission } from "@/Hooks/Menu";
+import type { MenuPermission } from "@/Type/MenuPermission";
+import { useMemo } from "react";
 
 const drawerWidth = 240;
 
-
-
+// API logout
 const logout = async () => {
-
-  // call API Login
-  const response = await fetch(`https://localhost:7004/api/Auth/logout`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+  const response = await fetch("https://localhost:7004/api/Auth/logout", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
   });
   if (!response.ok) {
-    throw new Error('Failed to update todo');
+    throw new Error("Logout failed");
   }
   return response.json();
-}
+};
 
 const AppSidebar = () => {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const routerState = useRouterState();
-  const navigate = useNavigate()
 
+  // Lấy roleId từ localStorage
+  const dataRole: string | null = localStorage.getItem("role");
+  const roleId = dataRole ? JSON.parse(dataRole) : null;
+
+  // API menus theo quyền
+  const { data } = useGetMenusByPermission(roleId);
+
+  const menu: MenuPermission[] = useMemo(
+    () => (Array.isArray(data) ? data : []),
+    [data]
+  );
+
+  // Mutation logout
   const mutation = useMutation({
     mutationFn: logout,
-    onSuccess: (data) => {
-      if (data?.status === 200) {
-
-        goToAdmin()
-        localStorage.clear()
+    onSuccess: (res) => {
+      if (res?.status === 200) {
+        localStorage.clear();
+        queryClient.invalidateQueries({ queryKey: ["Auth"] });
+        navigate({ to: "/admin/" }).finally(() => {
+          Swal.fire("Đăng xuất thành công", "", "success");
+        });
+      } else {
+        Swal.fire("Đăng xuất thất bại", "", "error");
       }
-      else alert("Đăng nhập thất bại")
-      queryClient.invalidateQueries({ queryKey: ["Auth"] });
     },
     onError: (error: any) => {
-      console.error("Login thất bại:", error.message);
+      Swal.fire("Lỗi khi đăng xuất", error.message, "error");
     },
   });
 
-   const goToAdmin = () => {
-    navigate({
-      to: '/admin/',
-    })
-  }
-
-
-  // check active route
-  const isActive = (path: string) => routerState.location.pathname.startsWith(path);
+  // Check active route
+  const isActive = (path: string) =>
+    routerState.location.pathname.startsWith(path);
 
   return (
     <Drawer
       variant="permanent"
       sx={{
         width: drawerWidth,
-        maxHeight: "100vh",
+        maxHeight: "100%",
         flexShrink: 0,
-        [`& .MuiDrawer-paper`]: {
+        "& .MuiDrawer-paper": {
           width: drawerWidth,
           boxSizing: "border-box",
           backgroundColor: "#1e293b", // Tailwind slate-800
           color: "white",
-
         },
       }}
     >
-      {/* Logo / Header */}
+      {/* Header */}
       <Toolbar>
         <Typography variant="h6" noWrap component="div">
-          
+          {/* Logo hoặc tên app */}
         </Typography>
       </Toolbar>
       <Divider sx={{ borderColor: "rgba(255,255,255,0.2)" }} />
@@ -95,51 +99,27 @@ const AppSidebar = () => {
       {/* Navigation */}
       <Box sx={{ overflow: "auto" }}>
         <List>
-          <ListItem disablePadding>
-            <ListItemButton
-              component={Link}
-              to="/admin/Dashboard"
-              selected={isActive("/admin/Dashboard")}
-            >
-              <ListItemIcon sx={{ color: "white" }}>
-                <DashboardIcon />
-              </ListItemIcon>
-              <ListItemText primary="Bàn làm việc" />
-            </ListItemButton>
-          </ListItem>
-
-          <ListItem disablePadding>
-            <ListItemButton
-              component={Link}
-              to="/admin/Dashboard/DanhMuc"
-              selected={isActive("/admin/Dashboard/DanhMuc")}
-            >
-              <ListItemIcon sx={{ color: "white" }}>
-                <PeopleIcon />
-              </ListItemIcon>
-              <ListItemText primary="Danh Mục" />
-            </ListItemButton>
-          </ListItem>
-
-          <ListItem disablePadding>
-            <ListItemButton
-              component={Link}
-              to="/admin/Dashboard/Menu/"
-              selected={isActive("/admin/Dashboard/Menu/")}
-            >
-              <ListItemIcon sx={{ color: "white" }}>
-                <BarChartIcon />
-              </ListItemIcon>
-              <ListItemText primary="Menu" />
-            </ListItemButton>
-          </ListItem>
+          {menu.map((m) => (
+            <ListItem disablePadding key={m.menuId}>
+              <ListItemButton
+                component={Link}
+                to={m.url}
+                selected={isActive(m.url)}
+              >
+                <ListItemIcon sx={{ color: "white" }}>
+                  <span className="material-icons">{m.icon}</span>
+                </ListItemIcon>
+                <ListItemText primary={m.name} />
+              </ListItemButton>
+            </ListItem>
+          ))}
         </List>
 
         <Divider sx={{ borderColor: "rgba(255,255,255,0.2)", my: 1 }} />
 
         {/* Settings & Logout */}
         <List>
-          <ListItem disablePadding sx={{ marginTop: "50vh" }}>
+          <ListItem disablePadding>
             <ListItemButton
               component={Link}
               to="/admin/settings"
@@ -153,7 +133,7 @@ const AppSidebar = () => {
           </ListItem>
 
           <ListItem disablePadding>
-            <ListItemButton onClick={()=> mutation.mutate()}>
+            <ListItemButton onClick={() => mutation.mutate()}>
               <ListItemIcon sx={{ color: "white" }}>
                 <LogoutIcon />
               </ListItemIcon>

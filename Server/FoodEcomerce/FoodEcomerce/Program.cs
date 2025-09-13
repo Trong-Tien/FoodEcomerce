@@ -1,5 +1,6 @@
 ﻿using FoodEcomerce.Abstract;
 using FoodEcomerce.Entity;
+using FoodEcomerce.Entity.StoreProcedure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -17,6 +18,8 @@ builder.Services.AddSwaggerGen();
 var settings = builder.Configuration
                 .GetRequiredSection("ConnectionStrings");
 builder.Services.AddDbContext<FoodDbContex>(options =>
+        options.UseSqlServer(settings["DefaultConnection"]));
+builder.Services.AddDbContext<StoreDbcontext>(options =>
         options.UseSqlServer(settings["DefaultConnection"]));
 
 builder.Services.AddScoped<UnitOfWork>();

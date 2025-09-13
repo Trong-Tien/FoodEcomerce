@@ -56,6 +56,19 @@ namespace FoodEcomerce.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpPost("Permission/{roleId}")]
+        public async Task<IActionResult> Permission(List<MenuPermission> modal , Guid roleId)
+        {
+            try
+            {
+                var result = await _unitOfWork.RoleRepository.PermissionGroup(modal, roleId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
         [HttpPut("Update")]
         public async Task<IActionResult> Update(RoleModal modal)
         {

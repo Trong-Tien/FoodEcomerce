@@ -68,9 +68,9 @@ function RouteComponent() {
   const mutation = useMutation({
     mutationFn: login,
     onSuccess: (data) => {
-      if(data?.status === 200)
-      {
+      if (data?.status === 200) {
         localStorage.setItem("tokenCheckLogin", JSON.stringify(data?.accessToken));
+        localStorage.setItem("role", JSON.stringify(data?.roleId));
         goToDashBoard()
       }
       else alert("Đăng nhập thất bại")
@@ -83,11 +83,11 @@ function RouteComponent() {
 
   const goToDashBoard = () => {
     navigate({
-      to: '/admin/Dashboard/',
+      to: '/admin/Dashboard/BanLamViec',
     })
   }
 
-  const onSubmit: SubmitHandler<Login> = async (data) => { mutation.mutate(data)};
+  const onSubmit: SubmitHandler<Login> = async (data) => { mutation.mutate(data) };
 
   const handleClickShowPassword = () => {
     setShowPass(true)

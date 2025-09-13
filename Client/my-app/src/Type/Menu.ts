@@ -1,9 +1,10 @@
-export type UpdateMenu = {
+export type Menu = {
   id: string,
-  name: string,
+  name : string,
   orderNumber: number,
   icon : string,
   url : string,
   isActive : boolean,
-  createUser : string
+  createUser : string,
+  parentId: string
 }
