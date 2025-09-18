@@ -11,8 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as DangNhapOTPIndexRouteImport } from './routes/DangNhapOTP/index'
 import { Route as DangNhapIndexRouteImport } from './routes/DangNhap/index'
 import { Route as DangKyIndexRouteImport } from './routes/DangKy/index'
+import { Route as ProductIdRouteImport } from './routes/product.$id'
 import { Route as AdminDashboardRouteRouteImport } from './routes/admin/Dashboard/route'
 import { Route as AdminDashboardMenuIndexRouteImport } from './routes/admin/Dashboard/Menu/index'
 import { Route as AdminDashboardLoaiTaiKhoanIndexRouteImport } from './routes/admin/Dashboard/LoaiTaiKhoan/index'
@@ -29,6 +31,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/admin/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DangNhapOTPIndexRoute = DangNhapOTPIndexRouteImport.update({
+  id: '/DangNhapOTP/',
+  path: '/DangNhapOTP/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DangNhapIndexRoute = DangNhapIndexRouteImport.update({
   id: '/DangNhap/',
   path: '/DangNhap/',
@@ -37,6 +44,11 @@ const DangNhapIndexRoute = DangNhapIndexRouteImport.update({
 const DangKyIndexRoute = DangKyIndexRouteImport.update({
   id: '/DangKy/',
   path: '/DangKy/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductIdRoute = ProductIdRouteImport.update({
+  id: '/product/$id',
+  path: '/product/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminDashboardRouteRoute = AdminDashboardRouteRouteImport.update({
@@ -71,8 +83,10 @@ const AdminDashboardDanhMucIndexRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin/Dashboard': typeof AdminDashboardRouteRouteWithChildren
+  '/product/$id': typeof ProductIdRoute
   '/DangKy': typeof DangKyIndexRoute
   '/DangNhap': typeof DangNhapIndexRoute
+  '/DangNhapOTP': typeof DangNhapOTPIndexRoute
   '/admin': typeof AdminIndexRoute
   '/admin/Dashboard/DanhMuc': typeof AdminDashboardDanhMucIndexRoute
   '/admin/Dashboard/DonViTinh': typeof AdminDashboardDonViTinhIndexRoute
@@ -82,8 +96,10 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin/Dashboard': typeof AdminDashboardRouteRouteWithChildren
+  '/product/$id': typeof ProductIdRoute
   '/DangKy': typeof DangKyIndexRoute
   '/DangNhap': typeof DangNhapIndexRoute
+  '/DangNhapOTP': typeof DangNhapOTPIndexRoute
   '/admin': typeof AdminIndexRoute
   '/admin/Dashboard/DanhMuc': typeof AdminDashboardDanhMucIndexRoute
   '/admin/Dashboard/DonViTinh': typeof AdminDashboardDonViTinhIndexRoute
@@ -94,8 +110,10 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin/Dashboard': typeof AdminDashboardRouteRouteWithChildren
+  '/product/$id': typeof ProductIdRoute
   '/DangKy/': typeof DangKyIndexRoute
   '/DangNhap/': typeof DangNhapIndexRoute
+  '/DangNhapOTP/': typeof DangNhapOTPIndexRoute
   '/admin/': typeof AdminIndexRoute
   '/admin/Dashboard/DanhMuc/': typeof AdminDashboardDanhMucIndexRoute
   '/admin/Dashboard/DonViTinh/': typeof AdminDashboardDonViTinhIndexRoute
@@ -107,8 +125,10 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin/Dashboard'
+    | '/product/$id'
     | '/DangKy'
     | '/DangNhap'
+    | '/DangNhapOTP'
     | '/admin'
     | '/admin/Dashboard/DanhMuc'
     | '/admin/Dashboard/DonViTinh'
@@ -118,8 +138,10 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/admin/Dashboard'
+    | '/product/$id'
     | '/DangKy'
     | '/DangNhap'
+    | '/DangNhapOTP'
     | '/admin'
     | '/admin/Dashboard/DanhMuc'
     | '/admin/Dashboard/DonViTinh'
@@ -129,8 +151,10 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/admin/Dashboard'
+    | '/product/$id'
     | '/DangKy/'
     | '/DangNhap/'
+    | '/DangNhapOTP/'
     | '/admin/'
     | '/admin/Dashboard/DanhMuc/'
     | '/admin/Dashboard/DonViTinh/'
@@ -141,8 +165,10 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminDashboardRouteRoute: typeof AdminDashboardRouteRouteWithChildren
+  ProductIdRoute: typeof ProductIdRoute
   DangKyIndexRoute: typeof DangKyIndexRoute
   DangNhapIndexRoute: typeof DangNhapIndexRoute
+  DangNhapOTPIndexRoute: typeof DangNhapOTPIndexRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
@@ -162,6 +188,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/DangNhapOTP/': {
+      id: '/DangNhapOTP/'
+      path: '/DangNhapOTP'
+      fullPath: '/DangNhapOTP'
+      preLoaderRoute: typeof DangNhapOTPIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/DangNhap/': {
       id: '/DangNhap/'
       path: '/DangNhap'
@@ -174,6 +207,13 @@ declare module '@tanstack/react-router' {
       path: '/DangKy'
       fullPath: '/DangKy'
       preLoaderRoute: typeof DangKyIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/product/$id': {
+      id: '/product/$id'
+      path: '/product/$id'
+      fullPath: '/product/$id'
+      preLoaderRoute: typeof ProductIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/Dashboard': {
@@ -234,8 +274,10 @@ const AdminDashboardRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminDashboardRouteRoute: AdminDashboardRouteRouteWithChildren,
+  ProductIdRoute: ProductIdRoute,
   DangKyIndexRoute: DangKyIndexRoute,
   DangNhapIndexRoute: DangNhapIndexRoute,
+  DangNhapOTPIndexRoute: DangNhapOTPIndexRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 export const routeTree = rootRouteImport
