@@ -1,16 +1,10 @@
+// src/pages/Auth/Dangky.tsx
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "@tanstack/react-router";
-import {
-  FaUser,
-  FaEnvelope,
-  FaLock,
-  FaPaperPlane,
-  FaRedo,
-} from "react-icons/fa";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { FaUser, FaEnvelope, FaLock, FaPaperPlane, FaRedo } from "react-icons/fa";
 import Input from "@/Component/Common/Input";
-
 import type { Register } from "@/Types/RegisterForm";
-
+import { AuthService } from "@/Services/AuthService";
 
 type Errors = Partial<Record<keyof Register, string>>;
 
@@ -21,6 +15,8 @@ const PWD_MIN = 6;
 const RESEND_SECONDS = 60;
 
 export default function Dangky() {
+  const navigate = useNavigate();
+
   const [form, setForm] = useState<Register>({
     username: "",
     firstName: "",
@@ -36,7 +32,7 @@ export default function Dangky() {
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
 
-  // đếm ngược resend
+  // Đếm ngược nút Gửi lại OTP
   useEffect(() => {
     if (resendLeft <= 0) return;
     const t = setInterval(() => setResendLeft((s) => s - 1), 1000);
@@ -68,8 +64,7 @@ export default function Dangky() {
     return e;
   }, [form]);
 
-  const canSendOtp =
-    EMAIL_REGEX.test(form.email.trim()) && !sendingOtp && resendLeft === 0;
+  const canSendOtp = EMAIL_REGEX.test(form.email.trim()) && !sendingOtp && resendLeft === 0;
 
   const canSubmit =
     form.username.trim().length >= USERNAME_MIN &&
@@ -81,59 +76,64 @@ export default function Dangky() {
     form.confirmPassword === form.password &&
     !submitting;
 
-  // Fake API gửi OTP
+  // Gửi OTP (fake). Nếu bạn có AuthService.sendOtp(email) thì thay đoạn setTimeout() bằng call thật.
   const handleSendOtp = async () => {
     if (!canSendOtp) return;
     try {
       setSendingOtp(true);
       setServerError(null);
-      // Gọi API thực tế của bạn ở đây
-      // await api.auth.sendOtp({ email: form.email });
-      await new Promise((r) => setTimeout(r, 900));
+      // 👉 Call thật (nếu đã có):
+      // await AuthService.sendOtp({ email: form.email, purpose: "register" });
+      await new Promise((r) => setTimeout(r, 900)); // fake delay
       setResendLeft(RESEND_SECONDS);
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        setServerError(err.message);
-      } else {
-        setServerError("Đã xảy ra lỗi không xác định.");
-      }
+      if (err instanceof Error) setServerError(err.message);
+      else setServerError("Đã xảy ra lỗi không xác định.");
+    } finally {
+      setSendingOtp(false);
     }
   };
 
-  // Fake Register
+  // Đăng ký (gọi AuthService.register fake)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!canSubmit) return;
     try {
       setSubmitting(true);
       setServerError(null);
-      // Gọi API thực tế của bạn
-      // await api.auth.register(form);
-      await new Promise((r) => setTimeout(r, 1000));
-      // điều hướng/hiển thị thành công...
-      alert("Đăng ký thành công!");
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setServerError(err.message);
-      } else {
-        setServerError("Đã xảy ra lỗi không xác định.");
-      }
-    }
 
+      await AuthService.register({
+        username: form.username,
+        firstName: form.firstName,
+        lastName: form.lastName,
+        email: form.email,
+        otp: form.otp,
+        password: form.password,
+        confirmPassword: form.confirmPassword,
+      });
+
+      alert("Đăng ký thành công!");
+      navigate({ to: "/DangNhap" });
+    } catch (err: unknown) {
+      if (err instanceof Error) setServerError(err.message);
+      else setServerError("Đăng ký thất bại, vui lòng thử lại.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <div className="w-full max-w-md bg-white rounded-lg shadow-md overflow-hidden">
-        {/* Logo + title */}
-        <div className="flex flex-col items-center py-6">
-          <img src="/images/logo2.png" alt="Logo" className="w-16 h-16 mb-2" />
-          <h1 className="text-2xl font-extrabold text-green-700">
-            Tạo tài khoản
-          </h1>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200/60">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-[#2E7D32] via-[#4CAF50] to-[#7CB342] py-7 flex flex-col items-center">
+          <img src="/images/logo2.png" alt="Logo" className="w-16 h-16 mb-2 rounded-full bg-white/80 p-2" />
+          <h1 className="text-xl font-extrabold text-white">Tạo tài khoản</h1>
+          <p className="text-green-100 text-sm mt-1">Đăng ký để mua sắm dễ dàng hơn</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="px-6 pb-6 space-y-3">
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="px-6 py-6 space-y-4">
           {/* Username */}
           <Input
             label="Username"
@@ -165,7 +165,7 @@ export default function Dangky() {
             autoComplete="family-name"
           />
 
-          {/* Email + Gửi OTP */}
+          {/* Email */}
           <Input
             label="E-mail Address"
             placeholder="name@example.com"
@@ -176,24 +176,20 @@ export default function Dangky() {
             type="email"
             autoComplete="email"
           />
+
+          {/* Send OTP */}
           <button
             type="button"
             onClick={handleSendOtp}
             disabled={!canSendOtp}
-            className={`w-full flex items-center justify-center gap-2 py-3 rounded-md font-semibold text-white ${
-              canSendOtp ? "bg-green-600 hover:bg-green-700" : "bg-green-300"
+            className={`w-full flex items-center justify-center gap-2 py-3 rounded-lg font-semibold text-white transition ${
+              canSendOtp ? "bg-green-600 hover:bg-green-700" : "bg-green-300 cursor-not-allowed"
             }`}
           >
-            {sendingOtp ? (
-              <>Đang gửi...</>
-            ) : (
-              <>
-                <FaPaperPlane /> Click Here to send OTP
-              </>
-            )}
+            {sendingOtp ? "Đang gửi..." : (<><FaPaperPlane /> Click Here to send OTP</>)}
           </button>
 
-          {/* OTP + Gửi lại */}
+          {/* OTP + Resend */}
           <div>
             <label className="mb-1 font-medium text-gray-700 block">OTP</label>
             <div className="flex gap-3">
@@ -204,21 +200,16 @@ export default function Dangky() {
                 placeholder={`Nhập ${OTP_LEN} số OTP`}
                 value={form.otp}
                 onChange={(e) =>
-                  handleChange(
-                    "otp",
-                    e.target.value.replace(/\D/g, "").slice(0, OTP_LEN)
-                  )
+                  handleChange("otp", e.target.value.replace(/\D/g, "").slice(0, OTP_LEN))
                 }
-                className="flex-1 border rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-green-400"
+                className="flex-1 border border-gray-300 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-green-500"
               />
               <button
                 type="button"
                 onClick={handleSendOtp}
                 disabled={!EMAIL_REGEX.test(form.email) || resendLeft > 0}
-                className={`px-4 rounded-md text-white flex items-center justify-center gap-2 ${
-                  resendLeft > 0
-                    ? "bg-gray-300"
-                    : "bg-green-600 hover:bg-green-700"
+                className={`px-4 rounded-md text-white flex items-center justify-center gap-2 transition ${
+                  resendLeft > 0 ? "bg-gray-300 cursor-not-allowed" : "bg-green-600 hover:bg-green-700"
                 }`}
                 aria-label="Resend OTP"
               >
@@ -226,9 +217,7 @@ export default function Dangky() {
                 {resendLeft > 0 ? `Gửi lại (${resendLeft}s)` : "Gửi lại"}
               </button>
             </div>
-            {errors.otp && (
-              <div className="text-red-500 text-sm mt-1">{errors.otp}</div>
-            )}
+            {errors.otp && <div className="text-red-500 text-sm mt-1">{errors.otp}</div>}
           </div>
 
           {/* Password */}
@@ -255,30 +244,28 @@ export default function Dangky() {
             autoComplete="new-password"
           />
 
-          {serverError && (
-            <div className="text-red-600 text-sm">{serverError}</div>
-          )}
+          {serverError && <div className="text-red-600 text-sm">{serverError}</div>}
 
           {/* Register */}
           <button
             type="submit"
             disabled={!canSubmit}
-            className={`w-full py-3 rounded-md font-semibold text-white ${
-              canSubmit ? "bg-green-600 hover:bg-green-700" : "bg-green-300"
+            className={`w-full py-3 rounded-lg font-semibold text-white transition ${
+              canSubmit ? "bg-green-600 hover:bg-green-700" : "bg-green-300 cursor-not-allowed"
             }`}
           >
-            {submitting ? "Đang xử lý..." : "Register"}
+            {submitting ? "Đang xử lý..." : "Đăng ký"}
           </button>
 
-          {/* Login */}
-          <Link
-            to="/DangNhap"
-            className="w-full block text-center py-3 rounded-md font-bold bg-gray-100 hover:bg-gray-200 text-gray-800"
-          >
-            Login
-          </Link>
+          {/* Login link */}
+          <p className="text-center text-sm text-gray-600">
+            Đã có tài khoản?{" "}
+            <Link to="/DangNhap" className="text-green-600 font-semibold hover:underline">
+              Đăng nhập
+            </Link>
+          </p>
 
-          <p className="text-center text-[11px] text-gray-400 mt-3">
+          <p className="text-center text-[11px] text-gray-400 mt-2">
             © 2025 Bách Hóa Xanh. Tất cả quyền được bảo lưu.
           </p>
         </form>

@@ -108,7 +108,7 @@ function Header() {
           <div className="flex">
             <a
               className="mt-2 mr-[16px] flex w-fit cursor-pointer items-center rounded-md bg-[#4CAF50] px-2 py-1 text-sm text-white"
-              href="/dang-nhap"
+              href="/Dangnhap"
             >
               <FaUser className="mr-2" /> Đăng nhập
             </a>
