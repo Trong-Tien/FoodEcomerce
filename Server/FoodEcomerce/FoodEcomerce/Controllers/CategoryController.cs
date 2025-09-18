@@ -17,7 +17,7 @@ namespace FoodEcomerce.Controllers
         }
 
         [HttpGet("GetAll")]
-        [Authorize]
+        //[Authorize]
         public  async Task<IActionResult> GetAll(int pageNumber , int pagesize)
         {
             try
