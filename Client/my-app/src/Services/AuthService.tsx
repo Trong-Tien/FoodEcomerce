@@ -1,31 +1,50 @@
 const API_BASE = "http://localhost:8080/api/Auth";
 
 export const AuthService = {
-  // Đăng ký
+  // 👉 Đăng ký
   async register(payload: {
     userName: string;
-    firstName?: string;
-    lastName?: string;
     email: string;
-    otp?: string;
+    phoneNumber: string;
     password: string;
-    confirmPassword?: string;
-    phoneNumber?: string;
+    otp: string;
+    firstName: string;
+    lastName: string;
   }) {
+    const body = {
+      id: crypto.randomUUID(),
+      userName: payload.userName,
+      email: payload.email,
+      phoneNumber: payload.phoneNumber,
+      password: payload.password,
+      otp: payload.otp,
+      firstName: payload.firstName,
+      lastName: payload.lastName,
+
+      acvite: true, // ✅ đúng key như backend yêu cầu
+      isAdmin: false,
+      statusId: 1,
+      roleId: "3fa85f64-5717-4562-b3fc-2c963f66afa6", // 👉 thay bằng roleId thực nếu có
+      isDelete: false,
+      createAt: new Date().toISOString(),
+      updateAt: new Date().toISOString(),
+      deleteAt: null,
+      createUser: payload.userName,
+      updateUser: payload.userName,
+    };
+
     const res = await fetch(`${API_BASE}/Register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(body),
     });
 
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(text || "Đăng ký thất bại");
-    }
-    return res.json();
+    const data = await res.json().catch(() => null);
+    if (!res.ok) throw new Error(data?.message || "Đăng ký thất bại");
+    return data;
   },
 
-  // Đăng nhập
+  // 👉 Đăng nhập
   async login(payload: { identity: string; password: string }) {
     const res = await fetch(`${API_BASE}/Login`, {
       method: "POST",
@@ -33,23 +52,20 @@ export const AuthService = {
       body: JSON.stringify(payload),
     });
 
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(text || "Đăng nhập thất bại");
-    }
-    return res.json();
+    const data = await res.json().catch(() => null);
+    if (!res.ok) throw new Error(data?.message || "Đăng nhập thất bại");
+    return data;
   },
 
-  // Gửi OTP
+  // 👉 Gửi OTP (✔️ sửa lại đúng cách gửi qua query string)
   async sendOtp(email: string) {
     const res = await fetch(`${API_BASE}/send-otp?email=${encodeURIComponent(email)}`, {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
     });
 
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(text || "Gửi OTP thất bại");
-    }
-    return res.json();
+    const data = await res.json().catch(() => null);
+    if (!res.ok) throw new Error(data?.message || "Gửi OTP thất bại");
+    return data;
   },
 };

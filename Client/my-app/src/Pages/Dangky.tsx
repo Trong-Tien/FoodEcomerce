@@ -1,27 +1,35 @@
-// src/pages/Auth/Dangky.tsx
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { FaUser, FaEnvelope, FaLock, FaPaperPlane, FaRedo } from "react-icons/fa";
+import { FaUser, FaEnvelope, FaLock, FaPaperPlane, FaRedo, FaPhone } from "react-icons/fa";
 import Input from "@/Component/Common/Input";
-import type { Register } from "@/Types/RegisterForm";
 import { AuthService } from "@/Services/AuthService";
 
-type Errors = Partial<Record<keyof Register, string>>;
-
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i; // đơn giản & đủ dùng cho client
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
 const USERNAME_MIN = 3;
 const OTP_LEN = 6;
 const PWD_MIN = 6;
 const RESEND_SECONDS = 60;
 
+interface RegisterForm {
+  username: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  otp: string;
+  password: string;
+  confirmPassword: string;
+}
+
 export default function Dangky() {
   const navigate = useNavigate();
 
-  const [form, setForm] = useState<Register>({
+  const [form, setForm] = useState<RegisterForm>({
     username: "",
     firstName: "",
     lastName: "",
     email: "",
+    phoneNumber: "",
     otp: "",
     password: "",
     confirmPassword: "",
@@ -32,20 +40,19 @@ export default function Dangky() {
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
 
-  // Đếm ngược nút Gửi lại OTP
   useEffect(() => {
     if (resendLeft <= 0) return;
     const t = setInterval(() => setResendLeft((s) => s - 1), 1000);
     return () => clearInterval(t);
   }, [resendLeft]);
 
-  const handleChange = (field: keyof Register, value: string) => {
+  const handleChange = (field: keyof RegisterForm, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
     setServerError(null);
   };
 
-  const errors: Errors = useMemo(() => {
-    const e: Errors = {};
+  const errors = useMemo(() => {
+    const e: Partial<Record<keyof RegisterForm, string>> = {};
     if (form.username.trim().length < USERNAME_MIN) {
       e.username = `Username tối thiểu ${USERNAME_MIN} ký tự.`;
     }
@@ -70,21 +77,20 @@ export default function Dangky() {
     form.username.trim().length >= USERNAME_MIN &&
     form.firstName.trim().length > 0 &&
     form.lastName.trim().length > 0 &&
+    form.phoneNumber.trim().length > 0 &&
     EMAIL_REGEX.test(form.email.trim()) &&
     form.otp.trim().length === OTP_LEN &&
     form.password.length >= PWD_MIN &&
     form.confirmPassword === form.password &&
     !submitting;
 
-  // Gửi OTP (fake). Nếu bạn có AuthService.sendOtp(email) thì thay đoạn setTimeout() bằng call thật.
   const handleSendOtp = async () => {
     if (!canSendOtp) return;
     try {
       setSendingOtp(true);
       setServerError(null);
-      // 👉 Call thật (nếu đã có):
-      // await AuthService.sendOtp({ email: form.email, purpose: "register" });
-      await new Promise((r) => setTimeout(r, 900)); // fake delay
+      await AuthService.sendOtp(form.email);
+      alert("OTP đã được gửi đến email của bạn!");
       setResendLeft(RESEND_SECONDS);
     } catch (err: unknown) {
       if (err instanceof Error) setServerError(err.message);
@@ -94,7 +100,6 @@ export default function Dangky() {
     }
   };
 
-  // Đăng ký (gọi AuthService.register fake)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!canSubmit) return;
@@ -103,13 +108,13 @@ export default function Dangky() {
       setServerError(null);
 
       await AuthService.register({
-        username: form.username,
+        userName: form.username,
         firstName: form.firstName,
         lastName: form.lastName,
         email: form.email,
+        phoneNumber: form.phoneNumber,
         otp: form.otp,
         password: form.password,
-        confirmPassword: form.confirmPassword,
       });
 
       alert("Đăng ký thành công!");
@@ -123,151 +128,58 @@ export default function Dangky() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200/60">
-        {/* Header */}
-        <div className="bg-gradient-to-r from-[#2E7D32] via-[#4CAF50] to-[#7CB342] py-7 flex flex-col items-center">
-          <img src="/images/logo2.png" alt="Logo" className="w-16 h-16 mb-2 rounded-full bg-white/80 p-2" />
-          <h1 className="text-xl font-extrabold text-white">Tạo tài khoản</h1>
-          <p className="text-green-100 text-sm mt-1">Đăng ký để mua sắm dễ dàng hơn</p>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+      <div className="w-full max-w-md bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="flex flex-col items-center py-6">
+          <img src="/images/logo2.png" alt="Logo" className="w-16 h-16 mb-2" />
+          <h1 className="text-2xl font-extrabold text-green-700">Tạo tài khoản</h1>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="px-6 py-6 space-y-4">
-          {/* Username */}
-          <Input
-            label="Username"
-            placeholder={`Nhập username (>= ${USERNAME_MIN} ký tự)`}
-            value={form.username}
-            onChange={(e) => handleChange("username", e.target.value)}
-            icon={<FaUser className="text-gray-400" />}
-            error={errors.username}
-            autoComplete="username"
-          />
+        <form onSubmit={handleSubmit} className="px-6 pb-6 space-y-3">
+          <Input label="Username" value={form.username} onChange={(e) => handleChange("username", e.target.value)} icon={<FaUser />} error={errors.username} />
+          <Input label="First Name" value={form.firstName} onChange={(e) => handleChange("firstName", e.target.value)} icon={<FaUser />} />
+          <Input label="Last Name" value={form.lastName} onChange={(e) => handleChange("lastName", e.target.value)} icon={<FaUser />} />
+          <Input label="Số điện thoại" value={form.phoneNumber} onChange={(e) => handleChange("phoneNumber", e.target.value)} icon={<FaPhone />} />
+          <Input label="Email" type="email" value={form.email} onChange={(e) => handleChange("email", e.target.value)} icon={<FaEnvelope />} error={errors.email} />
 
-          {/* First Name */}
-          <Input
-            label="First Name"
-            placeholder="Ví dụ: An"
-            value={form.firstName}
-            onChange={(e) => handleChange("firstName", e.target.value)}
-            icon={<FaUser className="text-gray-400" />}
-            autoComplete="given-name"
-          />
-
-          {/* Last Name */}
-          <Input
-            label="Last Name"
-            placeholder="Ví dụ: Nguyễn"
-            value={form.lastName}
-            onChange={(e) => handleChange("lastName", e.target.value)}
-            icon={<FaUser className="text-gray-400" />}
-            autoComplete="family-name"
-          />
-
-          {/* Email */}
-          <Input
-            label="E-mail Address"
-            placeholder="name@example.com"
-            value={form.email}
-            onChange={(e) => handleChange("email", e.target.value)}
-            icon={<FaEnvelope className="text-gray-400" />}
-            error={errors.email}
-            type="email"
-            autoComplete="email"
-          />
-
-          {/* Send OTP */}
-          <button
-            type="button"
-            onClick={handleSendOtp}
-            disabled={!canSendOtp}
-            className={`w-full flex items-center justify-center gap-2 py-3 rounded-lg font-semibold text-white transition ${
-              canSendOtp ? "bg-green-600 hover:bg-green-700" : "bg-green-300 cursor-not-allowed"
-            }`}
-          >
-            {sendingOtp ? "Đang gửi..." : (<><FaPaperPlane /> Click Here to send OTP</>)}
+          {/* Gửi OTP */}
+          <button type="button" onClick={handleSendOtp} disabled={!canSendOtp} className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md font-semibold">
+            {sendingOtp ? "Đang gửi..." : "Gửi OTP"}
           </button>
 
-          {/* OTP + Resend */}
-          <div>
-            <label className="mb-1 font-medium text-gray-700 block">OTP</label>
-            <div className="flex gap-3">
-              <input
-                type="tel"
-                inputMode="numeric"
-                maxLength={OTP_LEN}
-                placeholder={`Nhập ${OTP_LEN} số OTP`}
-                value={form.otp}
-                onChange={(e) =>
-                  handleChange("otp", e.target.value.replace(/\D/g, "").slice(0, OTP_LEN))
-                }
-                className="flex-1 border border-gray-300 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-green-500"
-              />
-              <button
-                type="button"
-                onClick={handleSendOtp}
-                disabled={!EMAIL_REGEX.test(form.email) || resendLeft > 0}
-                className={`px-4 rounded-md text-white flex items-center justify-center gap-2 transition ${
-                  resendLeft > 0 ? "bg-gray-300 cursor-not-allowed" : "bg-green-600 hover:bg-green-700"
-                }`}
-                aria-label="Resend OTP"
-              >
-                <FaRedo />
-                {resendLeft > 0 ? `Gửi lại (${resendLeft}s)` : "Gửi lại"}
-              </button>
-            </div>
-            {errors.otp && <div className="text-red-500 text-sm mt-1">{errors.otp}</div>}
+          {/* OTP + Gửi lại */}
+          <div className="flex gap-2">
+            <input
+              type="tel"
+              maxLength={OTP_LEN}
+              value={form.otp}
+              onChange={(e) => handleChange("otp", e.target.value.replace(/\D/g, "").slice(0, OTP_LEN))}
+              className="flex-1 border rounded-md px-3 py-2 outline-none"
+              placeholder="Nhập OTP"
+            />
+            <button
+              type="button"
+              onClick={handleSendOtp}
+              disabled={resendLeft > 0 || !EMAIL_REGEX.test(form.email)}
+              className="px-4 py-2 bg-green-600 text-white rounded-md font-semibold"
+            >
+              {resendLeft > 0 ? `Gửi lại (${resendLeft}s)` : "Gửi lại"}
+            </button>
           </div>
+          {errors.otp && <p className="text-red-500 text-sm">{errors.otp}</p>}
 
-          {/* Password */}
-          <Input
-            label="Password"
-            placeholder={`Tối thiểu ${PWD_MIN} ký tự`}
-            type="password"
-            icon={<FaLock className="text-gray-400" />}
-            value={form.password}
-            onChange={(e) => handleChange("password", e.target.value)}
-            error={errors.password}
-            autoComplete="new-password"
-          />
-
-          {/* Confirm Password */}
-          <Input
-            label="Confirm Password"
-            placeholder="Nhập lại mật khẩu"
-            type="password"
-            icon={<FaLock className="text-gray-400" />}
-            value={form.confirmPassword}
-            onChange={(e) => handleChange("confirmPassword", e.target.value)}
-            error={errors.confirmPassword}
-            autoComplete="new-password"
-          />
+          <Input label="Password" type="password" value={form.password} onChange={(e) => handleChange("password", e.target.value)} icon={<FaLock />} error={errors.password} />
+          <Input label="Confirm Password" type="password" value={form.confirmPassword} onChange={(e) => handleChange("confirmPassword", e.target.value)} icon={<FaLock />} error={errors.confirmPassword} />
 
           {serverError && <div className="text-red-600 text-sm">{serverError}</div>}
 
-          {/* Register */}
-          <button
-            type="submit"
-            disabled={!canSubmit}
-            className={`w-full py-3 rounded-lg font-semibold text-white transition ${
-              canSubmit ? "bg-green-600 hover:bg-green-700" : "bg-green-300 cursor-not-allowed"
-            }`}
-          >
+          <button type="submit" disabled={!canSubmit} className="w-full py-3 bg-green-600 text-white rounded-md font-bold">
             {submitting ? "Đang xử lý..." : "Đăng ký"}
           </button>
 
-          {/* Login link */}
-          <p className="text-center text-sm text-gray-600">
-            Đã có tài khoản?{" "}
-            <Link to="/DangNhap" className="text-green-600 font-semibold hover:underline">
-              Đăng nhập
-            </Link>
-          </p>
-
-          <p className="text-center text-[11px] text-gray-400 mt-2">
-            © 2025 Bách Hóa Xanh. Tất cả quyền được bảo lưu.
-          </p>
+          <Link to="/DangNhap" className="block text-center mt-3 text-sm text-gray-600 hover:underline">
+            Đã có tài khoản? Đăng nhập
+          </Link>
         </form>
       </div>
     </div>
