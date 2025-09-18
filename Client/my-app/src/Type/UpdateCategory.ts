@@ -2,6 +2,6 @@ export type UpdateCategory = {
     id :  string,
     name : string,
     description : string,
-    imageUrl : File,
+    imageUrl : File | null | string,
     categoryParentId : string
 }

@@ -1,30 +1,63 @@
-import { useGetCategory } from '@/Hooks/Category';
+import { useDeleteCategory, useGetCategory } from '@/Hooks/Category';
 import type { Category } from '@/Type/Category';
-import { createFileRoute } from '@tanstack/react-router'
-import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef } from 'material-react-table';
+import { createFileRoute } from '@tanstack/react-router';
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+  type MRT_ColumnDef,
+} from 'material-react-table';
 import { useMemo, useState } from 'react';
 import ModalThem from './-component/ModalThem';
+import ModalSua from './-component/ModalSua';
 import {
   Box,
   Button,
   Card,
   IconButton,
-  Switch,
   Tooltip,
   Typography,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-import ModalThemSua from '../Menu/- component/ModalThem';
+import { useFile } from '@/Hooks/File';
+import type { UpdateCategory } from '@/Type/UpdateCategory';
+import Swal from 'sweetalert2';
+import type { ResponseType } from '@/Type/ResponseType';
 export const Route = createFileRoute('/admin/Dashboard/DanhMuc/')({
   component: RouteComponent,
-})
+});
 
 function RouteComponent() {
-  const [openModal, setOpenModal] = useState<boolean>(false)
+  const [openModal, setOpenModal] = useState(false);
+  const [openModalUpdate, setOpenModalUpdate] = useState(false);
+  const [selectedRow, setSelectedRow] = useState<UpdateCategory | undefined>();
+
   const { data, isError: isLoadingMenuError } = useGetCategory(1, 10);
   const dataCategory: Category[] = data?.items ?? [];
+  const deleteCategory = useDeleteCategory()
+
+  const handleDelete = (id: string) => {
+    Swal.fire({
+      title: "Bạn có muốn xóa dữ liệu này ? ",
+      text: "Lưu ý dữ liệu này sẽ mất vĩnh viễn",
+      showDenyButton: true,
+      confirmButtonText: "Xác nhận",
+      denyButtonText: `Không`
+    }).then(async (result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        const response: ResponseType = await deleteCategory.mutateAsync(
+          id,
+        );
+        if (response?.status === 200) {
+          Swal.fire("Xóa dữ liệu thành công");
+        } else {
+          Swal.fire("Đã có lỗi xảy ra");
+        }
+      }
+    });
+  }
 
   const columns = useMemo<MRT_ColumnDef<Category>[]>(
     () => [
@@ -44,27 +77,56 @@ function RouteComponent() {
         accessorKey: 'imageUrl',
         header: 'Hình ảnh',
         size: 150,
+        Cell: ({ cell }) => {
+          const path = cell.getValue<string>();
+          const { data: image } = useFile(path);
+
+          if (!image) return <span>Đang tải...</span>;
+
+          return (
+            <img
+              src={image}
+              alt="Ảnh danh mục"
+              style={{
+                width: 80,
+                height: 80,
+                objectFit: 'cover',
+                borderRadius: 8,
+              }}
+            />
+          );
+        },
       },
-      // {
-      //   accessorKey: 'isActive',
-      //   header: 'Kích hoạt',
-      //   size: 120,
-      //   muiTableHeadCellProps: { align: 'center' },
-      //   muiTableBodyCellProps: { align: 'center' },
-      //   Cell: ({ cell }) => (
-      //     <Switch
-      //       checked={cell.getValue<boolean>()}
-      //       size="small"
-      //       color="success"
-      //     />
-      //   ),
-      // },
     ],
-    [],
+    []
   );
 
-  const handleOpenModal = () => setOpenModal(true)
+  const handleOpenModal = () => setOpenModal(true);
   const handleCloseModal = () => setOpenModal(false);
+
+  const mapCategoryToUpdate = (category: Category): UpdateCategory => {
+    return {
+      id: category.id,
+      name: category.name,
+      description: category.description,
+      imageUrl: category.imageUrl,
+      categoryParentId: category.categoryParentId,
+    };
+  };
+
+  const handleOpenModalUpdate = (row: Category) => {
+    const updateData: UpdateCategory = mapCategoryToUpdate(row);
+    setSelectedRow(updateData);
+    setOpenModalUpdate(true);
+  };
+
+  const handleCloseModalUpdate = () => {
+    setSelectedRow(undefined);
+    setOpenModalUpdate(false);
+  };
+
+
+
   const table = useMaterialReactTable({
     columns,
     data: dataCategory,
@@ -88,13 +150,13 @@ function RouteComponent() {
         <Tooltip title="Chỉnh sửa">
           <IconButton
             color="primary"
-          // onClick={() => handleOpenModalUpdate(row.original)}
+            onClick={() => handleOpenModalUpdate(row.original)}
           >
             <EditIcon />
           </IconButton>
         </Tooltip>
         <Tooltip title="Xóa">
-          <IconButton color="error" >
+          <IconButton color="error" onClick={() => handleDelete(row.original.id)}>
             <DeleteIcon />
           </IconButton>
         </Tooltip>
@@ -124,14 +186,20 @@ function RouteComponent() {
       </Box>
     ),
   });
+
   return (
     <Card elevation={3} sx={{ p: 2 }}>
       <MaterialReactTable table={table} />
-       <ModalThem
-        handleClose={handleCloseModal}
-        openModal={openModal}
+
+      {/* Modal thêm */}
+      <ModalThem handleClose={handleCloseModal} openModal={openModal} />
+
+      {/* Modal sửa */}
+      <ModalSua
+        handleClose={handleCloseModalUpdate}
+        openModal={openModalUpdate}
+        initialValues={selectedRow}
       />
     </Card>
-  )
-
+  );
 }

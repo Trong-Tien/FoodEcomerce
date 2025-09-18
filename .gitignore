@@ -545,3 +545,4 @@ FodyWeavers.xsd
 bin/obj
 /client/.env
 
+/Server/FoodEcomerce/FoodEcomerce/wwwroot/UploadFiles/Images/Categorys

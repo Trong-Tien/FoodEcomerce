@@ -42,6 +42,19 @@ namespace FoodEcomerce.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpGet("GetAllByParent")]
+        public async Task<IActionResult> GetAllByParent()
+        {
+            try
+            {
+                var result = await _unitOfWork.CategoryDepository.GetAllParent();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
         [HttpPost("Create")]
         public async Task<IActionResult> Create([FromForm] CategoryModal modal)
         {
@@ -68,7 +81,7 @@ namespace FoodEcomerce.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [HttpDelete("Delete")]
+        [HttpDelete("Delete/{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
             try

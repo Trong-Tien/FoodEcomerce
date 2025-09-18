@@ -6,5 +6,6 @@ namespace FoodEcomerce.Reposiroty.Categorys
 {
     public interface ICategoryDepository : IBaseRepository<Category, CategoryModal, CategoryDTO, Guid>
     {
+        Task<List<CategoryDTO>> GetAllParent();
     }
 }

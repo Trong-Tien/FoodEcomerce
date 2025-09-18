@@ -11,8 +11,12 @@ export const getAll = async (pageNumber: number, pageSize: number) => {
   return data;
 };
 
+export const getAllByParent = async () => {
+  const { data } = await api.get(`/GetAllByParent`);
+  return data;
+};
+
 export const create = async (item: AddCategory) => {
-  console.log(item)
   const formData = new FormData();
   formData.append("id", item.id);
   formData.append("name", item.name);

@@ -19,14 +19,10 @@ type props = {
 }
 const ModalThem: React.FC<props> = ({ openModal, initialValues, handleClose }) => {
     const createCategory = useCreateCategory()
-
-
     const categoryValidate = yup.object<AddCategory>({
         name: yup.string().required("Tên danh mục là bắt buộc"),
         description: yup.string().required("Vui lòng nhập mô tả "),
     })
-
-    type CategoryForm = yup.InferType<typeof categoryValidate>
 
     const {
         register,
@@ -48,12 +44,12 @@ const ModalThem: React.FC<props> = ({ openModal, initialValues, handleClose }) =
     }, [initialValues, reset]);
 
     const onSubmit = async (data: AddCategory) => {
-        var tempData : AddCategory={
-            id : uuidv4(),
-            categoryParentId : data.categoryParentId == undefined ? null : data.categoryParentId,
-            description : data.description,
-            imageUrl : data.imageUrl ,
-            name : data.name
+        var tempData: AddCategory = {
+            id: uuidv4(),
+            categoryParentId: data.categoryParentId == undefined ? null : data.categoryParentId,
+            description: data.description,
+            imageUrl: data.imageUrl,
+            name: data.name
         }
         var response: ResponseType = await createCategory.mutateAsync(tempData)
         if (response?.status === 200) {
@@ -61,14 +57,15 @@ const ModalThem: React.FC<props> = ({ openModal, initialValues, handleClose }) =
                 title: "Thêm mới dữ liệu thành công",
                 icon: "success"
             });
+               handleClose()
+               reset()
         } else {
             Swal.fire({
                 title: "Đã có lỗi xảy ra vui lòng kiểm tra lại hệ thống",
                 icon: "error"
             });
         }
-        handleClose()
-        reset()
+
     }
     return (
         <Dialog open={openModal} onClose={handleClose} fullWidth maxWidth={'sm'}>
