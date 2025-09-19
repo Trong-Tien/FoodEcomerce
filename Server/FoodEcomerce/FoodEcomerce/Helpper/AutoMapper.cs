@@ -25,6 +25,8 @@ namespace FoodEcomerce.Helpper
             CreateMap<UnitCaculateModal, UnitCaculate>();
             CreateMap<Menu, MenuModal>();
             CreateMap<MenuModal, Menu>();
+            CreateMap<MenuRole, MenuRoleModal>().ReverseMap();
+            CreateMap<MenuRole, MenuRoleDTO>().ReverseMap();
 
 
         }

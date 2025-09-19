@@ -2,10 +2,10 @@
 {
     public class CategoryModal
     {
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } = new Guid();
         public string? Name { get; set; }
         public string? Description { get; set; }
         public IFormFile? ImageUrl { get; set; }
-        public Guid CategoryParentId { get; set; }
+        public Guid? CategoryParentId { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using FoodEcomerce.Abstract;
 using FoodEcomerce.Entity;
+using FoodEcomerce.Entity.StoreProcedure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -18,6 +19,8 @@ var settings = builder.Configuration
                 .GetRequiredSection("ConnectionStrings");
 builder.Services.AddDbContext<FoodDbContex>(options =>
         options.UseSqlServer(settings["DefaultConnection"]));
+builder.Services.AddDbContext<StoreDbcontext>(options =>
+        options.UseSqlServer(settings["DefaultConnection"]));
 
 builder.Services.AddScoped<UnitOfWork>();
 builder.Services.AddAutoMapper(typeof(Program));
@@ -26,7 +29,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("*",
         policy =>
         {
-            policy.WithOrigins("http://localhost:5173") 
+            policy.AllowAnyOrigin()
                   .AllowAnyHeader()
                   .AllowAnyMethod(); // GET, POST, PUT, DELETE
         });
@@ -101,11 +104,14 @@ var app = builder.Build();
 
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
+//if (app.Environment.IsDevelopment())
+//{
+//app.UseSwagger();
+//app.UseSwaggerUI();
+//}
+
 app.UseSwagger();
 app.UseSwaggerUI();
-}
 
 app.UseCors("*");
 

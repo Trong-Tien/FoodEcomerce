@@ -18,7 +18,10 @@ import { Route as DangKyIndexRouteImport } from './routes/DangKy/index'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
 import { Route as CategoryCategoryRouteImport } from './routes/category/$category'
 import { Route as AdminDashboardRouteRouteImport } from './routes/admin/Dashboard/route'
+import { Route as AdminDashboardNguoiDungIndexRouteImport } from './routes/admin/Dashboard/NguoiDung/index'
 import { Route as AdminDashboardMenuIndexRouteImport } from './routes/admin/Dashboard/Menu/index'
+import { Route as AdminDashboardLoaiTaiKhoanIndexRouteImport } from './routes/admin/Dashboard/LoaiTaiKhoan/index'
+import { Route as AdminDashboardDonViTinhIndexRouteImport } from './routes/admin/Dashboard/DonViTinh/index'
 import { Route as AdminDashboardDanhMucIndexRouteImport } from './routes/admin/Dashboard/DanhMuc/index'
 
 const IndexRoute = IndexRouteImport.update({
@@ -66,11 +69,29 @@ const AdminDashboardRouteRoute = AdminDashboardRouteRouteImport.update({
   path: '/admin/Dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminDashboardNguoiDungIndexRoute =
+  AdminDashboardNguoiDungIndexRouteImport.update({
+    id: '/NguoiDung/',
+    path: '/NguoiDung/',
+    getParentRoute: () => AdminDashboardRouteRoute,
+  } as any)
 const AdminDashboardMenuIndexRoute = AdminDashboardMenuIndexRouteImport.update({
   id: '/Menu/',
   path: '/Menu/',
   getParentRoute: () => AdminDashboardRouteRoute,
 } as any)
+const AdminDashboardLoaiTaiKhoanIndexRoute =
+  AdminDashboardLoaiTaiKhoanIndexRouteImport.update({
+    id: '/LoaiTaiKhoan/',
+    path: '/LoaiTaiKhoan/',
+    getParentRoute: () => AdminDashboardRouteRoute,
+  } as any)
+const AdminDashboardDonViTinhIndexRoute =
+  AdminDashboardDonViTinhIndexRouteImport.update({
+    id: '/DonViTinh/',
+    path: '/DonViTinh/',
+    getParentRoute: () => AdminDashboardRouteRoute,
+  } as any)
 const AdminDashboardDanhMucIndexRoute =
   AdminDashboardDanhMucIndexRouteImport.update({
     id: '/DanhMuc/',
@@ -89,7 +110,10 @@ export interface FileRoutesByFullPath {
   '/GioHang': typeof GioHangIndexRoute
   '/admin': typeof AdminIndexRoute
   '/admin/Dashboard/DanhMuc': typeof AdminDashboardDanhMucIndexRoute
+  '/admin/Dashboard/DonViTinh': typeof AdminDashboardDonViTinhIndexRoute
+  '/admin/Dashboard/LoaiTaiKhoan': typeof AdminDashboardLoaiTaiKhoanIndexRoute
   '/admin/Dashboard/Menu': typeof AdminDashboardMenuIndexRoute
+  '/admin/Dashboard/NguoiDung': typeof AdminDashboardNguoiDungIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -102,7 +126,10 @@ export interface FileRoutesByTo {
   '/GioHang': typeof GioHangIndexRoute
   '/admin': typeof AdminIndexRoute
   '/admin/Dashboard/DanhMuc': typeof AdminDashboardDanhMucIndexRoute
+  '/admin/Dashboard/DonViTinh': typeof AdminDashboardDonViTinhIndexRoute
+  '/admin/Dashboard/LoaiTaiKhoan': typeof AdminDashboardLoaiTaiKhoanIndexRoute
   '/admin/Dashboard/Menu': typeof AdminDashboardMenuIndexRoute
+  '/admin/Dashboard/NguoiDung': typeof AdminDashboardNguoiDungIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -116,7 +143,10 @@ export interface FileRoutesById {
   '/GioHang/': typeof GioHangIndexRoute
   '/admin/': typeof AdminIndexRoute
   '/admin/Dashboard/DanhMuc/': typeof AdminDashboardDanhMucIndexRoute
+  '/admin/Dashboard/DonViTinh/': typeof AdminDashboardDonViTinhIndexRoute
+  '/admin/Dashboard/LoaiTaiKhoan/': typeof AdminDashboardLoaiTaiKhoanIndexRoute
   '/admin/Dashboard/Menu/': typeof AdminDashboardMenuIndexRoute
+  '/admin/Dashboard/NguoiDung/': typeof AdminDashboardNguoiDungIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -131,7 +161,10 @@ export interface FileRouteTypes {
     | '/GioHang'
     | '/admin'
     | '/admin/Dashboard/DanhMuc'
+    | '/admin/Dashboard/DonViTinh'
+    | '/admin/Dashboard/LoaiTaiKhoan'
     | '/admin/Dashboard/Menu'
+    | '/admin/Dashboard/NguoiDung'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -144,7 +177,10 @@ export interface FileRouteTypes {
     | '/GioHang'
     | '/admin'
     | '/admin/Dashboard/DanhMuc'
+    | '/admin/Dashboard/DonViTinh'
+    | '/admin/Dashboard/LoaiTaiKhoan'
     | '/admin/Dashboard/Menu'
+    | '/admin/Dashboard/NguoiDung'
   id:
     | '__root__'
     | '/'
@@ -157,7 +193,10 @@ export interface FileRouteTypes {
     | '/GioHang/'
     | '/admin/'
     | '/admin/Dashboard/DanhMuc/'
+    | '/admin/Dashboard/DonViTinh/'
+    | '/admin/Dashboard/LoaiTaiKhoan/'
     | '/admin/Dashboard/Menu/'
+    | '/admin/Dashboard/NguoiDung/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -237,11 +276,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminDashboardRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/Dashboard/NguoiDung/': {
+      id: '/admin/Dashboard/NguoiDung/'
+      path: '/NguoiDung'
+      fullPath: '/admin/Dashboard/NguoiDung'
+      preLoaderRoute: typeof AdminDashboardNguoiDungIndexRouteImport
+      parentRoute: typeof AdminDashboardRouteRoute
+    }
     '/admin/Dashboard/Menu/': {
       id: '/admin/Dashboard/Menu/'
       path: '/Menu'
       fullPath: '/admin/Dashboard/Menu'
       preLoaderRoute: typeof AdminDashboardMenuIndexRouteImport
+      parentRoute: typeof AdminDashboardRouteRoute
+    }
+    '/admin/Dashboard/LoaiTaiKhoan/': {
+      id: '/admin/Dashboard/LoaiTaiKhoan/'
+      path: '/LoaiTaiKhoan'
+      fullPath: '/admin/Dashboard/LoaiTaiKhoan'
+      preLoaderRoute: typeof AdminDashboardLoaiTaiKhoanIndexRouteImport
+      parentRoute: typeof AdminDashboardRouteRoute
+    }
+    '/admin/Dashboard/DonViTinh/': {
+      id: '/admin/Dashboard/DonViTinh/'
+      path: '/DonViTinh'
+      fullPath: '/admin/Dashboard/DonViTinh'
+      preLoaderRoute: typeof AdminDashboardDonViTinhIndexRouteImport
       parentRoute: typeof AdminDashboardRouteRoute
     }
     '/admin/Dashboard/DanhMuc/': {
@@ -256,12 +316,18 @@ declare module '@tanstack/react-router' {
 
 interface AdminDashboardRouteRouteChildren {
   AdminDashboardDanhMucIndexRoute: typeof AdminDashboardDanhMucIndexRoute
+  AdminDashboardDonViTinhIndexRoute: typeof AdminDashboardDonViTinhIndexRoute
+  AdminDashboardLoaiTaiKhoanIndexRoute: typeof AdminDashboardLoaiTaiKhoanIndexRoute
   AdminDashboardMenuIndexRoute: typeof AdminDashboardMenuIndexRoute
+  AdminDashboardNguoiDungIndexRoute: typeof AdminDashboardNguoiDungIndexRoute
 }
 
 const AdminDashboardRouteRouteChildren: AdminDashboardRouteRouteChildren = {
   AdminDashboardDanhMucIndexRoute: AdminDashboardDanhMucIndexRoute,
+  AdminDashboardDonViTinhIndexRoute: AdminDashboardDonViTinhIndexRoute,
+  AdminDashboardLoaiTaiKhoanIndexRoute: AdminDashboardLoaiTaiKhoanIndexRoute,
   AdminDashboardMenuIndexRoute: AdminDashboardMenuIndexRoute,
+  AdminDashboardNguoiDungIndexRoute: AdminDashboardNguoiDungIndexRoute,
 }
 
 const AdminDashboardRouteRouteWithChildren =

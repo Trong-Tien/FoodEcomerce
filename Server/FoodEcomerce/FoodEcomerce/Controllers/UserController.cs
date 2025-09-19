@@ -1,5 +1,6 @@
 ﻿
 using FoodEcomerce.Abstract;
+using FoodEcomerce.DTO;
 using FoodEcomerce.Modal;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,8 +22,35 @@ namespace FoodEcomerce.Controllers
         {
             try
             {
-                var result = await _unitOfWork.UserRepository.GetAll(pageNumber, pageSize);
-                return Ok(result);
+                var result = await _unitOfWork.UserRepository.GetAll(pageNumber, pageSize , x=> x.Role , x => x.Status);
+
+                var dto = result.Items.Select(u => new UserDTO
+                {
+                    Id = u.Id,
+                    UserName = u.UserName,
+                    PhoneNumber = u.PhoneNumber,
+                    Email = u.Email,
+                    Address = u.Address,
+                    Acvite = u.Acvite,
+                    IsAdmin = u.IsAdmin,
+                    StatusId = u.StatusId,
+                    
+                    Role = u.Role == null ? null : new RoleDTO
+                    {
+                        Id = u.Role.Id,
+                        OrderNumber = u.Role.OrderNumber,
+                        Name = u.Role.Name,
+                        Discription = u.Role.Discription
+                    },
+                    Status = u.Status == null ? null : new StatusDTO
+                    {
+                        Id=u.Status.Id,
+                        Name =u.Status.Name,
+                    } 
+                   
+                }).ToList();
+
+                return Ok(dto);
             }
             catch (Exception ex)
             {

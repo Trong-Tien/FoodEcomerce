@@ -17,7 +17,7 @@ namespace FoodEcomerce.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.19")
+                .HasAnnotation("ProductVersion", "8.0.15")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -59,14 +59,14 @@ namespace FoodEcomerce.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<double>("TotalPrice")
-                        .HasColumnType("double");
+                    b.Property<decimal>("TotalPrice")
+                        .HasColumnType("decimal");
 
                     b.Property<Guid>("UnitCaculateId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<double>("UnitPrice")
-                        .HasColumnType("double");
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("decimal");
 
                     b.HasKey("Id")
                         .HasName("PK_CartItem");
@@ -161,7 +161,7 @@ namespace FoodEcomerce.Migrations
                     b.Property<int>("OrderNumber")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("ParentId")
+                    b.Property<Guid?>("ParentId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("UpdateAt")
@@ -207,6 +207,29 @@ namespace FoodEcomerce.Migrations
                     b.ToTable("MenuRoles");
                 });
 
+            modelBuilder.Entity("FoodEcomerce.Entity.OTP", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("Expiry")
+                        .HasColumnType("datetime");
+
+                    b.HasKey("Id")
+                        .HasName("PK_OTP");
+
+                    b.ToTable("OTP", (string)null);
+                });
+
             modelBuilder.Entity("FoodEcomerce.Entity.OrderDetail", b =>
                 {
                     b.Property<Guid>("Id")
@@ -222,14 +245,14 @@ namespace FoodEcomerce.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<double>("TotalPrice")
-                        .HasColumnType("double");
+                    b.Property<decimal>("TotalPrice")
+                        .HasColumnType("decimal");
 
                     b.Property<Guid>("UnitCaculateId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<double>("UnitPrice")
-                        .HasColumnType("double");
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("decimal");
 
                     b.HasKey("Id")
                         .HasName("PK_OrderDetail");
@@ -263,14 +286,14 @@ namespace FoodEcomerce.Migrations
                         .HasMaxLength(300)
                         .HasColumnType("nvarchar(300)");
 
-                    b.Property<double>("ShippingFee")
-                        .HasColumnType("double");
+                    b.Property<decimal>("ShippingFee")
+                        .HasColumnType("decimal");
 
                     b.Property<int>("StatusOrdersId")
                         .HasColumnType("int");
 
-                    b.Property<double>("TotalPrice")
-                        .HasColumnType("double");
+                    b.Property<decimal>("TotalPrice")
+                        .HasColumnType("decimal");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
@@ -642,7 +665,7 @@ namespace FoodEcomerce.Migrations
                         .HasMaxLength(11)
                         .HasColumnType("nvarchar(11)");
 
-                    b.Property<Guid?>("RoleId")
+                    b.Property<Guid>("RoleId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int?>("StatusId")
@@ -875,6 +898,7 @@ namespace FoodEcomerce.Migrations
                     b.HasOne("FoodEcomerce.Entity.Role", "Role")
                         .WithMany("Users")
                         .HasForeignKey("RoleId")
+                        .IsRequired()
                         .HasConstraintName("FK_Role_User");
 
                     b.HasOne("FoodEcomerce.Entity.Status", "Status")

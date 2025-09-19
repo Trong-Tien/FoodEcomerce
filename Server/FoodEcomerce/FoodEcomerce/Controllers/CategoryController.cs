@@ -17,7 +17,7 @@ namespace FoodEcomerce.Controllers
         }
 
         [HttpGet("GetAll")]
-        [Authorize]
+        //[Authorize]
         public  async Task<IActionResult> GetAll(int pageNumber , int pagesize)
         {
             try
@@ -35,6 +35,19 @@ namespace FoodEcomerce.Controllers
             try
             {
                 var result = await _unitOfWork.CategoryDepository.GetById(id);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpGet("GetAllByParent")]
+        public async Task<IActionResult> GetAllByParent()
+        {
+            try
+            {
+                var result = await _unitOfWork.CategoryDepository.GetAllParent();
                 return Ok(result);
             }
             catch (Exception ex)
@@ -68,7 +81,7 @@ namespace FoodEcomerce.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [HttpDelete("Delete")]
+        [HttpDelete("Delete/{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
             try

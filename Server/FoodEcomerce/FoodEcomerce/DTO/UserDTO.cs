@@ -10,5 +10,7 @@
         public bool? Acvite { get; set; }
         public bool? IsAdmin { get; set; }
         public int? StatusId { get; set; }
+        public RoleDTO? Role { get; set; }   
+        public StatusDTO? Status { get; set; }
     }
 }

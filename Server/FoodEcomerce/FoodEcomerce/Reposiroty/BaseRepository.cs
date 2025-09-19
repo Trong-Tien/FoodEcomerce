@@ -75,7 +75,7 @@ namespace FoodEcomerce.Reposiroty
                 await _dbContext.Set<T>().AddAsync(mappedEntity);
                 await _dbContext.SaveChangesAsync();
                 return new ResultModal() { Status = 200, Message = "Thêm mới thành công", Success = true };
-            } else return new ResultModal() { Status = 202, Message = "Không timg thấy dữ liệu", Success = false };
+            } else return new ResultModal() { Status = 202, Message = "Không tìm thấy dữ liệu", Success = false };
         }
         public async Task<ResultModal> Update(TModal entity)
         {
