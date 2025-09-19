@@ -5,6 +5,6 @@ export type Register = {
   lastName: string;
   email: string;
   otp: string;
-  password: string;
+  ///password: string;
   confirmPassword: string;
 };
