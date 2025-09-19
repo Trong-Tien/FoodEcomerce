@@ -1,5 +1,6 @@
 ﻿using FoodEcomerce.Abstract;
 using FoodEcomerce.Modal;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FoodEcomerce.Controllers
@@ -16,6 +17,7 @@ namespace FoodEcomerce.Controllers
         }
 
         [HttpGet("GetAll")]
+        [Authorize]
         public  async Task<IActionResult> GetAll(int pageNumber , int pagesize)
         {
             try

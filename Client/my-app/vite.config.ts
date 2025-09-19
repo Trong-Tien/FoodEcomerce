@@ -1,15 +1,20 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { tanstackRouter } from '@tanstack/router-plugin/vite'
-// https://vite.dev/config/
+import path from 'path'
+
 export default defineConfig({
   plugins: [
-    // Please make sure that '@tanstack/router-plugin' is passed before '@vitejs/plugin-react'
+    // ⚡ Quan trọng: tanstackRouter phải đứng trước react()
     tanstackRouter({
       target: 'react',
       autoCodeSplitting: true,
     }),
     react(),
-    // ...,
   ],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
 })

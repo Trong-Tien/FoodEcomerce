@@ -1,21 +1,32 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { useState, FormEvent } from 'react';
-import AccountCircle from '@mui/icons-material/AccountCircle';
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { useForm, type SubmitHandler } from "react-hook-form"
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Box,
-  Button,
   TextField,
   Typography,
   Container,
   Paper,
-  Link,
+  Button,
   InputAdornment,
+  IconButton
 } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import logo from "../../assets/img/logo.jpg"
+import { useState } from 'react';
+import PersonIcon from '@mui/icons-material/Person';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import LockIcon from '@mui/icons-material/Lock';
 export const Route = createFileRoute('/admin/')({
   component: RouteComponent,
 })
+
+type Login = {
+  userName: string,
+  password: string
+}
 
 const theme = createTheme({
   palette: {
@@ -28,13 +39,62 @@ const theme = createTheme({
   },
 });
 
+
+const login = async (data: Login) => {
+
+  // call API Login
+  const response = await fetch(`https://localhost:7004/api/Auth/LoginWithWebUser`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to update todo');
+  }
+  return response.json();
+}
 function RouteComponent() {
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    console.log('Login attempt with:', { email, password });
-  };
+  const navigate = useNavigate()
+  const queryClient = useQueryClient();
+  const [showPass, setShowPass] = useState<boolean>(false)
+
+  // cấu hình react hookform
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<Login>();
+
+  const mutation = useMutation({
+    mutationFn: login,
+    onSuccess: (data) => {
+      if(data?.status === 200)
+      {
+        localStorage.setItem("tokenCheckLogin", JSON.stringify(data?.accessToken));
+        goToDashBoard()
+      }
+      else alert("Đăng nhập thất bại")
+      queryClient.invalidateQueries({ queryKey: ["Auth"] });
+    },
+    onError: (error: any) => {
+      console.error("Login thất bại:", error.message);
+    },
+  });
+
+  const goToDashBoard = () => {
+    navigate({
+      to: '/admin/Dashboard/',
+    })
+  }
+
+  const onSubmit: SubmitHandler<Login> = async (data) => { mutation.mutate(data)};
+
+  const handleClickShowPassword = () => {
+    setShowPass(true)
+  }
+  const handleClickHiddenPassword = () => {
+    setShowPass(false)
+  }
 
   return <ThemeProvider theme={theme}>
     <CssBaseline />
@@ -53,62 +113,75 @@ function RouteComponent() {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              width: "600px"
+              width: "600px",
+              height: "400px"
             }}
           >
+            <img src={logo} style={{ width: "300px" }}></img>
             <Typography component="h1" alignItems={"center"} variant="h5">
               ĐĂNG NHẬP TRANG QUẢN TRỊ WEB BÁN HÀNG
             </Typography>
-            <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
-              <TextField
-
-                margin="normal"
-                required
-                fullWidth
-                id="email"
-                label="Tài khoản"
-                name="email"
-                autoComplete="email"
-                autoFocus
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                slotProps={{
-                  input: {
-                    startAdornment: <InputAdornment position="start"><AccountCircle/></InputAdornment>,
-                  },
-                }}
-              />
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                name="password"
-                label="Mật khẩu"
-                type="password"
-                id="password"
-                autoComplete="current-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                slotProps={{
-                  input: {
-                    startAdornment: <InputAdornment position="start"><AccountCircle/></InputAdornment>,
-                  },
-                }}
-              />
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                sx={{ mt: 3, mb: 2 }}
-              >
-                Đăng Nhập
-              </Button>
-              <Box sx={{ textAlign: 'center' }}>
-                <Link href="#" variant="body2">
-                  Quên mật khẩu?
-                </Link>
-              </Box>
+            <Box sx={{ width: "100%" }}>
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <TextField
+                  label="Tên đăng nhập"
+                  fullWidth
+                  type='text'
+                  margin="normal"
+                  {...register("userName", {
+                    required: "Tên đăng nhập không được bỏ trống",
+                  })}
+                  slotProps={{
+                    input: {
+                      startAdornment: <InputAdornment position="start"><PersonIcon /></InputAdornment>,
+                    },
+                  }}
+                  error={!!errors.userName}
+                  helperText={errors.userName?.message}
+                />
+                <TextField
+                  label="Mật khẩu"
+                  fullWidth
+                  margin="normal"
+                  type={showPass ? "text" : "password"}
+                  {...register("password", {
+                    required: "Mật khẩu không được bỏ trống",
+                    minLength: {
+                      value: 6,
+                      message: "Mật khẩu phải có ít nhất 6 ký tự",
+                    },
+                  })}
+                  slotProps={{
+                    input: {
+                      startAdornment: <InputAdornment position="start"><LockIcon /></InputAdornment>,
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={showPass === false ? handleClickShowPassword : handleClickHiddenPassword}
+                            edge="end"
+                          >
+                            {showPass ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    },
+                  }}
+                  error={!!errors.password}
+                  helperText={errors.password?.message}
+                />
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="success"
+                  fullWidth
+                  sx={{ mt: 2, borderRadius: 2 }}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Đang xử lý" : "Đăng nhập"}
+                </Button>
+              </form>
             </Box>
+
           </Box>
         </Paper>
       </Box>

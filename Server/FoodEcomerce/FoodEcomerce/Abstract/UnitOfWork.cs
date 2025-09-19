@@ -3,6 +3,8 @@ using FoodEcomerce.Entity;
 using FoodEcomerce.Reposiroty.Auths;
 using FoodEcomerce.Reposiroty.Banners;
 using FoodEcomerce.Reposiroty.Categorys;
+using FoodEcomerce.Reposiroty.Menus;
+using FoodEcomerce.Reposiroty.Roles;
 using FoodEcomerce.Reposiroty.UnitCaculates;
 using FoodEcomerce.Reposiroty.Users;
 
@@ -17,6 +19,8 @@ namespace FoodEcomerce.Abstract
         private IAuthRepository _authRepository;
         private ICategoryDepository _categoryRepository;
         private IUnitCaculateRepository _unitCaculateRepository;
+        private IMenuRepository _menuRepository;
+        private IRoleRepository _roleRepository;
 
         public UnitOfWork(FoodDbContex dbContext, IMapper mapper)
         {
@@ -33,6 +37,10 @@ namespace FoodEcomerce.Abstract
         => _categoryRepository ??= new CategoryRepository(_dbContext, _mapper);
         public IUnitCaculateRepository UnitCaculateRepository
            => _unitCaculateRepository ??= new UnitCaculateRepository(_dbContext, _mapper);
+        public IMenuRepository MenuRepository
+          => _menuRepository ??= new MenuRepository(_dbContext, _mapper);
+        public IRoleRepository RoleRepository
+        => _roleRepository ??= new RoleRepository(_dbContext, _mapper);
         public bool Save()
         {
             bool isSuccess = _dbContext.SaveChanges() > 0;
