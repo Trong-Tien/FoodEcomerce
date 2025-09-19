@@ -66,7 +66,7 @@ function Header() {
             />
             <a
               className="absolute right-[10px] top-1/2 -translate-y-1/2 text-[#4CAF50]"
-              href="/gio-hang"
+              href="/GioHang"
             >
               <FaShoppingCart size={20} />
             </a>

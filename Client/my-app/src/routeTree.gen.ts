@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as GioHangIndexRouteImport } from './routes/GioHang/index'
 import { Route as DangNhapOTPIndexRouteImport } from './routes/DangNhapOTP/index'
 import { Route as DangNhapIndexRouteImport } from './routes/DangNhap/index'
 import { Route as DangKyIndexRouteImport } from './routes/DangKy/index'
@@ -27,6 +28,11 @@ const IndexRoute = IndexRouteImport.update({
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/admin/',
   path: '/admin/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GioHangIndexRoute = GioHangIndexRouteImport.update({
+  id: '/GioHang/',
+  path: '/GioHang/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DangNhapOTPIndexRoute = DangNhapOTPIndexRouteImport.update({
@@ -73,6 +79,7 @@ export interface FileRoutesByFullPath {
   '/DangKy': typeof DangKyIndexRoute
   '/DangNhap': typeof DangNhapIndexRoute
   '/DangNhapOTP': typeof DangNhapOTPIndexRoute
+  '/GioHang': typeof GioHangIndexRoute
   '/admin': typeof AdminIndexRoute
   '/admin/Dashboard/DanhMuc': typeof AdminDashboardDanhMucIndexRoute
   '/admin/Dashboard/Menu': typeof AdminDashboardMenuIndexRoute
@@ -84,6 +91,7 @@ export interface FileRoutesByTo {
   '/DangKy': typeof DangKyIndexRoute
   '/DangNhap': typeof DangNhapIndexRoute
   '/DangNhapOTP': typeof DangNhapOTPIndexRoute
+  '/GioHang': typeof GioHangIndexRoute
   '/admin': typeof AdminIndexRoute
   '/admin/Dashboard/DanhMuc': typeof AdminDashboardDanhMucIndexRoute
   '/admin/Dashboard/Menu': typeof AdminDashboardMenuIndexRoute
@@ -96,6 +104,7 @@ export interface FileRoutesById {
   '/DangKy/': typeof DangKyIndexRoute
   '/DangNhap/': typeof DangNhapIndexRoute
   '/DangNhapOTP/': typeof DangNhapOTPIndexRoute
+  '/GioHang/': typeof GioHangIndexRoute
   '/admin/': typeof AdminIndexRoute
   '/admin/Dashboard/DanhMuc/': typeof AdminDashboardDanhMucIndexRoute
   '/admin/Dashboard/Menu/': typeof AdminDashboardMenuIndexRoute
@@ -109,6 +118,7 @@ export interface FileRouteTypes {
     | '/DangKy'
     | '/DangNhap'
     | '/DangNhapOTP'
+    | '/GioHang'
     | '/admin'
     | '/admin/Dashboard/DanhMuc'
     | '/admin/Dashboard/Menu'
@@ -120,6 +130,7 @@ export interface FileRouteTypes {
     | '/DangKy'
     | '/DangNhap'
     | '/DangNhapOTP'
+    | '/GioHang'
     | '/admin'
     | '/admin/Dashboard/DanhMuc'
     | '/admin/Dashboard/Menu'
@@ -131,6 +142,7 @@ export interface FileRouteTypes {
     | '/DangKy/'
     | '/DangNhap/'
     | '/DangNhapOTP/'
+    | '/GioHang/'
     | '/admin/'
     | '/admin/Dashboard/DanhMuc/'
     | '/admin/Dashboard/Menu/'
@@ -143,6 +155,7 @@ export interface RootRouteChildren {
   DangKyIndexRoute: typeof DangKyIndexRoute
   DangNhapIndexRoute: typeof DangNhapIndexRoute
   DangNhapOTPIndexRoute: typeof DangNhapOTPIndexRoute
+  GioHangIndexRoute: typeof GioHangIndexRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
@@ -160,6 +173,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/GioHang/': {
+      id: '/GioHang/'
+      path: '/GioHang'
+      fullPath: '/GioHang'
+      preLoaderRoute: typeof GioHangIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/DangNhapOTP/': {
@@ -234,6 +254,7 @@ const rootRouteChildren: RootRouteChildren = {
   DangKyIndexRoute: DangKyIndexRoute,
   DangNhapIndexRoute: DangNhapIndexRoute,
   DangNhapOTPIndexRoute: DangNhapOTPIndexRoute,
+  GioHangIndexRoute: GioHangIndexRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 export const routeTree = rootRouteImport
