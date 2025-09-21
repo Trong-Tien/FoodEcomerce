@@ -4,6 +4,8 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { FaLock, FaUser } from "react-icons/fa";
 import Input from "@/Component/Common/Input";
 import { AuthService } from "@/Services/AuthService";
+import logo from "@/assets/img/logo.jpg";
+
 
 interface LoginForm {
   identity: string; // số điện thoại, username hoặc email
@@ -31,7 +33,7 @@ export default function Dangnhap() {
 
       // 👉 gọi API thật
       const data = await AuthService.login({
-        identity: form.identity,
+        phoneNumber: form.identity,
         password: form.password,
       });
 
@@ -42,8 +44,6 @@ export default function Dangnhap() {
       if (data.user) {
         localStorage.setItem("user", JSON.stringify(data.user));
       }
-
-      alert("Đăng nhập thành công!");
       navigate({ to: "/" }); // về trang chủ
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -62,8 +62,7 @@ export default function Dangnhap() {
         {/* Header */}
         <div className="bg-gradient-to-r from-[#2E7D32] via-[#4CAF50] to-[#7CB342] py-7 flex flex-col items-center">
           <img
-            src="/images/logo2.png"
-            alt="Logo"
+            src={logo} alt="Logo"
             className="w-16 h-16 mb-2 rounded-full bg-white/80 p-2"
           />
           <h1 className="text-xl font-extrabold text-white">

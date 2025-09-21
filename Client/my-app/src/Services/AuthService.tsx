@@ -8,8 +8,6 @@ export const AuthService = {
     phoneNumber: string;
     password: string;
     otp: string;
-    firstName: string;
-    lastName: string;
   }) {
     const body = {
       id: crypto.randomUUID(),
@@ -18,8 +16,6 @@ export const AuthService = {
       phoneNumber: payload.phoneNumber,
       password: payload.password,
       otp: payload.otp,
-      firstName: payload.firstName,
-      lastName: payload.lastName,
 
       acvite: true, // ✅ đúng key như backend yêu cầu
       isAdmin: false,
@@ -45,7 +41,7 @@ export const AuthService = {
   },
 
   // 👉 Đăng nhập
-  async login(payload: { identity: string; password: string }) {
+  async login(payload: { phoneNumber: string; password: string }) {
     const res = await fetch(`${API_BASE}/Login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
