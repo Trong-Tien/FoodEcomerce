@@ -1,12 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { FaUser, FaEnvelope, FaLock, FaPaperPlane, FaRedo, FaPhone } from "react-icons/fa";
+import { FaUser, FaEnvelope, FaLock, FaPhone } from "react-icons/fa";
 import Input from "@/Component/Common/Input";
-import { AuthService } from "@/Services/AuthService";
 import { useRegister, useSendOtp } from "@/Hooks/Auth";
 import type { ResponseType } from "@/Type/ResponseType";
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2";
 import type { Register } from "@/Types/RegisterForm";
+
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
 const USERNAME_MIN = 3;
 const OTP_LEN = 6;
@@ -28,6 +28,7 @@ export default function Dangky() {
   const navigate = useNavigate();
   const sendOtp = useSendOtp();
   const register = useRegister();
+
   const [form, setForm] = useState<RegisterForm>({
     username: "",
     firstName: "",
@@ -46,8 +47,8 @@ export default function Dangky() {
 
   useEffect(() => {
     if (resendLeft <= 0) return;
-    const t = setInterval(() => setResendLeft((s) => s - 1), 1000);
-    return () => clearInterval(t);
+    const timer = setInterval(() => setResendLeft((s) => s - 1), 1000);
+    return () => clearInterval(timer);
   }, [resendLeft]);
 
   const handleChange = (field: keyof RegisterForm, value: string) => {
@@ -55,57 +56,54 @@ export default function Dangky() {
     setServerError(null);
   };
 
-  const errors = useMemo(() => {
-    const e: Partial<Record<keyof RegisterForm, string>> = {};
+  const validate = (): Partial<Record<keyof RegisterForm, string>> => {
+    const errors: Partial<Record<keyof RegisterForm, string>> = {};
+
     if (form.username.trim().length < USERNAME_MIN) {
-      e.username = `Username tối thiểu ${USERNAME_MIN} ký tự.`;
+      errors.username = `Username tối thiểu ${USERNAME_MIN} ký tự.`;
     }
     if (!EMAIL_REGEX.test(form.email.trim())) {
-      e.email = "E-mail không hợp lệ.";
+      errors.email = "E-mail không hợp lệ.";
     }
     if (form.otp && form.otp.trim().length !== OTP_LEN) {
-      e.otp = `OTP phải gồm ${OTP_LEN} số.`;
+      errors.otp = `OTP phải gồm ${OTP_LEN} số.`;
     }
     if (form.password.length < PWD_MIN) {
-      e.password = `Mật khẩu tối thiểu ${PWD_MIN} ký tự.`;
+      errors.password = `Mật khẩu tối thiểu ${PWD_MIN} ký tự.`;
     }
     if (form.confirmPassword !== form.password) {
-      e.confirmPassword = "Mật khẩu xác nhận không khớp.";
+      errors.confirmPassword = "Mật khẩu xác nhận không khớp.";
     }
-    return e;
-  }, [form]);
 
-  //const canSendOtp = EMAIL_REGEX.test(form.email.trim()) && !sendingOtp && resendLeft === 0;
+    return errors;
+  };
+
+  const errors = validate();
 
   const canSubmit =
-    form.username.trim().length >= USERNAME_MIN &&
-    form.firstName.trim().length > 0 &&
-    form.lastName.trim().length > 0 &&
-    form.phoneNumber.trim().length > 0 &&
-    EMAIL_REGEX.test(form.email.trim()) &&
-    form.otp.trim().length === OTP_LEN &&
-    form.password.length >= PWD_MIN &&
-    form.confirmPassword === form.password &&
+    Object.keys(errors).length === 0 &&
+    form.firstName.trim() &&
+    form.lastName.trim() &&
+    form.phoneNumber.trim() &&
     !submitting;
 
   const handleSendOtp = async () => {
+    if (!EMAIL_REGEX.test(form.email) || sendingOtp) return;
 
-    //if (!canSendOtp) return;
     try {
       setSendingOtp(true);
       setServerError(null);
+
       const response: ResponseType = await sendOtp.mutateAsync(form.email);
+
       if (response.status === 200) {
         Swal.fire("Gửi OTP thành công");
         setResendLeft(RESEND_SECONDS);
+      } else {
+        Swal.fire("Đã có lỗi xảy ra, vui lòng liên hệ CSKH");
       }
-      else {
-        Swal.fire("Đã có lỗi xảy ra , xin vui lòng liên hệ với bộ phận chăm sóc khách hàng ");
-      }
-
-    } catch (err: unknown) {
-      if (err instanceof Error) setServerError(err.message);
-      else setServerError("Đã xảy ra lỗi không xác định.");
+    } catch (err) {
+      setServerError(err instanceof Error ? err.message : "Đã xảy ra lỗi không xác định.");
     } finally {
       setSendingOtp(false);
     }
@@ -114,11 +112,12 @@ export default function Dangky() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!canSubmit) return;
+
     try {
       setSubmitting(true);
       setServerError(null);
 
-      const tempData: Register = {
+      const payload: Register = {
         username: form.username,
         firstName: form.firstName,
         lastName: form.lastName,
@@ -126,19 +125,18 @@ export default function Dangky() {
         phoneNumber: form.phoneNumber,
         otp: form.otp,
         confirmPassword: form.password,
+      };
+
+      const response: ResponseType = await register.mutateAsync(payload);
+
+      if (response.status === 200) {
+        Swal.fire("Đăng ký thành công");
+        navigate({ to: "/DangNhap" });
+      } else {
+        Swal.fire("Đã có lỗi xảy ra, vui lòng liên hệ CSKH");
       }
-
-      const response : ResponseType = await register.mutateAsync(tempData)
-
-      if(response.status === 200)
-           Swal.fire("Đăng ký thành công");
-      else Swal.fire("Đã có lỗi xảy ra vui lòng liên hệ với bộ phận chăm sóc khách hàng");
-
-      alert("Đăng ký thành công!");
-      navigate({ to: "/DangNhap" });
-    } catch (err: unknown) {
-      if (err instanceof Error) setServerError(err.message);
-      else setServerError("Đăng ký thất bại, vui lòng thử lại.");
+    } catch (err) {
+      setServerError(err instanceof Error ? err.message : "Đăng ký thất bại, vui lòng thử lại.");
     } finally {
       setSubmitting(false);
     }
@@ -154,17 +152,18 @@ export default function Dangky() {
 
         <form onSubmit={handleSubmit} className="px-6 pb-6 space-y-3">
           <Input label="Username" value={form.username} onChange={(e) => handleChange("username", e.target.value)} icon={<FaUser />} error={errors.username} />
-          {/* <Input label="First Name" value={form.firstName} onChange={(e) => handleChange("firstName", e.target.value)} icon={<FaUser />} />
-          <Input label="Last Name" value={form.lastName} onChange={(e) => handleChange("lastName", e.target.value)} icon={<FaUser />} /> */}
           <Input label="Số điện thoại" value={form.phoneNumber} onChange={(e) => handleChange("phoneNumber", e.target.value)} icon={<FaPhone />} />
           <Input label="Email" type="email" value={form.email} onChange={(e) => handleChange("email", e.target.value)} icon={<FaEnvelope />} error={errors.email} />
 
-          {/* Gửi OTP */}
-          <button type="button" onClick={handleSendOtp} className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md font-semibold">
+          <button
+            type="button"
+            onClick={handleSendOtp}
+            disabled={sendingOtp || resendLeft > 0}
+            className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md font-semibold disabled:opacity-50"
+          >
             {sendingOtp ? "Đang gửi..." : "Gửi OTP"}
           </button>
 
-          {/* OTP + Gửi lại */}
           <div className="flex gap-2">
             <input
               type="tel"
@@ -178,7 +177,7 @@ export default function Dangky() {
               type="button"
               onClick={handleSendOtp}
               disabled={resendLeft > 0 || !EMAIL_REGEX.test(form.email)}
-              className="px-4 py-2 bg-green-600 text-white rounded-md font-semibold"
+              className="px-4 py-2 bg-green-600 text-white rounded-md font-semibold disabled:opacity-50"
             >
               {resendLeft > 0 ? `Gửi lại (${resendLeft}s)` : "Gửi lại"}
             </button>
@@ -190,8 +189,8 @@ export default function Dangky() {
 
           {serverError && <div className="text-red-600 text-sm">{serverError}</div>}
 
-          <button type="submit"  className="w-full py-3 bg-green-600 text-white rounded-md font-bold">
-            Đăng ký
+          <button type="submit" disabled={!canSubmit} className="w-full py-3 bg-green-600 text-white rounded-md font-bold disabled:opacity-50">
+            {submitting ? "Đang đăng ký..." : "Đăng ký"}
           </button>
 
           <Link to="/DangNhap" className="block text-center mt-3 text-sm text-gray-600 hover:underline">

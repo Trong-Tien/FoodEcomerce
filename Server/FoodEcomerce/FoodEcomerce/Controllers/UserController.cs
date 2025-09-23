@@ -30,6 +30,7 @@ namespace FoodEcomerce.Controllers
                     UserName = u.UserName,
                     PhoneNumber = u.PhoneNumber,
                     Email = u.Email,
+                    Password = u.Password,  
                     Address = u.Address,
                     Acvite = u.Acvite,
                     IsAdmin = u.IsAdmin,
@@ -85,7 +86,7 @@ namespace FoodEcomerce.Controllers
             }
         }
         [HttpPut("Update")]
-        public async Task<IActionResult> Update([FromForm] UserModal modal)
+        public async Task<IActionResult> Update(UserModal modal)
         {
             try
             {
@@ -103,6 +104,19 @@ namespace FoodEcomerce.Controllers
             try
             {
                 var result = await _unitOfWork.UserRepository.Delete(id);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpDelete("DeleteById/{id}")]
+        public async Task<IActionResult> DeleteById(Guid id)
+        {
+            try
+            {
+                var result = await _unitOfWork.UserRepository.DeleteById(id);
                 return Ok(result);
             }
             catch (Exception ex)

@@ -6,6 +6,7 @@ export type User ={
     userName : string , 
     phoneNumber : string,
     email : string ,
+    password : string,
     address : string ,
     active : boolean,
     status : Status

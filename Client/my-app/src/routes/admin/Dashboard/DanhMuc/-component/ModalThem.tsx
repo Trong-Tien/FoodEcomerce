@@ -1,5 +1,5 @@
 import { useCreateCategory } from '@/Hooks/Category';
-import { addCategorySchema, type AddCategory } from '@/Type/AddCategory';
+import {  type AddCategory } from '@/Type/AddCategory';
 import React, { useEffect } from 'react'
 import { useForm } from 'react-hook-form';
 import { Button, Grid, TextField } from '@mui/material';
@@ -8,7 +8,6 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import * as yup from "yup";
 import Swal from 'sweetalert2'
 import { v4 as uuidv4 } from 'uuid';
 import type { ResponseType } from '@/Type/ResponseType';
@@ -19,10 +18,7 @@ type props = {
 }
 const ModalThem: React.FC<props> = ({ openModal, initialValues, handleClose }) => {
     const createCategory = useCreateCategory()
-    const categoryValidate = yup.object<AddCategory>({
-        name: yup.string().required("Tên danh mục là bắt buộc"),
-        description: yup.string().required("Vui lòng nhập mô tả "),
-    })
+
 
     const {
         register,

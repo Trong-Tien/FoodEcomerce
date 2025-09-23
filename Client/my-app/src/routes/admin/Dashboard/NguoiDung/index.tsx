@@ -1,8 +1,8 @@
-import { useGetUser } from '@/Hooks/User';
+import { useDeleteUser, useGetUser } from '@/Hooks/User';
 import type { User } from '@/Type/User';
 import { createFileRoute } from '@tanstack/react-router'
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef } from 'material-react-table';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
     Box,
     Button,
@@ -14,12 +14,20 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
+import ModalThem from './-components/ModalThem';
+import ModalSua from './-components/ModalSua';
+import type { UpdateUser } from '@/Type/UpdateUser';
 export const Route = createFileRoute('/admin/Dashboard/NguoiDung/')({
     component: RouteComponent,
 })
+import Swal from 'sweetalert2';
 
 function RouteComponent() {
-    const { data, isError: isLoadingMenuError } = useGetUser(1, 10);
+    const [modalAdd, setModalAdd] = useState<boolean>(false)
+    const [modalUpdate, setModalUpdate] = useState<boolean>(false)
+    const [selectedRow, setSelectedRow] = useState<UpdateUser>();
+    const { data, isError: isLoadingMenuError, refetch } = useGetUser(1, 10);
+    const dataUser: User[] = data ?? []
     const columns = useMemo<MRT_ColumnDef<User>[]>(
         () => [
             {
@@ -79,9 +87,65 @@ function RouteComponent() {
         []
     );
 
+
+    // const handleDelete = (id: string) => {
+    //     Swal.fire({
+    //       title: "Bạn có muốn xóa dữ liệu này ? ",
+    //       text: "Lưu ý dữ liệu này sẽ mất vĩnh viễn",
+    //       showDenyButton: true,
+    //       confirmButtonText: "Xác nhận",
+    //       denyButtonText: `Không`
+    //     }).then(async (result) => {
+    //       /* Read more about isConfirmed, isDenied below */
+    //       if (result.isConfirmed) {
+    //         const response: ResponseType = await deleteCategory.mutateAsync(
+    //           id,
+    //         );
+    //         if (response?.status === 200) {
+    //           Swal.fire("Xóa dữ liệu thành công");
+    //         } else {
+    //           Swal.fire("Đã có lỗi xảy ra");
+    //         }
+    //       }
+    //     });
+    //   }
+    
+
+    const mapUserToUpdate = (data: User): UpdateUser => {
+        return {
+            id: data.id,
+            userName: data.userName,
+            email: data.email,
+            address: data.address,
+            phoneNumber: data.phoneNumber,
+            active: data.active,
+            password : data.password,
+            roleId: data.role.id,
+            statusId: data.status.id
+        }
+    }
+
+    const handleOpenModal = () => setModalAdd(true)
+
+    const handleOpenModalUpdate = (row : User) => {
+        const updateData: UpdateUser = mapUserToUpdate(row);
+        setSelectedRow(updateData);
+        setModalUpdate(true)
+    }
+
+    const handleClose = () => {
+        setModalAdd(false)
+        setModalUpdate(false)
+        refetch()
+    }
+
+
+
+
+
     const table = useMaterialReactTable({
         columns,
-        data: data,
+        data: dataUser,
         enableRowSelection: false,
         createDisplayMode: 'modal',
         editDisplayMode: 'modal',
@@ -102,16 +166,16 @@ function RouteComponent() {
                 <Tooltip title="Chỉnh sửa">
                     <IconButton
                         color="primary"
-                    // onClick={() => handleOpenModalUpdate(row.original)}
+                 onClick={() => handleOpenModalUpdate(row.original)}
                     >
                         <EditIcon />
                     </IconButton>
                 </Tooltip>
-                <Tooltip title="Xóa">
+                {/* <Tooltip title="Xóa">
                     <IconButton color="error" >
                         <DeleteIcon />
                     </IconButton>
-                </Tooltip>
+                </Tooltip> */}
             </Box>
         ),
         renderTopToolbarCustomActions: () => (
@@ -125,15 +189,15 @@ function RouteComponent() {
                 }}
             >
                 <Typography variant="h6" fontWeight="bold">
-                   Quản lý tài khoản
+                    Quản lý tài khoản
                 </Typography>
                 <Button
                     variant="contained"
                     color="primary"
                     startIcon={<AddIcon />}
-                // onClick={handleOpenModal}
+                    onClick={handleOpenModal}
                 >
-                    Thêm mới tài khoản 
+                    Thêm mới tài khoản
                 </Button>
             </Box>
         ),
@@ -143,14 +207,14 @@ function RouteComponent() {
             <MaterialReactTable table={table} />
 
             {/* Modal thêm */}
-            {/* <ModalThem handleClose={handleCloseModal} openModal={openModal} /> */}
+            <ModalThem handleClose={handleClose} openModal={modalAdd} />
 
             {/* Modal sửa */}
-            {/* <ModalSua
-                handleClose={handleCloseModalUpdate}
-                openModal={openModalUpdate}
+            <ModalSua
+                handleClose={handleClose}
+                openModal={modalUpdate}
                 initialValues={selectedRow}
-            /> */}
+            />
         </Card>
     )
 }
