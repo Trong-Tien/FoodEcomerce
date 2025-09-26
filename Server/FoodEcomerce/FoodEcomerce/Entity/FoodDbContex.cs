@@ -17,8 +17,9 @@ namespace FoodEcomerce.Entity
         public virtual DbSet<ProductCategory> ProductCategorys { get; set; }
         public virtual DbSet<OTP> OTPs { get; set; }
         public virtual DbSet<Category> Categories { get; set; }
+        public virtual DbSet<UnitCaculate> UnitCaculates { get; set; }
 
-
+        public virtual DbSet<ImageProduct> ImageProducts { get; set; }  
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

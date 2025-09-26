@@ -28,7 +28,7 @@ export const useCreateUser = () => {
     })
 }
 export const useUpdateUser = () => {
- const qc = useQueryClient();
+    const qc = useQueryClient();
     return useMutation({
         mutationFn: async (body: UpdateUser) => {
             const data = await api.put<ResponseType>(`/User/Update`, body)
@@ -38,13 +38,13 @@ export const useUpdateUser = () => {
             qc.invalidateQueries({ queryKey: ["updateUser"] })
         }
     })
-} 
+}
 
 export const useDeleteUser = () => {
- const qc = useQueryClient();
+    const qc = useQueryClient();
     return useMutation({
         mutationFn: async (id: string) => {
-            const data = await api.delete<ResponseType>(`/User/Delete?id=${id}` )
+            const data = await api.delete<ResponseType>(`/User/Delete?id=${id}`)
             return data;
         },
         onSuccess: () => {

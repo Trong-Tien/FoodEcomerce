@@ -41,13 +41,26 @@ namespace FoodEcomerce.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpGet("GetByParent")]
+        public async Task<IActionResult> GetByParent()
+        {
+            try
+            {
+                var result = await _unitOfWork.UnitCaculateRepository.GetByParent();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
         [HttpPost("Create")]
         public async Task<IActionResult> Create(UnitCaculateModal modal)
         {
             try
             {
-                var result = await _unitOfWork.UnitCaculateRepository.Create(modal);
+                var result = await _unitOfWork.UnitCaculateRepository.CreateByQuery(modal);
                 return Ok(result);
             }
             catch (Exception ex)

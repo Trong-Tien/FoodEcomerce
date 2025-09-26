@@ -13,6 +13,7 @@ import {
   Box,
   Button,
   Card,
+  Collapse,
   IconButton,
   Tooltip,
   Typography,
@@ -34,7 +35,7 @@ function RouteComponent() {
   const [selectedRow, setSelectedRow] = useState<UpdateCategory | undefined>();
 
   const { data, isError: isLoadingMenuError } = useGetCategory(1, 10);
-  const dataCategory: Category[] = data?.items ?? [];
+  const dataCategory: Category[] = data ?? [];
   const deleteCategory = useDeleteCategory()
 
   const handleDelete = (id: string) => {
@@ -58,6 +59,7 @@ function RouteComponent() {
       }
     });
   }
+
 
   const columns = useMemo<MRT_ColumnDef<Category>[]>(
     () => [
@@ -130,6 +132,24 @@ function RouteComponent() {
   const table = useMaterialReactTable({
     columns,
     data: dataCategory,
+    getRowId: (row) => row.id,
+
+    enableExpanding: true,
+    renderDetailPanel: ({ row }) => (
+      <Collapse in={row.getIsExpanded()} timeout="auto" unmountOnExit>
+        <Box sx={{ p: 2, bgcolor: '#f5f5f5' }}>
+          <Typography variant="body2">
+         <b>{row.original.name}</b>
+          </Typography>
+        </Box>
+      </Collapse>
+    ),
+    getSubRows: (row) => row.categorys,
+    initialState: {
+      showColumnFilters: true,
+      expanded: true,
+    },
+
     enableRowSelection: false,
     createDisplayMode: 'modal',
     editDisplayMode: 'modal',
@@ -137,14 +157,14 @@ function RouteComponent() {
     positionToolbarAlertBanner: 'bottom',
     enableRowOrdering: true,
     enableEditing: true,
-    initialState: { showColumnFilters: true },
-    getRowId: (row) => row.id,
+
     muiToolbarAlertBannerProps: isLoadingMenuError
       ? { color: 'error', children: 'Đã có lỗi xảy ra' }
       : undefined,
     muiTableContainerProps: {
       sx: { minHeight: '500px' },
     },
+
     renderRowActions: ({ row }) => (
       <Box sx={{ display: 'flex', gap: 1 }}>
         <Tooltip title="Chỉnh sửa">
@@ -156,12 +176,16 @@ function RouteComponent() {
           </IconButton>
         </Tooltip>
         <Tooltip title="Xóa">
-          <IconButton color="error" onClick={() => handleDelete(row.original.id)}>
+          <IconButton
+            color="error"
+            onClick={() => handleDelete(row.original.id)}
+          >
             <DeleteIcon />
           </IconButton>
         </Tooltip>
       </Box>
     ),
+
     renderTopToolbarCustomActions: () => (
       <Box
         sx={{
@@ -186,6 +210,7 @@ function RouteComponent() {
       </Box>
     ),
   });
+
 
   return (
     <Card elevation={3} sx={{ p: 2 }}>

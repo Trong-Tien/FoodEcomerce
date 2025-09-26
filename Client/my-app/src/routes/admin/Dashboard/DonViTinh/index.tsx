@@ -2,7 +2,7 @@ import { useGetUnitCaculate } from "@/Hooks/UnitCaculate";
 import type { UnitCacaulate } from "@/Type/UnitCaculate";
 import { createFileRoute } from "@tanstack/react-router";
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef } from "material-react-table";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
@@ -14,12 +14,14 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
+import ModalAdd from "./-component/ModalAdd";
 export const Route = createFileRoute("/admin/Dashboard/DonViTinh/")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { data, isError: isLoadingMenuError } = useGetUnitCaculate(1, 10);
+  const [modalAdd , setModalAdd] = useState<boolean>(false)
+  const { data, isError: isLoadingMenuError  , refetch} = useGetUnitCaculate(1, 10);
   const items: UnitCacaulate[] = data?.items ?? [];
   const columns = useMemo<MRT_ColumnDef<UnitCacaulate>[]>(
     () => [
@@ -48,6 +50,15 @@ function RouteComponent() {
     ],
     []
   );
+
+   const handleOpenModal = () => {
+       setModalAdd(true)
+   }
+   const handleCloseModal = ()=>
+   {
+      setModalAdd(false)
+      refetch()
+   }
 
     const table = useMaterialReactTable({
     columns,
@@ -101,7 +112,7 @@ function RouteComponent() {
           variant="contained"
           color="primary"
           startIcon={<AddIcon />}
-         // onClick={handleOpenModal}
+          onClick={handleOpenModal}
         >
           Thêm đơn vị mới
         </Button>
@@ -111,5 +122,6 @@ function RouteComponent() {
 
   return <Card>
      <MaterialReactTable table={table} />
+     <ModalAdd handleClose={handleCloseModal} openModal={modalAdd}  />
   </Card>;
 }

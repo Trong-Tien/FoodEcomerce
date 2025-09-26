@@ -1,28 +1,35 @@
 
-import { create, deleteUnitCaulate, getAll, update } from "@/Api/UnitCaculate";
+import { api } from "@/Api/BaseApi";
 import type { AddUnitCacaulate } from "@/Type/AddUnitCaculate";
+import type { ResponseType } from "@/Type/ResponseType";
 import type { UnitCacaulate } from "@/Type/UnitCaculate";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-const qk = {
-  menus: () => ["menus"] as const,
-  menu: (id: string | number) => ["menus", id] as const,
-};
 
-export const useGetUnitCaculate = (pageNumber: number, pagesize: number) =>
+export const useGetUnitCaculate = (pageNumber : number , pagesize : number) =>
   useQuery({
-    queryKey: ["getAll",pageNumber , pagesize],
-    queryFn: () => getAll(pageNumber, pagesize),
+    queryKey: ["getAll"],
+    queryFn: async () =>{
+       const {data} = await api.get(`/UnitCaculate/Getall?pageNumber=${pageNumber}&pageSize=${pagesize}`)
+       return data;
+    } ,
   });
-
-
-
-
-export const useCreateMenu = () => {
+export const useGetByParent = () =>
+  useQuery({
+    queryKey: ["getByParent"],
+    queryFn: async () =>{
+       const {data} = await api.get<UnitCacaulate[]>(`/UnitCaculate/GetByParent`)
+       return data;
+    } ,
+  });
+export const useCreateUnitCaculate = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: AddUnitCacaulate) => create(data),
+    mutationFn: async (body: AddUnitCacaulate) => {
+       const {data} = await api.post<ResponseType>(`/UnitCaculate/Create`, body)
+       return data;
+    },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: qk.menus() });
+      qc.invalidateQueries({ queryKey: ["createUnitCaculate"] });
     },
   });
 };
@@ -31,11 +38,13 @@ export const useCreateMenu = () => {
 export const useUpdateUnitCaculate = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (menu: UnitCacaulate) =>
-      update(menu),
-    onSuccess: (_data, variables) => {
-      qc.invalidateQueries({ queryKey: qk.menus() });
-      qc.invalidateQueries({ queryKey: qk.menu(variables.id) });
+    mutationFn: async (body: UnitCacaulate) =>
+      {
+         const {data} = await api.put<ResponseType>(`/UnitCaculate/Update`, body )
+         return data;
+      },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["updateUnitCaculte"] });
     },
   });
 };
@@ -43,9 +52,12 @@ export const useUpdateUnitCaculate = () => {
 export const useDeleteUnitCucalate= () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => deleteUnitCaulate(id),
+    mutationFn: async (id: string) => {
+       const {data} = await api.delete<ResponseType>(`/UnitCaculate/Delete/${id}`)
+       return data;
+    },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: qk.menus() });
+      qc.invalidateQueries({ queryKey:["deleteUnitCaculate"] });
     },
   });
 };
