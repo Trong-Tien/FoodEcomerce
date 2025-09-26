@@ -1,4 +1,4 @@
-import { useDeleteUser, useGetUser } from '@/Hooks/User';
+import {useGetUser } from '@/Hooks/User';
 import type { User } from '@/Type/User';
 import { createFileRoute } from '@tanstack/react-router'
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef } from 'material-react-table';
@@ -12,7 +12,6 @@ import {
     Typography,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import ModalThem from './-components/ModalThem';
 import ModalSua from './-components/ModalSua';
@@ -20,7 +19,6 @@ import type { UpdateUser } from '@/Type/UpdateUser';
 export const Route = createFileRoute('/admin/Dashboard/NguoiDung/')({
     component: RouteComponent,
 })
-import Swal from 'sweetalert2';
 
 function RouteComponent() {
     const [modalAdd, setModalAdd] = useState<boolean>(false)
