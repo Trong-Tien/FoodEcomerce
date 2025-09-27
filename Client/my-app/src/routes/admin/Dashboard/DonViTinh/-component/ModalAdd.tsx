@@ -51,7 +51,7 @@ const ModalAdd: React.FC<props> = ({ openModal, handleClose, initialValues }) =>
             baseUnitId: data.baseUnitId && data.baseUnitId !== "" ? data.baseUnitId : "00000000-0000-0000-0000-000000000000",
             isBaseUnit: false
         }
-        var response = await createUnitCaculate.mutateAsync(tempData)
+        const response = await createUnitCaculate.mutateAsync(tempData)
         if (response?.status === 200) {
             Swal.fire({
                 title: "Thêm mới dữ liệu thành công",

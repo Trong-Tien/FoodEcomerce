@@ -45,13 +45,13 @@ namespace FoodEcomerce.Abstract
         public IUnitCaculateRepository UnitCaculateRepository
            => _unitCaculateRepository ??= new UnitCaculateRepository(_dbContext, _mapper);
         public IMenuRepository MenuRepository
-          => _menuRepository ??= new MenuRepository(_dbContext, _mapper , _storeDbcontext);
+          => _menuRepository ??= new MenuRepository(_dbContext, _mapper, _storeDbcontext);
         public IRoleRepository RoleRepository
         => _roleRepository ??= new RoleRepository(_dbContext, _mapper);
         public IMenuRoleRepository MenuRoleReposirory
        => _menuRoleRepository ??= new MenuRoleRepository(_dbContext, _mapper);
         public IProductRepository ProductRepository
-       => _productRepository ??= new ProductRepository(_dbContext, _mapper);
+       => _productRepository ??= new ProductRepository(_dbContext, _mapper, _storeDbcontext);
         public bool Save()
         {
             bool isSuccess = _dbContext.SaveChanges() > 0;

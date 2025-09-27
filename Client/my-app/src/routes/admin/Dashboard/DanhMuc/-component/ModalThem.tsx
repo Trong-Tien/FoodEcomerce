@@ -21,7 +21,6 @@ const ModalThem: React.FC<props> = ({ openModal, initialValues, handleClose }) =
     const createCategory = useCreateCategory()
     const { data: data }  = useGetCategoryByParent()
     const dataCategory :Category[] = data ?? []
-
     const {
         register,
         handleSubmit,
