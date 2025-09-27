@@ -1,5 +1,6 @@
 import type { Product } from "../Types/product";
 // Fallback data (dùng khi chưa có API thật)
+export type ProductWithSuggest = Product & { suggestedProducts?: Product[] };
 const FALLBACK_PRODUCTS: Product[] = [
   {
     id: 1,
@@ -257,32 +258,52 @@ const FALLBACK_PRODUCTS: Product[] = [
 ];
 
 const productService = {
-  getProducts: async (): Promise<Product[]> => {
+  // ✅ Lấy tất cả sản phẩm, mỗi sp có 3 suggestedProducts
+  getProducts: async (): Promise<ProductWithSuggest[]> => {
     return new Promise((resolve) => {
-      setTimeout(() => resolve(FALLBACK_PRODUCTS), 500);
+      setTimeout(() => {
+        const products = FALLBACK_PRODUCTS.map((p) => {
+          const suggested = FALLBACK_PRODUCTS.filter(
+            (sp) => sp.id !== p.id
+          ).slice(0, 3);
+          return { ...p, suggestedProducts: suggested };
+        });
+        resolve(products);
+      }, 500);
     });
   },
 
-  getById: async (id: number): Promise<Product | undefined> => {
+  // ✅ Lấy chi tiết sản phẩm theo id, có suggestedProducts
+  getById: async (id: number): Promise<ProductWithSuggest | undefined> => {
     return new Promise((resolve) => {
-      setTimeout(
-        () => resolve(FALLBACK_PRODUCTS.find((p) => p.id === id)),
-        300
-      );
+      setTimeout(() => {
+        const found = FALLBACK_PRODUCTS.find((p) => p.id === id);
+        if (!found) return resolve(undefined);
+
+        const suggested = FALLBACK_PRODUCTS.filter((p) => p.id !== id).slice(
+          0,
+          3
+        );
+        resolve({ ...found, suggestedProducts: suggested });
+      }, 300);
     });
   },
 
-  getByCategory: async (category: string): Promise<Product[]> => {
+  // ✅ Lấy sản phẩm theo category (badge), kèm suggestedProducts
+  getByCategory: async (category: string): Promise<ProductWithSuggest[]> => {
     return new Promise((resolve) => {
-      setTimeout(
-        () =>
-          resolve(
-            FALLBACK_PRODUCTS.filter(
-              (p) => p.badge?.toLowerCase() === category.toLowerCase()
-            )
-          ),
-        300
-      );
+      setTimeout(() => {
+        const products = FALLBACK_PRODUCTS.filter(
+          (p) => p.badge?.toLowerCase() === category.toLowerCase()
+        ).map((p) => {
+          const suggested = FALLBACK_PRODUCTS.filter(
+            (sp) => sp.id !== p.id
+          ).slice(0, 3);
+          return { ...p, suggestedProducts: suggested };
+        });
+
+        resolve(products);
+      }, 300);
     });
   },
 };

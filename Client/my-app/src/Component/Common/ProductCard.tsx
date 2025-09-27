@@ -1,29 +1,28 @@
+import { useState } from "react";
 import { Link } from "@tanstack/react-router";
+import ProductModal from "./ProductModal";
+import type { Product } from "@/Types/product";
 
-type Product = {
-  id: number;
-  name: string;
-  price: number;
-  oldPrice?: number;
-  img: string;
-  badge?: string;
-};
+// 👉 Product từ service sẽ có thêm suggestedProducts
+type ProductWithSuggest = Product & { suggestedProducts?: Product[] };
 
-function ProductCard({ p }: { p: Product }) {
+function ProductCard({ p }: { p: ProductWithSuggest }) {
+  const [open, setOpen] = useState(false);
+
   const discount =
     p.oldPrice && p.oldPrice > p.price
       ? Math.round(((p.oldPrice - p.price) / p.oldPrice) * 100)
       : null;
 
   return (
-    <Link
-      to="/product/$id" // ✅ dùng route key, KHÔNG build string
-      params={{ id: String(p.id) }} // ✅ truyền params
-      className="block"
-    >
+    <>
       <div className="flex flex-col border border-gray-200 rounded-lg bg-white overflow-hidden min-h-[354px] shadow-sm hover:shadow-md transition">
-        {/* Hình ảnh */}
-        <div className="relative w-full aspect-square">
+        {/* Ảnh và link chi tiết */}
+        <Link
+          to="/product/$id"
+          params={{ id: String(p.id) }}
+          className="relative w-full aspect-square block"
+        >
           <img
             src={p.img}
             alt={p.name}
@@ -39,7 +38,7 @@ function ProductCard({ p }: { p: Product }) {
               {p.badge}
             </div>
           )}
-        </div>
+        </Link>
 
         {/* Nội dung */}
         <div className="flex flex-col justify-between flex-1 p-3">
@@ -64,16 +63,25 @@ function ProductCard({ p }: { p: Product }) {
             )}
           </div>
 
-          {/* Nút mua */}
+          {/* Nút mua ngay */}
           <button
             type="button"
+            onClick={() => setOpen(true)}
             className="mt-3 w-full h-[35px] bg-[#F0FFF3] text-[#007E42] text-[13px] font-bold uppercase rounded-md hover:bg-[#E0FFE8] transition"
           >
             Mua ngay
           </button>
         </div>
       </div>
-    </Link>
+
+      {open && (
+        <ProductModal
+          product={p}
+          suggestedProducts={p.suggestedProducts} // 👈 lấy từ service
+          onClose={() => setOpen(false)}
+        />
+      )}
+    </>
   );
 }
 

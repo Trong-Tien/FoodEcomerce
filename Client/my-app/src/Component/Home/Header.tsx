@@ -3,6 +3,8 @@ import { FaSearch, FaShoppingCart, FaUser } from "react-icons/fa";
 import CategorySidebar from "./CategorySidebar";
 import { useNavigate, useLocation } from "@tanstack/react-router";
 import LocationModal from "../Common/LocationModal";
+import logo from "@/assets/img/logo.jpg";
+
 
 function Header() {
   const [showSidebar, setShowSidebar] = useState(false);
@@ -23,8 +25,7 @@ function Header() {
             onClick={() => navigate({ to: "/" })}
           >
             <img
-              src="/images/logo2.png"
-              alt="Logo"
+              src={logo} alt="Logo"
               className="h-[60px] w-auto"
             />
           </div>
@@ -66,7 +67,7 @@ function Header() {
             />
             <a
               className="absolute right-[10px] top-1/2 -translate-y-1/2 text-[#4CAF50]"
-              href="/gio-hang"
+              href="/GioHang"
             >
               <FaShoppingCart size={20} />
             </a>

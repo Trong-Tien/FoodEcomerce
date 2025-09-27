@@ -49,8 +49,18 @@ const ModalThem: React.FC<props> = ({ openModal, initialValues, handleClose }) =
             imageUrl: data.imageUrl,
             name: data.name
         }
+        console.log(tempData)
         var response: ResponseType = await createCategory.mutateAsync(tempData)
         if (response?.status === 200) {
+            try {
+
+
+
+            } catch (
+            error
+            ) {
+
+            }
             Swal.fire({
                 title: "Thêm mới dữ liệu thành công",
                 icon: "success"
@@ -111,7 +121,7 @@ const ModalThem: React.FC<props> = ({ openModal, initialValues, handleClose }) =
                                 <Controller
                                     name="categoryParentId"
                                     control={control}
-                                    rules={{ required: "Vui lòng chọn danh mục cha" }}
+                                    // rules={{ required: "Vui lòng chọn danh mục cha" }}
                                     render={({ field, fieldState }) => (
                                         <Autocomplete
                                             options={dataCategory}
@@ -122,8 +132,6 @@ const ModalThem: React.FC<props> = ({ openModal, initialValues, handleClose }) =
                                                 <TextField
                                                     {...params}
                                                     label="Loại tài khoản"
-                                                    error={!!fieldState.error}
-                                                    helperText={fieldState.error?.message}
                                                 />
                                             )}
                                         />

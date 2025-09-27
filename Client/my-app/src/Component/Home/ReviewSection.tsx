@@ -2,18 +2,37 @@ import React, { useEffect, useState, useMemo } from "react";
 import ReviewService from "../../Services/ReviewService";
 import type { Review } from "../../Types/review";
 
+/**
+ * Hook auth siêu nhẹ:
+ * - Kỳ vọng trong lúc đăng nhập bạn đã lưu localStorage.setItem('auth:user', JSON.stringify({ id, name, email }))
+ * - Nếu bạn đã có AuthContext/useAuth riêng, hãy thay hook này bằng hook của bạn.
+ */
+type AppUser = { id: number | string; name: string; email?: string };
+function useAuth() {
+  const [currentUser, setCurrentUser] = useState<AppUser | null>(null);
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("auth:user");
+      if (raw) setCurrentUser(JSON.parse(raw));
+    } catch {
+      // ignore
+    }
+  }, []);
+  return { currentUser };
+}
+
 interface ReviewSectionProps {
   productId: number;
 }
 
 const ReviewSection: React.FC<ReviewSectionProps> = ({ productId }) => {
+  const { currentUser } = useAuth(); // ✅ lấy tài khoản hiện tại
   const [reviews, setReviews] = useState<Review[]>([]);
   const [comment, setComment] = useState("");
   const [rating, setRating] = useState(5);
-  const [user, setUser] = useState("");
-  const [images, setImages] = useState<string[]>([]); // lưu URL tạm thời
+  const [images, setImages] = useState<string[]>([]);
   const [showWithMedia, setShowWithMedia] = useState(false);
-  const [filterStar, setFilterStar] = useState<number | null>(null); // mặc định là tất cả
+  const [filterStar, setFilterStar] = useState<number | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const reviewsPerPage = 6;
 
@@ -21,7 +40,6 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ productId }) => {
   useEffect(() => {
     const fetchReviews = async () => {
       const data = await ReviewService.getByProductId(productId);
-      // sắp xếp mới nhất
       const sorted = data.sort(
         (a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
@@ -31,22 +49,23 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ productId }) => {
     fetchReviews();
   }, [productId]);
 
-  // Submit review mới
+  // Submit review mới (dùng tên account)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user.trim() || !comment.trim()) return;
+    if (!currentUser) return; // chưa login thì không cho gửi
+    if (!comment.trim()) return;
 
     const newReview = await ReviewService.addReview({
       productId,
-      user,
+      user: currentUser.name, // ✅ lấy tên từ tài khoản
       rating,
       comment,
-      images, // đây là string[] (URL tạm thời hoặc base64)
+      images,
+      // Nếu BE có nhận userId: thêm userId: currentUser.id
     });
 
-    setReviews((prev) => [newReview, ...prev]); // thêm review mới lên đầu
+    setReviews((prev) => [newReview, ...prev]);
     setComment("");
-    setUser("");
     setRating(5);
     setImages([]);
   };
@@ -66,7 +85,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ productId }) => {
     };
   }, [reviews]);
 
-  // 1️⃣ Sắp xếp review theo ưu tiên: có media → sao cao → mới nhất
+  // 1) Sort ưu tiên: có media → sao cao → mới nhất
   const sortedReviews = useMemo(() => {
     return [...reviews].sort((a, b) => {
       const aMedia = a.images && a.images.length > 0 ? 1 : 0;
@@ -77,7 +96,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ productId }) => {
     });
   }, [reviews]);
 
-  // 2️⃣ Lọc review theo filter hiện tại
+  // 2) Lọc theo filter
   const filteredReviews = useMemo(() => {
     return sortedReviews.filter((r) => {
       if (showWithMedia && (!r.images || r.images.length === 0)) return false;
@@ -86,13 +105,12 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ productId }) => {
     });
   }, [sortedReviews, showWithMedia, filterStar]);
 
-  // 3️⃣ Phân trang
-  const totalPages = Math.ceil(filteredReviews.length / reviewsPerPage);
+  // 3) Phân trang
   const indexOfLast = currentPage * reviewsPerPage;
   const indexOfFirst = indexOfLast - reviewsPerPage;
   const currentReviews = filteredReviews.slice(indexOfFirst, indexOfLast);
 
-  // 4️⃣ Handle upload file
+  // 4) Upload ảnh (preview tạm thời)
   const handleFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const fileArray = Array.from(e.target.files);
@@ -113,7 +131,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ productId }) => {
           <div className="text-sm text-gray-600">{stats.total} đánh giá</div>
         </div>
 
-        {/* Thanh số sao */}
+        {/* Thanh số sao + filter */}
         <div className="mt-3 space-y-1">
           <div
             className={`flex items-center gap-2 text-sm cursor-pointer ${
@@ -129,7 +147,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ productId }) => {
               <div
                 className="h-2 bg-yellow-400 rounded"
                 style={{ width: "100%" }}
-              ></div>
+              />
             </div>
             <span className="w-10 text-right">{stats.total}</span>
           </div>
@@ -154,7 +172,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ productId }) => {
                       stats.total ? (stats.counts[s] / stats.total) * 100 : 0
                     }%`,
                   }}
-                ></div>
+                />
               </div>
               <span className="w-10 text-right">{stats.counts[s]}</span>
             </div>
@@ -210,38 +228,32 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ productId }) => {
         )}
       </div>
 
-      {/* 🔹 Thanh phân trang */}
-      {totalPages > 1 && (
-        <div className="flex justify-center gap-2 mt-4">
-          {[...Array(totalPages)].map((_, idx) => (
-            <button
-              key={idx}
-              className={`px-3 py-1 rounded ${
-                currentPage === idx + 1
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
-              onClick={() => setCurrentPage(idx + 1)}
-            >
-              {idx + 1}
-            </button>
-          ))}
+      {/* 🔐 Nếu chưa đăng nhập: nhắc đăng nhập */}
+      {!currentUser && (
+        <div className="mt-6 p-4 border rounded-xl bg-amber-50 text-amber-800 text-sm">
+          Vui lòng{" "}
+          <a href="/Dangnhap/" className="underline font-medium">
+            đăng nhập
+          </a>{" "}
+          để viết đánh giá.
         </div>
       )}
 
-      {/* Form thêm review */}
+      {/* Form thêm review (ẩn tên, dùng tên tài khoản) */}
       <form onSubmit={handleSubmit} className="mt-6 space-y-3">
-        <input
-          type="text"
-          placeholder="Tên của bạn"
-          className="w-full border rounded-lg p-2 text-sm"
-          value={user}
-          onChange={(e) => setUser(e.target.value)}
-        />
+        {/* Hiển thị “đánh giá với tư cách” */}
+        {currentUser && (
+          <div className="text-sm text-gray-700">
+            Đánh giá với tư cách:{" "}
+            <span className="font-semibold">{currentUser.name}</span>
+          </div>
+        )}
+
         <select
           className="w-full border rounded-lg p-2 text-sm"
           value={rating}
           onChange={(e) => setRating(Number(e.target.value))}
+          disabled={!currentUser}
         >
           {[5, 4, 3, 2, 1].map((r) => (
             <option key={r} value={r}>
@@ -253,9 +265,14 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ productId }) => {
         <textarea
           className="w-full border rounded-lg p-2 text-sm"
           rows={3}
-          placeholder="Viết đánh giá của bạn..."
+          placeholder={
+            currentUser
+              ? "Viết đánh giá của bạn..."
+              : "Đăng nhập để viết đánh giá"
+          }
           value={comment}
           onChange={(e) => setComment(e.target.value)}
+          disabled={!currentUser}
         />
 
         <div className="flex gap-2 flex-wrap">
@@ -278,34 +295,29 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ productId }) => {
               </button>
             </div>
           ))}
-          <label className="w-20 h-20 border border-dashed rounded-lg flex items-center justify-center cursor-pointer text-gray-400">
+          <label
+            className={`w-20 h-20 border border-dashed rounded-lg flex items-center justify-center cursor-pointer text-gray-400 ${!currentUser ? "opacity-50 cursor-not-allowed" : ""}`}
+          >
             + Thêm
             <input
               type="file"
               multiple
               className="hidden"
               onChange={handleFilesChange}
+              disabled={!currentUser}
             />
           </label>
         </div>
 
-        {/* Hiển thị preview ảnh */}
-        {images.length > 0 && (
-          <div className="flex gap-2 mt-2 flex-wrap">
-            {images.map((img, idx) => (
-              <img
-                key={idx}
-                src={img}
-                alt={`Preview ${idx}`}
-                className="w-16 h-16 object-cover rounded-lg border"
-              />
-            ))}
-          </div>
-        )}
-
         <button
           type="submit"
-          className="bg-green-600 text-white px-4 py-2 rounded-lg shadow hover:bg-green-700"
+          disabled={!currentUser || !comment.trim()}
+          className={`px-4 py-2 rounded-lg shadow
+            ${
+              !currentUser || !comment.trim()
+                ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                : "bg-green-600 text-white hover:bg-green-700"
+            }`}
         >
           Gửi đánh giá
         </button>
