@@ -13,7 +13,6 @@ import {
 import MenuIcon from "@mui/icons-material/Menu";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import SearchIcon from "@mui/icons-material/Search";
-import AccountCircle from "@mui/icons-material/AccountCircle";
 import { useState } from "react";
 
 const AppHeader = ({ onToggleSidebar }: { onToggleSidebar?: () => void }) => {

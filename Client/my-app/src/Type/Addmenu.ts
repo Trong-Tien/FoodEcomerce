@@ -8,9 +8,6 @@ export type AddMenu = {
   createUser : string,
   parentId : string
 }
-
-export type MenuForm = Pick<AddMenu, "name" | "url" | "icon" | "orderNumber" | "isActive">;
-
 export const addMenuSchema = yup.object({
   name: yup.string().required("Tên menu là bắt buộc"),
   url: yup.string().required("Đường dẫn là bắt buộc"),
@@ -18,3 +15,6 @@ export const addMenuSchema = yup.object({
   orderNumber: yup.number().required(),
   isActive : yup.boolean().required()
 });
+
+export type MenuForm = Pick<AddMenu, "name" | "url" | "icon" | "orderNumber" | "isActive">;
+

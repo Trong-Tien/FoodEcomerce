@@ -10,6 +10,15 @@ export const useGetCategory = (pageNumber: number, pagesize: number) =>
         queryFn: () => getAll(pageNumber, pagesize),
     });
 
+export const useGetCategoryByParent = () =>
+    useQuery({
+        queryKey: ["categoryparent"],
+        queryFn: async() => {
+          const {data} = await api.get(`/Category/GetAllByParent`)
+          return data;
+        },
+    });
+
 export const useCreateCategory = () => {
     const qc = useQueryClient();
     return useMutation({

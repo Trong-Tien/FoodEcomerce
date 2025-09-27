@@ -10,5 +10,6 @@ namespace FoodEcomerce.Reposiroty
         Task<ResultModal> Create(TModal entity);
         Task<ResultModal> Update(TModal entity );
         Task<ResultModal> Delete(object id);
+        Task<ResultModal> DeleteById(object id);    
     }
 }

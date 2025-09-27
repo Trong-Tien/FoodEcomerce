@@ -1,16 +1,17 @@
-import { useUpdateCategory } from "@/Hooks/Category";
+import { useGetCategoryByParent, useUpdateCategory } from "@/Hooks/Category";
 import type { ResponseType } from "@/Type/ResponseType";
 import type { UpdateCategory } from "@/Type/UpdateCategory";
 import React, { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import Swal from "sweetalert2";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-import { Button, Grid, TextField } from '@mui/material';
+import { Autocomplete, Button, Grid, TextField } from '@mui/material';
 import { useFile } from "@/Hooks/File";
+import type { Category } from "@/Type/Category";
 
 type Props = {
   openModal: boolean;
@@ -20,12 +21,14 @@ type Props = {
 
 const ModalSua: React.FC<Props> = ({ openModal, handleClose, initialValues }) => {
   const updateCategory = useUpdateCategory();
-
+  const { data: data } = useGetCategoryByParent()
+  const dataCategory: Category[] = data ?? []
   const {
     register,
     handleSubmit,
     reset,
     setValue,
+    control,
     formState: { errors },
   } = useForm<UpdateCategory>({
     defaultValues: initialValues,
@@ -92,6 +95,29 @@ const ModalSua: React.FC<Props> = ({ openModal, handleClose, initialValues }) =>
                   error={!!errors.description}
                   helperText={errors.description?.message}
                   fullWidth
+                />
+              </Grid>
+              <Grid size={12}>
+                <Controller
+                  name="categoryParentId"
+                  control={control}
+                  rules={{ required: "Vui lòng chọn danh mục cha" }}
+                  render={({ field, fieldState }) => (
+                    <Autocomplete
+                      options={dataCategory}
+                      getOptionLabel={(option) => option.name || ""}
+                      value={dataCategory.find((r) => r.id === field.value) || null}
+                      onChange={(_, value) => field.onChange(value ? value.id : null)}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Loại tài khoản"
+                          error={!!fieldState.error}
+                          helperText={fieldState.error?.message}
+                        />
+                      )}
+                    />
+                  )}
                 />
               </Grid>
 

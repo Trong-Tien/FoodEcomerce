@@ -6,6 +6,7 @@ using FoodEcomerce.Reposiroty.Banners;
 using FoodEcomerce.Reposiroty.Categorys;
 using FoodEcomerce.Reposiroty.MenuRoles;
 using FoodEcomerce.Reposiroty.Menus;
+using FoodEcomerce.Reposiroty.Products;
 using FoodEcomerce.Reposiroty.Roles;
 using FoodEcomerce.Reposiroty.UnitCaculates;
 using FoodEcomerce.Reposiroty.Users;
@@ -25,6 +26,7 @@ namespace FoodEcomerce.Abstract
         private IMenuRepository _menuRepository;
         private IRoleRepository _roleRepository;
         private IMenuRoleRepository _menuRoleRepository;
+        private IProductRepository _productRepository;
 
         public UnitOfWork(FoodDbContex dbContext, IMapper mapper, StoreDbcontext storeDbcontext)
         {
@@ -48,6 +50,8 @@ namespace FoodEcomerce.Abstract
         => _roleRepository ??= new RoleRepository(_dbContext, _mapper);
         public IMenuRoleRepository MenuRoleReposirory
        => _menuRoleRepository ??= new MenuRoleRepository(_dbContext, _mapper);
+        public IProductRepository ProductRepository
+       => _productRepository ??= new ProductRepository(_dbContext, _mapper);
         public bool Save()
         {
             bool isSuccess = _dbContext.SaveChanges() > 0;

@@ -85,17 +85,13 @@ namespace FoodEcomerce.Reposiroty
 
             if (data != null)
             {
-                // lấy đường dẫn image hiện tại có trong data
                 var fileProp = data.GetType().GetProperty("ImageUrl");
                 var url = fileProp != null ? fileProp.GetValue(data) as string : null;
 
-                // nếu entity có file mới → xóa file cũ
                 if (url != null && entity.GetType().GetProperty("ImageFile")?.GetValue(entity) != null)
                 {
                     Helpper.Untils.DeleteFile(url);
                 }
-
-                // map giá trị mới vào entity đã được tracking
                 _mapper.Map(entity, data);
 
                 await _dbContext.SaveChangesAsync();
@@ -131,8 +127,20 @@ namespace FoodEcomerce.Reposiroty
 
         }
 
-
-     
+        public async Task<ResultModal> DeleteById(object id)
+        {
+            var data = await _dbContext.Set<T>().FirstOrDefaultAsync(e => EF.Property<object>(e, "Id").Equals(id));
+            if(data != null)
+            {
+               var status =  data.GetType().GetProperty("IsDelete") ;
+                if (status != null && status.PropertyType == typeof(bool))
+                {
+                    status.SetValue(data, true);
+                }
+                return new ResultModal() { Status = 200, Success = true, Message = "Xóa dữ liệu thành công" };
+            }
+            else return new ResultModal() { Status = 202, Success = false, Message = "Không tìm thấy dữ liệu" };
+        }
     }
 
 }

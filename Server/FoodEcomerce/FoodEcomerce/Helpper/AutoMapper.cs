@@ -10,7 +10,11 @@ namespace FoodEcomerce.Helpper
         public AutoMapper()
         {
             CreateMap<User, UserDTO>();
-            CreateMap<UserModal, User>();
+            CreateMap<UserModal, User>()
+                 .ForMember(dest => dest.Password,
+                  opt => opt.MapFrom((src, dest) =>
+                      src.Password != null ? Helpper.Untils.EncrypePassword(src.Password) : null));
+
             CreateMap<Panner, PannerDTO>();
             CreateMap<PannerModal, Panner>().
                      ForMember(dest => dest.ImageUrl, opt => opt.
@@ -20,6 +24,7 @@ namespace FoodEcomerce.Helpper
                    ForMember(dest => dest.ImageUrl, opt => opt.
                    MapFrom(src => src.ImageUrl != null ? Helpper.Untils.UploadFileImage(src.ImageUrl, "Categorys")
                    : null));
+            CreateMap<Category, CategoryDTO>().ReverseMap();
             CreateMap<RegisterModal, User>();
             CreateMap<UnitCaculate, UnitCaculateModal>();
             CreateMap<UnitCaculateModal, UnitCaculate>();

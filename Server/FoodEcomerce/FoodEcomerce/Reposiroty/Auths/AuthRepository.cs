@@ -117,7 +117,15 @@ namespace FoodEcomerce.Reposiroty.Auths
                         user.CreateUser = modal.UserName;
                         _context.Users.Add(user);
                         _context.OTPs.Remove(otpValue);
+
+                        Cart cart = new Cart(); 
+                        cart.Id = Guid.NewGuid();
+                        cart.UserId = user.Id;
+                        cart.CreateAt = DateTime.UtcNow;
+                        _context.Carts.Add(cart);   
+
                         await _context.SaveChangesAsync();
+
                         return new ResultModal() { Status = 200, Message = "Đăng ký thành công", Success = false };
                     }
                 }

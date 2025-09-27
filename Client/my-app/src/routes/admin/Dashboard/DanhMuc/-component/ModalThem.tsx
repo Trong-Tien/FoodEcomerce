@@ -1,17 +1,17 @@
-import { useCreateCategory } from '@/Hooks/Category';
-import { addCategorySchema, type AddCategory } from '@/Type/AddCategory';
+import { useCreateCategory, useGetCategoryByParent } from '@/Hooks/Category';
+import { type AddCategory } from '@/Type/AddCategory';
 import React, { useEffect } from 'react'
-import { useForm } from 'react-hook-form';
-import { Button, Grid, TextField } from '@mui/material';
+import { Controller, useForm } from 'react-hook-form';
+import { Autocomplete, Button, Grid, TextField } from '@mui/material';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import * as yup from "yup";
 import Swal from 'sweetalert2'
 import { v4 as uuidv4 } from 'uuid';
 import type { ResponseType } from '@/Type/ResponseType';
+import type { Category } from '@/Type/Category';
 type props = {
     openModal: boolean;
     initialValues?: AddCategory;
@@ -19,15 +19,14 @@ type props = {
 }
 const ModalThem: React.FC<props> = ({ openModal, initialValues, handleClose }) => {
     const createCategory = useCreateCategory()
-    const categoryValidate = yup.object<AddCategory>({
-        name: yup.string().required("Tên danh mục là bắt buộc"),
-        description: yup.string().required("Vui lòng nhập mô tả "),
-    })
+    const { data: data } = useGetCategoryByParent()
+    const dataCategory: Category[] = data ?? []
 
     const {
         register,
         handleSubmit,
         reset,
+        control,
         formState: { errors },
     } = useForm<AddCategory>({
         defaultValues: initialValues ?? {
@@ -51,14 +50,24 @@ const ModalThem: React.FC<props> = ({ openModal, initialValues, handleClose }) =
             imageUrl: data.imageUrl,
             name: data.name
         }
+        console.log(tempData)
         var response: ResponseType = await createCategory.mutateAsync(tempData)
         if (response?.status === 200) {
+            try {
+
+
+
+            } catch (
+            error
+            ) {
+
+            }
             Swal.fire({
                 title: "Thêm mới dữ liệu thành công",
                 icon: "success"
             });
-               handleClose()
-               reset()
+            handleClose()
+            reset()
         } else {
             Swal.fire({
                 title: "Đã có lỗi xảy ra vui lòng kiểm tra lại hệ thống",
@@ -107,6 +116,27 @@ const ModalThem: React.FC<props> = ({ openModal, initialValues, handleClose }) =
                                     {...register("imageUrl", {
                                         onChange: (e) => e.target.files?.[0],
                                     })}
+                                />
+                            </Grid>
+                            <Grid size={12}>
+                                <Controller
+                                    name="categoryParentId"
+                                    control={control}
+                                    // rules={{ required: "Vui lòng chọn danh mục cha" }}
+                                    render={({ field, fieldState }) => (
+                                        <Autocomplete
+                                            options={dataCategory}
+                                            getOptionLabel={(option) => option.name || ""}
+                                            value={dataCategory.find((r) => r.id === field.value) || null}
+                                            onChange={(_, value) => field.onChange(value ? value.id : null)}
+                                            renderInput={(params) => (
+                                                <TextField
+                                                    {...params}
+                                                    label="Loại tài khoản"
+                                                />
+                                            )}
+                                        />
+                                    )}
                                 />
                             </Grid>
 

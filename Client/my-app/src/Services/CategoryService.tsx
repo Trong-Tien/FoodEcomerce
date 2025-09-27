@@ -1,26 +1,23 @@
-const API_BASE = "http://localhost:5292/api";
+import type { Category } from "@/Type/Category";
 
-export interface Category {
-  id: string;
-  name: string;
-  description?: string;
-  imageUrl?: string; // backend trả về relative path
-}
+const API_BASE = "http://localhost:5292/api";
 
 export const categoryService = {
   async getAll(): Promise<Category[]> {
     const res = await fetch(`${API_BASE}/Category/GetAll`);
     if (!res.ok) throw new Error("Không tải được danh mục");
 
-    const data = await res.json();
-    const items: Category[] = data.items || [];
+    const data: Category[] = await res.json();
 
-    // ✅ map thêm full URL cho imageUrl để frontend chỉ việc dùng
-    return items.map((c) => ({
+    // Hàm đệ quy để map cả category con
+    const mapCategory = (c: Category): Category => ({
       ...c,
       imageUrl: c.imageUrl
         ? `${API_BASE}/File/image?path=${encodeURIComponent(c.imageUrl)}`
-        : undefined,
-    }));
+        : "", // ✅ fallback về chuỗi rỗng
+      categorys: c.categorys ? c.categorys.map(mapCategory) : [], // luôn trả về mảng
+    });
+
+    return data.map(mapCategory);
   },
 };

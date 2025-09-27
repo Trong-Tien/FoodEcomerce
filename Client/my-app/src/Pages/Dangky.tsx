@@ -9,7 +9,6 @@ import Swal from "sweetalert2";
 import type { Register } from "@/Types/RegisterForm";
 import logo from "@/assets/img/logo.jpg";
 
-
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
 const USERNAME_MIN = 3;
 const OTP_LEN = 6;
@@ -47,8 +46,8 @@ export default function Dangky() {
   // countdown resend OTP
   useEffect(() => {
     if (resendLeft <= 0) return;
-    const t = setInterval(() => setResendLeft((s) => s - 1), 1000);
-    return () => clearInterval(t);
+    const timer = setInterval(() => setResendLeft((s) => s - 1), 1000);
+    return () => clearInterval(timer);
   }, [resendLeft]);
 
   const handleChange = (field: keyof RegisterForm, value: string) => {
@@ -91,13 +90,15 @@ export default function Dangky() {
     try {
       setSendingOtp(true);
       setServerError(null);
+
       const response: ResponseType = await sendOtp.mutateAsync(form.email);
+
       if (response.status === 200) {
         Swal.fire("Gửi OTP thành công");
         setResendLeft(RESEND_SECONDS);
       } else {
         Swal.fire(
-          "Đã có lỗi xảy ra , xin vui lòng liên hệ với bộ phận chăm sóc khách hàng "
+          "Đã có lỗi xảy ra , xin vui lòng liên hệ với bộ phận chăm sóc khách hàng"
         );
       }
     } catch (err: unknown) {
@@ -117,7 +118,7 @@ export default function Dangky() {
       setSubmitting(true);
       setServerError(null);
 
-      const tempData: Register = {
+      const payload: Register = {
         username: form.username,
         email: form.email,
         phoneNumber: form.phoneNumber,
@@ -126,7 +127,7 @@ export default function Dangky() {
         confirmPassword: form.confirmPassword,
       };
 
-      const response: ResponseType = await register.mutateAsync(tempData);
+      const response: ResponseType = await register.mutateAsync(payload);
 
       if (response.status === 200) {
         await Swal.fire("Đăng ký thành công");
@@ -146,7 +147,7 @@ export default function Dangky() {
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <div className="w-full max-w-md bg-white rounded-lg shadow-md overflow-hidden">
         <div className="flex flex-col items-center py-6">
-           <img src={logo} alt="Logo" className="w-16 h-16 mb-2" />
+          <img src={logo} alt="Logo" className="w-16 h-16 mb-2" />
           <h1 className="text-2xl font-extrabold text-green-700">
             Tạo tài khoản
           </h1>
@@ -184,7 +185,6 @@ export default function Dangky() {
             {sendingOtp ? "Đang gửi..." : "Gửi OTP"}
           </button>
 
-          {/* OTP + Gửi lại */}
           <div className="flex gap-2">
             <input
               type="tel"
@@ -203,7 +203,7 @@ export default function Dangky() {
               type="button"
               onClick={handleSendOtp}
               disabled={resendLeft > 0 || !EMAIL_REGEX.test(form.email)}
-              className="px-4 py-2 bg-green-600 text-white rounded-md font-semibold"
+              className="px-4 py-2 bg-green-600 text-white rounded-md font-semibold disabled:opacity-50"
             >
               {resendLeft > 0 ? `Gửi lại (${resendLeft}s)` : "Gửi lại"}
             </button>
@@ -222,7 +222,9 @@ export default function Dangky() {
             label="Confirm Password"
             type="password"
             value={form.confirmPassword}
-            onChange={(e) => handleChange("confirmPassword", e.target.value)}
+            onChange={(e) =>
+              handleChange("confirmPassword", e.target.value)
+            }
             icon={<FaLock />}
             error={errors.confirmPassword}
           />

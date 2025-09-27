@@ -8,6 +8,6 @@
         public string? Description { get; set; }
         public double ConservationRate { get; set; }
         public bool IsBaseUnit { get; set; }
-        public Guid? BaseUnitId { get; set; } = null;
+        public Guid? BaseUnitId { get; set; } = Guid.Empty;
     }
 }

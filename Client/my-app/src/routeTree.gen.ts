@@ -18,6 +18,7 @@ import { Route as DangKyIndexRouteImport } from './routes/DangKy/index'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
 import { Route as CategoryCategoryRouteImport } from './routes/category/$category'
 import { Route as AdminDashboardRouteRouteImport } from './routes/admin/Dashboard/route'
+import { Route as AdminDashboardProductIndexRouteImport } from './routes/admin/Dashboard/Product/index'
 import { Route as AdminDashboardNguoiDungIndexRouteImport } from './routes/admin/Dashboard/NguoiDung/index'
 import { Route as AdminDashboardMenuIndexRouteImport } from './routes/admin/Dashboard/Menu/index'
 import { Route as AdminDashboardLoaiTaiKhoanIndexRouteImport } from './routes/admin/Dashboard/LoaiTaiKhoan/index'
@@ -69,6 +70,12 @@ const AdminDashboardRouteRoute = AdminDashboardRouteRouteImport.update({
   path: '/admin/Dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminDashboardProductIndexRoute =
+  AdminDashboardProductIndexRouteImport.update({
+    id: '/Product/',
+    path: '/Product/',
+    getParentRoute: () => AdminDashboardRouteRoute,
+  } as any)
 const AdminDashboardNguoiDungIndexRoute =
   AdminDashboardNguoiDungIndexRouteImport.update({
     id: '/NguoiDung/',
@@ -114,6 +121,7 @@ export interface FileRoutesByFullPath {
   '/admin/Dashboard/LoaiTaiKhoan': typeof AdminDashboardLoaiTaiKhoanIndexRoute
   '/admin/Dashboard/Menu': typeof AdminDashboardMenuIndexRoute
   '/admin/Dashboard/NguoiDung': typeof AdminDashboardNguoiDungIndexRoute
+  '/admin/Dashboard/Product': typeof AdminDashboardProductIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -130,6 +138,7 @@ export interface FileRoutesByTo {
   '/admin/Dashboard/LoaiTaiKhoan': typeof AdminDashboardLoaiTaiKhoanIndexRoute
   '/admin/Dashboard/Menu': typeof AdminDashboardMenuIndexRoute
   '/admin/Dashboard/NguoiDung': typeof AdminDashboardNguoiDungIndexRoute
+  '/admin/Dashboard/Product': typeof AdminDashboardProductIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -147,6 +156,7 @@ export interface FileRoutesById {
   '/admin/Dashboard/LoaiTaiKhoan/': typeof AdminDashboardLoaiTaiKhoanIndexRoute
   '/admin/Dashboard/Menu/': typeof AdminDashboardMenuIndexRoute
   '/admin/Dashboard/NguoiDung/': typeof AdminDashboardNguoiDungIndexRoute
+  '/admin/Dashboard/Product/': typeof AdminDashboardProductIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -165,6 +175,7 @@ export interface FileRouteTypes {
     | '/admin/Dashboard/LoaiTaiKhoan'
     | '/admin/Dashboard/Menu'
     | '/admin/Dashboard/NguoiDung'
+    | '/admin/Dashboard/Product'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -181,6 +192,7 @@ export interface FileRouteTypes {
     | '/admin/Dashboard/LoaiTaiKhoan'
     | '/admin/Dashboard/Menu'
     | '/admin/Dashboard/NguoiDung'
+    | '/admin/Dashboard/Product'
   id:
     | '__root__'
     | '/'
@@ -197,6 +209,7 @@ export interface FileRouteTypes {
     | '/admin/Dashboard/LoaiTaiKhoan/'
     | '/admin/Dashboard/Menu/'
     | '/admin/Dashboard/NguoiDung/'
+    | '/admin/Dashboard/Product/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -276,6 +289,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminDashboardRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/Dashboard/Product/': {
+      id: '/admin/Dashboard/Product/'
+      path: '/Product'
+      fullPath: '/admin/Dashboard/Product'
+      preLoaderRoute: typeof AdminDashboardProductIndexRouteImport
+      parentRoute: typeof AdminDashboardRouteRoute
+    }
     '/admin/Dashboard/NguoiDung/': {
       id: '/admin/Dashboard/NguoiDung/'
       path: '/NguoiDung'
@@ -320,6 +340,7 @@ interface AdminDashboardRouteRouteChildren {
   AdminDashboardLoaiTaiKhoanIndexRoute: typeof AdminDashboardLoaiTaiKhoanIndexRoute
   AdminDashboardMenuIndexRoute: typeof AdminDashboardMenuIndexRoute
   AdminDashboardNguoiDungIndexRoute: typeof AdminDashboardNguoiDungIndexRoute
+  AdminDashboardProductIndexRoute: typeof AdminDashboardProductIndexRoute
 }
 
 const AdminDashboardRouteRouteChildren: AdminDashboardRouteRouteChildren = {
@@ -328,6 +349,7 @@ const AdminDashboardRouteRouteChildren: AdminDashboardRouteRouteChildren = {
   AdminDashboardLoaiTaiKhoanIndexRoute: AdminDashboardLoaiTaiKhoanIndexRoute,
   AdminDashboardMenuIndexRoute: AdminDashboardMenuIndexRoute,
   AdminDashboardNguoiDungIndexRoute: AdminDashboardNguoiDungIndexRoute,
+  AdminDashboardProductIndexRoute: AdminDashboardProductIndexRoute,
 }
 
 const AdminDashboardRouteRouteWithChildren =

@@ -1,4 +1,5 @@
 ﻿using FoodEcomerce.Abstract;
+using FoodEcomerce.DTO;
 using FoodEcomerce.Modal;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,12 +19,31 @@ namespace FoodEcomerce.Controllers
 
         [HttpGet("GetAll")]
         //[Authorize]
-        public  async Task<IActionResult> GetAll(int pageNumber , int pagesize)
+        public  async Task<IActionResult> GetAll(int pageNumber , int pagesize )
         {
             try
             {
-                var result = await _unitOfWork.CategoryDepository.GetAll(pageNumber, pagesize);
-                return Ok(result);
+                var result = await _unitOfWork.CategoryDepository.GetAll(pageNumber, pagesize, x => x.ChildCategories);
+                var dto = result.Items.Where(r=> r.CategoryParentId == null).Select(u => new CategoryDTO
+                {
+                    Id = u.Id,
+                    Name = u.Name,
+                    Description = u.Description,
+                    ImageUrl = u.ImageUrl,
+                    CategoryParentId = u.CategoryParentId ?? Guid.Empty, 
+                    Categorys = u.ChildCategories != null
+                          ? u.ChildCategories.Select(c => new CategoryDTO
+                          {
+                              Id = c.Id,
+                              Name = c.Name,
+                              Description = c.Description,
+                              ImageUrl = c.ImageUrl,
+                              CategoryParentId = c.CategoryParentId ?? Guid.Empty
+                          }).ToList()
+                          : new List<CategoryDTO>()
+                                }).ToList();
+
+                return Ok(dto);
             }
             catch (Exception ex) { 
               return BadRequest(ex.Message);    

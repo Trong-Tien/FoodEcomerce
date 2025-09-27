@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
 import { useParams } from "@tanstack/react-router";
-import { Route } from "@/routes/category/$category"; // 👈 import Route
+import { Route } from "@/routes/category/$category";
 import productService from "@/Services/ProductService";
 import ProductCard from "@/Component/Common/ProductCard";
 import type { Product } from "@/Types/product";
 
 export default function CategoryPage() {
-  // ✅ đúng cú pháp cho TanStack Router v1
   const { category } = useParams({ from: Route.id });
 
   const [products, setProducts] = useState<Product[]>([]);
