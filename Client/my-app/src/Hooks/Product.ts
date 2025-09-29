@@ -20,7 +20,7 @@ export const useGetProduct = (pageNumber: number ,pagesize : number) =>
 
 export const useCreateProduct = () => {
     const qc = useQueryClient();
-    return useMutation<ResponseType, Error, AddProduct>({
+    return useMutation({
         mutationFn: async (request: AddProduct) => {
             const formData = new FormData();
             formData.append("id", request.id);
@@ -36,6 +36,7 @@ export const useCreateProduct = () => {
             formData.append("unitCaculateId", request.unitCaculateId);
             formData.append("tradeMarkId", request.tradeMarkId);
             formData.append("placeProductId", request.placeProductId);
+            formData.append("inventory", request.inventory.toString());
             request.imageUrl.forEach(file => {
                 formData.append("ImageUrl", file);
             });

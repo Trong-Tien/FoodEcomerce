@@ -1,7 +1,7 @@
 import { useCreateProduct } from "@/Hooks/Product";
 import { addProductSchema, type AddProduct } from "@/Type/AddProduct";
 import { yupResolver } from "@hookform/resolvers/yup";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -9,9 +9,18 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-import { Autocomplete, Button, Grid, TextField } from "@mui/material";
+import { Autocomplete, Button, FormControlLabel, Grid, Switch, TextField } from "@mui/material";
 import { useGetUnitCaculate } from "@/Hooks/UnitCaculate";
 import type { UnitCacaulate } from "@/Type/UnitCaculate";
+import { useGetTradeMark } from "@/Hooks/TradeMark";
+import type { TradeMark } from "@/Type/Trademark";
+import { useGetPlaceOfProduct } from "@/Hooks/PlaceOfProduct";
+import type { PlaceOfProduct } from "@/Type/PlaceOfProduct";
+import { useGetCategoryByChild } from "@/Hooks/Category";
+import type { Category } from "@/Type/Category";
+import { v4 as uuidv4 } from 'uuid';
+import Swal from 'sweetalert2'
+import type { ResponseType } from "@/Type/ResponseType";
 type props = {
   openModal: boolean;
   initialValues?: AddProduct;
@@ -24,7 +33,14 @@ const ModalThem: React.FC<props> = ({
 }) => {
   const createProduct = useCreateProduct();
   const { data: dataUnitCaculate } = useGetUnitCaculate(1, 10);
-  const unitCaculate : UnitCacaulate[] = dataUnitCaculate?.items ?? []
+  const { data: dataTradeMark } = useGetTradeMark(1, 10);
+  const { data: dataPlaceOfProduct } = useGetPlaceOfProduct(1, 10);
+  const { data: dataCategory } = useGetCategoryByChild()
+  const [previews, setPreviews] = useState<string[]>([]);
+  const unitCaculate: UnitCacaulate[] = dataUnitCaculate?.items ?? []
+  const tradeMarkData: TradeMark[] = dataTradeMark?.items ?? []
+  const placeProduct: PlaceOfProduct[] = dataPlaceOfProduct?.items ?? []
+  const category: Category[] = dataCategory ?? []
   const {
     register,
     handleSubmit,
@@ -47,6 +63,7 @@ const ModalThem: React.FC<props> = ({
       tradeMarkId: "",
       unitCaculateId: "",
       unitPrice: 0,
+      inventory: 0
     },
     resolver: yupResolver(addProductSchema),
   });
@@ -55,11 +72,64 @@ const ModalThem: React.FC<props> = ({
       reset(initialValues);
     }
   }, [initialValues, reset]);
+  const handleFilesChange = (event: React.ChangeEvent<HTMLInputElement>, onChange: (value: File[]) => void) => {
+    if (event.target.files) {
+      const files = Array.from(event.target.files);
+      onChange(files);
+
+      const urls = files.map(file => URL.createObjectURL(file));
+      setPreviews(urls);
+
+      return () => urls.forEach(url => URL.revokeObjectURL(url));
+    }
+  };
+
+  const handleCloseWithFunction = () => {
+    handleClose()
+    setPreviews([])
+  }
+
+  const onSubmit = async (data: AddProduct) => {
+    var tempdata = {
+      id: uuidv4(),
+      name: data.name,
+      managementCode: data.managementCode,
+      description: data.description,
+      unitPrice: data.unitPrice,
+      quantityInStock: data.quantityInStock,
+      discount: data.discount,
+      unitCaculateId: data.unitCaculateId,
+      tradeMarkId: data.tradeMarkId,
+      placeProductId: data.placeProductId,
+      expiry: data.expiry,
+      preserve: data.preserve,
+      inventory: data.inventory,
+      categoryId: data.categoryId,
+      imageUrl: data.imageUrl,
+      isActive: data.isActive
+    }
+    const response: ResponseType = await createProduct.mutateAsync(tempdata)
+    if (response?.status === 200) {
+      Swal.fire({
+        title: "Thêm mới dữ liệu thành công",
+        icon: "success"
+      });
+      handleClose()
+      reset()
+    } else {
+      Swal.fire({
+        title: "Đã có lỗi xảy ra vui lòng kiểm tra lại hệ thống",
+        icon: "error"
+      });
+    }
+
+  }
+
 
   return (
-    <Dialog open={openModal} onClose={handleClose} fullWidth maxWidth={"md"}>
+    <Dialog open={openModal} onClose={handleCloseWithFunction} fullWidth maxWidth={"md"}>
       <DialogTitle>Thêm mới sản phẩm</DialogTitle>
-      <form id="subscription-form">
+      <form id="subscription-form" onSubmit={handleSubmit(onSubmit)}>
         <DialogContent>
           {/* Grid để layout form */}
           <Grid container spacing={2} mt={1}>
@@ -106,7 +176,17 @@ const ModalThem: React.FC<props> = ({
                 type="number"
                 {...register("unitPrice")}
                 error={!!errors.unitPrice}
+                inputProps={{ step: "0.001", min: "0" }}
                 helperText={errors.unitPrice?.message}
+                fullWidth
+              />
+            </Grid>
+            <Grid size={6}>
+              <TextField
+                label="Số lượng"
+                {...register("quantityInStock")}
+                error={!!errors.quantityInStock}
+                helperText={errors.quantityInStock?.message}
                 fullWidth
               />
             </Grid>
@@ -117,6 +197,46 @@ const ModalThem: React.FC<props> = ({
                 {...register("discount")}
                 fullWidth
               />
+            </Grid>
+            <Grid size={6}>
+              <TextField
+                label="Số lượng tồn"
+                type="number"
+                {...register("inventory")}
+                fullWidth
+              />
+            </Grid>
+
+            <Grid size={6}>
+              <Controller
+                name="categoryId"
+                control={control}
+                rules={{ required: "Vui lòng chọn loại sản phẩm" }}
+                render={({ field, fieldState }) => (
+                  <Autocomplete
+                    multiple
+                    options={category ?? []}
+                    getOptionLabel={(option) => option.name || ""}
+                    value={
+                      category?.filter((r) =>
+                        (field.value ?? []).includes(r.id)
+                      ) ?? []
+                    }
+                    onChange={(_, value) =>
+                      field.onChange(value.map((v) => v.id))
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Loại sản phẩm"
+                        error={!!fieldState.error}
+                        helperText={fieldState.error?.message}
+                      />
+                    )}
+                  />
+                )}
+              />
+
             </Grid>
 
             <Grid size={6}>
@@ -148,6 +268,129 @@ const ModalThem: React.FC<props> = ({
                 )}
               />
             </Grid>
+            <Grid size={6}>
+              <Controller
+                name="tradeMarkId"
+                control={control}
+                rules={{ required: "Vui lòng chọn thương hiệu" }}
+                render={({ field, fieldState }) => (
+                  <Autocomplete
+                    options={tradeMarkData ?? []}
+                    getOptionLabel={(option) => option.name || ""}
+                    value={
+                      tradeMarkData?.find(
+                        (r) => r.id == field.value
+                      ) ?? null
+                    }
+                    onChange={(_, value) =>
+                      field.onChange(value ? value.id : null)
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Thương hiệu"
+                        error={!!fieldState.error}
+                        helperText={fieldState.error?.message}
+                      />
+                    )}
+                  />
+                )}
+              />
+            </Grid>
+            <Grid size={6}>
+              <Controller
+                name="placeProductId"
+                control={control}
+                rules={{ required: "Vui lòng chọn xuất xứ" }}
+                render={({ field, fieldState }) => (
+                  <Autocomplete
+                    options={placeProduct ?? []}
+                    getOptionLabel={(option) => option.name || ""}
+                    value={
+                      placeProduct?.find(
+                        (r) => r.id == field.value
+                      ) ?? null
+                    }
+                    onChange={(_, value) =>
+                      field.onChange(value ? value.id : null)
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Xuất xứ"
+                        error={!!fieldState.error}
+                        helperText={fieldState.error?.message}
+                      />
+                    )}
+                  />
+                )}
+              />
+            </Grid>
+            <Grid size={12}>
+              <TextField
+                label="Hạn sử dụng"
+                type="text"
+                {...register("expiry")}
+                fullWidth
+              />
+            </Grid>
+            <Grid size={12}>
+              <TextField
+                label="Cách bảo quản"
+                type="text"
+                {...register("preserve")}
+                fullWidth
+              />
+            </Grid>
+            <Grid size={12}>
+              <FormControlLabel control={<Switch  {...register("isActive")} />} label="Kích hoạt sản phẩm" />
+            </Grid>
+            <Grid size={12}>
+              <p>Chọn hình ảnh sản phẩm</p>
+              <Controller
+                name="imageUrl"
+                control={control}
+                rules={{ required: "Vui lòng chọn ít nhất 1 hình ảnh" }}
+                render={({ field, fieldState }) => (
+                  <>
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={(e) => handleFilesChange(e, field.onChange)}
+                    />
+                    {fieldState.error && <p style={{ color: "red" }}>{fieldState.error.message}</p>}
+
+                    <div style={{ display: "flex", gap: "10px", marginTop: "10px", flexWrap: "wrap" }}>
+                      {previews.map((src, idx) => (
+                        <img
+                          key={idx}
+                          src={src}
+                          alt={`preview-${idx}`}
+                          width={120}
+                          style={{ borderRadius: "8px", objectFit: "cover" }}
+                        />
+                      ))}
+                    </div>
+                  </>
+                )}
+              />
+
+            </Grid>
+            <Grid size={12} style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+
+              {previews.map((src, index) => (
+                <img
+                  key={index}
+                  src={src}
+                  alt={`preview-${index}`}
+                  width={120}
+                  style={{ borderRadius: "8px", objectFit: "cover" }}
+                />
+              ))}
+            </Grid>
+
+
           </Grid>
         </DialogContent>
 

@@ -75,6 +75,19 @@ namespace FoodEcomerce.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpGet("GetAllByChild")]
+        public async Task<IActionResult> GetAllByChild()
+        {
+            try
+            {
+                var result = await _unitOfWork.CategoryDepository.GetAllByChild();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
         [HttpPost("Create")]
         public async Task<IActionResult> Create([FromForm] CategoryModal modal)
         {

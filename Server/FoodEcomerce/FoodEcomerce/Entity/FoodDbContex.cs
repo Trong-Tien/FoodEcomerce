@@ -18,6 +18,7 @@ namespace FoodEcomerce.Entity
         public virtual DbSet<OTP> OTPs { get; set; }
         public virtual DbSet<Category> Categories { get; set; }
         public virtual DbSet<UnitCaculate> UnitCaculates { get; set; }
+        public virtual DbSet<PlaceProduct> PlaceProducts { get; set; }
 
         public virtual DbSet<ImageProduct> ImageProducts { get; set; }  
         public virtual DbSet<Cart> Carts { get; set; }

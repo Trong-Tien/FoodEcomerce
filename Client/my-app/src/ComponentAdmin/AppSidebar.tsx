@@ -23,7 +23,7 @@ const drawerWidth = 240;
 
 // API logout
 const logout = async () => {
-  const response = await fetch("http://localhost:5292/api/Auth/logout", {
+  const response = await fetch("https://localhost:7004/api/Auth/logout", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
   });

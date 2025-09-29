@@ -25,19 +25,20 @@ namespace FoodEcomerce.Reposiroty.Products
                 Product product = new Product();
                 product.Id = modal.Id;
                 product.Name = modal.Name;
+                product.ManagementCode = modal.ManagementCode;
                 product.Description = modal.Description;
                 product.UnitPrice = modal.UnitPrice;
                 product.QuantityInStock = modal.QuantityInStock;
                 product.Discount = modal.Discount;
                 product.UnitCaculateId = modal.UnitCaculateId;
                 var UnitCaculate = _context.UnitCaculates.FirstOrDefault(u => u.Id == modal.UnitCaculateId);
-                product.TotalPrice = UnitCaculate != null ? Math.Round(product.TotalPrice * (decimal)UnitCaculate.ConservationRate, 2) : 0;
+                product.TotalPrice = UnitCaculate != null ? Math.Round(product.UnitPrice * product.QuantityInStock * (decimal)UnitCaculate.ConservationRate, 2) : 0;
                 product.TradeMarkId = modal.TradeMarkId;
                 product.PlaceProductId = modal.PlaceProductId;
                 product.IsDelete = false;
                 product.Expiry = modal.Expiry;
                 product.Preserve = modal.Preserve;
-
+                product.Inventory = modal.Inventory;
                 _context.Products.Add(product);
 
 

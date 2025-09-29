@@ -10,7 +10,7 @@
         public int QuantityInStock { get; set; } // số lượng tồn
         public decimal TotalPrice { get; set; }
         public decimal SalePrice { get; set; }
-        public int? Inventory { get; set; }
+        public int Inventory { get; set; }
         public int Discount { get; set; }
         public bool IsActive { get; set; }
         public string? Expiry { get; set; }  // hạn sử dụng

@@ -16,6 +16,11 @@ namespace FoodEcomerce.Reposiroty.Categorys
             _mapper = mapper;   
         }
 
+        public async Task<List<CategoryDTO>> GetAllByChild()
+        {
+            return _mapper.Map<List<CategoryDTO>>(await _foodDbContex.Categories.Where(r => r.CategoryParentId != null).ToListAsync());
+        }
+
         public async Task<List<CategoryDTO>> GetAllParent()
         {
             return _mapper.Map<List<CategoryDTO>>( await _foodDbContex.Categories.Where(r=> r.CategoryParentId == null).ToListAsync());

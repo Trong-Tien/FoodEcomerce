@@ -1,5 +1,5 @@
 import { api } from "@/Api/BaseApi";
-import { create, deleteCategory, getAll, update } from "@/Api/DanhMuc";
+import { create, deleteCategory, getAll } from "@/Api/DanhMuc";
 import type { AddCategory } from "@/Type/AddCategory";
 import type { UpdateCategory } from "@/Type/UpdateCategory";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -15,6 +15,15 @@ export const useGetCategoryByParent = () =>
         queryKey: ["categoryparent"],
         queryFn: async() => {
           const {data} = await api.get(`/Category/GetAllByParent`)
+          return data;
+        },
+    });
+
+export const useGetCategoryByChild = () =>
+    useQuery({
+        queryKey: ["categorychild"],
+        queryFn: async() => {
+          const {data} = await api.get(`/Category/GetAllByChild`)
           return data;
         },
     });

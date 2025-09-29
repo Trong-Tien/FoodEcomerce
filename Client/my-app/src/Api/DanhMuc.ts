@@ -3,7 +3,7 @@ import type { UpdateCategory } from "@/Type/UpdateCategory";
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:5292/api/Category",
+  baseURL: "https://localhost:7004/api/Category",
 });
 
 export const getAll = async (pageNumber: number, pageSize: number) => {
