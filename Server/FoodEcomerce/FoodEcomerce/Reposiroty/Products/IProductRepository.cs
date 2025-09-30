@@ -9,5 +9,6 @@ namespace FoodEcomerce.Reposiroty.Products
     {
         Task<ResultModal> CreateWithQuery(ProductModal modal);
         Task<List<sp_WebFood_GetAllProduct>> GetAll(int pageNumber, int pageSize, string ids);
+        Task<List<sp_WebFood_GetAllProductImage>> GetProductImage(Guid productId);
     }
 }

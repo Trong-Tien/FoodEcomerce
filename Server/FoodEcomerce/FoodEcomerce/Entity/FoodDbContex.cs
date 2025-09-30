@@ -155,6 +155,7 @@ namespace FoodEcomerce.Entity
                 entity.Property(x => x.UnitPrice).HasColumnType("decimal");
                 entity.Property(x => x.QuantityInStock).HasColumnType("int");
                 entity.Property(x => x.TotalPrice).HasColumnType("decimal");
+                entity.Property(x => x.SalePrice).HasColumnType("decimal");
                 entity.Property(x => x.Inventory).HasColumnType("int");
                 entity.Property(x => x.Discount).HasColumnType("int");
                 entity.Property(x => x.IsActive).HasColumnType("bit");

@@ -6,7 +6,6 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-<<<<<<< HEAD
     extend: {
        spacing: {
         '3px': '3px', // thêm giá trị spacing mới
@@ -20,9 +19,3 @@ export default {
 
 
 
-=======
-    extend: {},
-  },
-  plugins: [],
-} satisfies Config
->>>>>>> bd4e59fadb4cb47071453c559f0e2f5cceebb7a0

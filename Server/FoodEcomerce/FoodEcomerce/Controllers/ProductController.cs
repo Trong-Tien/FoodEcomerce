@@ -39,5 +39,18 @@ namespace FoodEcomerce.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpGet("GetProductImage/{productId}")]
+        public async Task<IActionResult> GetProductImage(Guid productId)
+        {
+            try
+            {
+                var result = await unitOfWork.ProductRepository.GetProductImage(productId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

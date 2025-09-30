@@ -67,11 +67,7 @@ const ModalThem: React.FC<props> = ({
     },
     resolver: yupResolver(addProductSchema),
   });
-  useEffect(() => {
-    if (initialValues) {
-      reset(initialValues);
-    }
-  }, [initialValues, reset]);
+
   const handleFilesChange = (event: React.ChangeEvent<HTMLInputElement>, onChange: (value: File[]) => void) => {
     if (event.target.files) {
       const files = Array.from(event.target.files);
@@ -86,6 +82,7 @@ const ModalThem: React.FC<props> = ({
 
   const handleCloseWithFunction = () => {
     handleClose()
+    initialValues
     setPreviews([])
   }
 
@@ -114,8 +111,8 @@ const ModalThem: React.FC<props> = ({
         title: "Thêm mới dữ liệu thành công",
         icon: "success"
       });
-      handleClose()
       reset()
+      handleClose()
     } else {
       Swal.fire({
         title: "Đã có lỗi xảy ra vui lòng kiểm tra lại hệ thống",
@@ -124,7 +121,11 @@ const ModalThem: React.FC<props> = ({
     }
 
   }
-
+  useEffect(() => {
+    if (initialValues) {
+      reset(initialValues);
+    }
+  }, [initialValues, reset]);
 
   return (
     <Dialog open={openModal} onClose={handleCloseWithFunction} fullWidth maxWidth={"md"}>

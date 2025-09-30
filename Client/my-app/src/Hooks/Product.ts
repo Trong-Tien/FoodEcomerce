@@ -16,6 +16,9 @@ export const useGetProduct = (pageNumber: number ,pagesize : number) =>
             const { data } = await api.get(`/Product/getall?pageNumber=${pageNumber}&pageSize=${pagesize}&ids=00000000-0000-0000-0000-000000000000`)
             return data;
         },
+        refetchOnWindowFocus: false,  
+        refetchOnReconnect: false,  
+        refetchOnMount: false,     
     });
 
 export const useCreateProduct = () => {
@@ -56,4 +59,17 @@ export const useCreateProduct = () => {
     });
 };
 
+
+export const useGetProductImage = (productId : string) =>
+    useQuery({
+        queryKey: ["productImage", productId],
+        queryFn: async () => {
+            const { data } = await api.get(`/Product/GetProductImage/${productId}`)
+            return data;
+        },
+        refetchOnWindowFocus: false,  
+        refetchOnReconnect: false,  
+        refetchOnMount: false,    
+        enabled: !!productId,  
+    });
 

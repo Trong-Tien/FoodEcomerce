@@ -4,6 +4,7 @@ using FoodEcomerce.Entity;
 using FoodEcomerce.Entity.StoreProcedure;
 using FoodEcomerce.Modal;
 using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Crypto;
 
 namespace FoodEcomerce.Reposiroty.Products
 {
@@ -20,7 +21,7 @@ namespace FoodEcomerce.Reposiroty.Products
         public async Task<ResultModal> CreateWithQuery(ProductModal modal)
         {
             var data = _context.Products.FirstOrDefault(r => r.Id == modal.Id);
-            if (data != null)
+            if (data == null)
             {
                 Product product = new Product();
                 product.Id = modal.Id;
@@ -33,14 +34,16 @@ namespace FoodEcomerce.Reposiroty.Products
                 product.UnitCaculateId = modal.UnitCaculateId;
                 var UnitCaculate = _context.UnitCaculates.FirstOrDefault(u => u.Id == modal.UnitCaculateId);
                 product.TotalPrice = UnitCaculate != null ? Math.Round(product.UnitPrice * product.QuantityInStock * (decimal)UnitCaculate.ConservationRate, 2) : 0;
+                product.SalePrice = Math.Round(product.TotalPrice * product.Discount ,2);
                 product.TradeMarkId = modal.TradeMarkId;
                 product.PlaceProductId = modal.PlaceProductId;
                 product.IsDelete = false;
                 product.Expiry = modal.Expiry;
                 product.Preserve = modal.Preserve;
                 product.Inventory = modal.Inventory;
+                product.CreateAt = DateTime.Now;    
                 _context.Products.Add(product);
-
+                await _context.SaveChangesAsync();
 
                 // Thêm danh mục cho sản phẩm
                 List<ProductCategory> categories = new List<ProductCategory>();
@@ -62,7 +65,7 @@ namespace FoodEcomerce.Reposiroty.Products
                 {
                     if (item != null)
                     {
-                        var ImageUrl = Helpper.Untils.UploadFileImage(item, "Banner");
+                        var ImageUrl = Helpper.Untils.UploadFileImage(item, "Products");
                         ImageProduct dataImage = new ImageProduct();
                         dataImage.Id = Guid.NewGuid();
                         dataImage.ImageUrl = ImageUrl;
@@ -81,6 +84,11 @@ namespace FoodEcomerce.Reposiroty.Products
         public async Task<List<sp_WebFood_GetAllProduct>> GetAll(int pageNumber, int pageSize, string ids)
         {
             return await _storeContext.sp_WebFood_GetAllProduct.FromSql($"Execute sp_WebFood_GetAllProduct @pageNumber={pageNumber} , @pageSize={pageSize} , @categoryIds={ids}").ToListAsync();
+        }
+
+        public async Task<List<sp_WebFood_GetAllProductImage>> GetProductImage(Guid productId)
+        {
+            return await _storeContext.sp_WebFood_GetAllProductImage.FromSql($"Execute sp_WebFood_GetAllProductImage @productID={productId}").ToListAsync();
         }
     }
 }

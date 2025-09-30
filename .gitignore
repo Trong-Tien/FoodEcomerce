@@ -546,3 +546,5 @@ bin/obj
 /client/.env
 
 /Server/FoodEcomerce/FoodEcomerce/wwwroot/UploadFiles/Images/Categorys
+/Server/FoodEcomerce/FoodEcomerce/wwwroot/UploadFiles/Images/Banner
+/Server/FoodEcomerce/FoodEcomerce/wwwroot/UploadFiles/Images/Products

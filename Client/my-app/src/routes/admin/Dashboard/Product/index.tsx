@@ -21,6 +21,8 @@ import {
 import type { Product } from "@/Type/Product";
 import ImageIcon from "@mui/icons-material/Image";
 import ModalThem from "./-components/ModalThem";
+import ReactHtmlParser from "react-html-parser";
+import ModalXemHinhAnh from "./-components/ModalXemHinhAnh";
 export const Route = createFileRoute("/admin/Dashboard/Product/")({
   component: RouteComponent,
 });
@@ -29,8 +31,16 @@ function RouteComponent() {
   const { data, isError: isLoadingMenuError } = useGetProduct(1, 10);
   const dataProduct  : Product []  = data ??[]
   const [openModal, setOpenModal] = useState(false);
+  const [modalXemHinhAnh , setModalXemHinhAnh] = useState(false);
+  const [productId , setProductId] = useState<string>("")
   const handleOpenModal = () => setOpenModal(true);
   const handleCloseModal = () => setOpenModal(false);
+  const handelOpenModalXemHinhAnh = (productId : string) => 
+    {
+      setModalXemHinhAnh(true)
+       setProductId(productId)
+    };
+  const handleCloseModalXemHinhAnh = () => setModalXemHinhAnh(false);
 
   const columns = useMemo<MRT_ColumnDef<Product>[]>(
     () => [
@@ -49,7 +59,14 @@ function RouteComponent() {
       {
         accessorKey: "description",
         header: "Mô tả sản phẩm",
-        size: 180,
+        size: 250,
+        Cell : ({row})=>{
+          return (
+            <>
+            <p>{ReactHtmlParser(row.original.description)}</p>
+            </>
+          )
+        }
       },
       {
         accessorKey: "unitPrice",
@@ -62,16 +79,17 @@ function RouteComponent() {
         size: 180,
       },
       {
-        accessorKey: "image",
+        accessorKey: "id",
         header: "Hình ảnh",
         size: 150,
-        Cell: () => {
+        Cell: ({row}) => {
+
           return (
             <>
               <Tooltip title="Xem danh sách hình ảnh">
                 <IconButton
                   color="error"
-                  // onClick={() => handleDelete(row.original.id)}
+                   onClick={() => handelOpenModalXemHinhAnh(row.original.id)}
                 >
                   <ImageIcon />
                 </IconButton>
@@ -83,6 +101,8 @@ function RouteComponent() {
     ],
     []
   );
+
+  console.log(productId)
 
   const table = useMaterialReactTable({
     columns,
@@ -104,7 +124,7 @@ function RouteComponent() {
     editDisplayMode: "modal",
     paginationDisplayMode: "pages",
     positionToolbarAlertBanner: "bottom",
-    enableRowOrdering: true,
+    //enableRowOrdering: true,
     enableEditing: true,
 
     muiToolbarAlertBannerProps: isLoadingMenuError
@@ -164,6 +184,7 @@ function RouteComponent() {
     <Card elevation={3} sx={{ p: 2 }}>
       <MaterialReactTable table={table} />
       <ModalThem openModal={openModal} handleClose={handleCloseModal} />
+      <ModalXemHinhAnh openModal={modalXemHinhAnh} handleClose={handleCloseModalXemHinhAnh} productId={productId}/>
     </Card>
   );
 }
