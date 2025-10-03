@@ -122,11 +122,9 @@ const ModalSua: React.FC<Props> = ({ openModal, handleClose, initialValues }) =>
               </Grid>
 
               <Grid size={12} margin={1}>
-                {/* Preview ảnh cũ */}
                 {initialValues?.imageUrl && typeof initialValues.imageUrl === "string" && (
                   <ImagePreview path={initialValues.imageUrl} />
                 )}
-                {/* Upload ảnh mới */}
                 <input
                   type="file"
                   accept=".jpg,.png,.jpeg"

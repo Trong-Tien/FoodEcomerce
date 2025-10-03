@@ -14,5 +14,14 @@ namespace FoodEcomerce.Entity.StoreProcedure
         public decimal? UnitPrice { get; set; }
         public string? TradeMarkName { get; set; }
         public string? PlaceProduct { get; set; }
+        public string? Images { get; set; }
+        public int QuantityInStock { get; set; }
+        public decimal TotalPrice { get; set; }
+        public int Inventory { get; set; }
+        public int Discount { get; set; } 
+        public bool IsActive { get; set; }
+        public Guid UnitCaculateId { get; set; }
+        public int TradeMarkId { get; set; }
+        public int PlaceProductId { get; set; }
     }
 }

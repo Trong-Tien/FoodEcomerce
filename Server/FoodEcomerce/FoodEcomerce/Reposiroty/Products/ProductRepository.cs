@@ -33,13 +33,14 @@ namespace FoodEcomerce.Reposiroty.Products
                 product.Discount = modal.Discount;
                 product.UnitCaculateId = modal.UnitCaculateId;
                 var UnitCaculate = _context.UnitCaculates.FirstOrDefault(u => u.Id == modal.UnitCaculateId);
-                product.TotalPrice = UnitCaculate != null ? Math.Round(product.UnitPrice * product.QuantityInStock * (decimal)UnitCaculate.ConservationRate, 2) : 0;
+                product.TotalPrice = UnitCaculate != null ? Math.Round((decimal)(product.UnitPrice * product.QuantityInStock * (decimal)UnitCaculate.ConservationRate), 2) : 0;
                 product.SalePrice = Math.Round(product.TotalPrice * product.Discount ,2);
                 product.TradeMarkId = modal.TradeMarkId;
                 product.PlaceProductId = modal.PlaceProductId;
                 product.IsDelete = false;
                 product.Expiry = modal.Expiry;
                 product.Preserve = modal.Preserve;
+                product.IsActive = modal.IsActive;
                 product.Inventory = modal.Inventory;
                 product.CreateAt = DateTime.Now;    
                 _context.Products.Add(product);
@@ -89,6 +90,133 @@ namespace FoodEcomerce.Reposiroty.Products
         public async Task<List<sp_WebFood_GetAllProductImage>> GetProductImage(Guid productId)
         {
             return await _storeContext.sp_WebFood_GetAllProductImage.FromSql($"Execute sp_WebFood_GetAllProductImage @productID={productId}").ToListAsync();
+        }
+
+        public async Task<ResultModal> UpdateWithQuery(ProductModal modal)
+        {
+            var productData = _context.Products.FirstOrDefault(r=> r.Id == modal.Id);
+            if (productData != null) {
+                 productData.Name = modal.Name;
+                productData.ManagementCode = modal.ManagementCode;
+                productData.Description = modal.Description;
+                productData.UnitPrice = modal.UnitPrice;
+                productData.QuantityInStock = modal.QuantityInStock;
+                productData.Discount = modal.Discount;
+                productData.UnitCaculateId = modal.UnitCaculateId;
+                var UnitCaculate = _context.UnitCaculates.FirstOrDefault(u => u.Id == modal.UnitCaculateId);
+                productData.TotalPrice = UnitCaculate != null ? Math.Round((decimal)(productData.UnitPrice * productData.QuantityInStock * (decimal)UnitCaculate.ConservationRate), 2) : 0;
+                productData.SalePrice = Math.Round(productData.TotalPrice * productData.Discount, 2);
+                productData.TradeMarkId = modal.TradeMarkId;
+                productData.PlaceProductId = modal.PlaceProductId;
+                productData.IsDelete = false;
+                productData.Expiry = modal.Expiry;
+                productData.Preserve = modal.Preserve;
+                productData.Inventory = modal.Inventory;
+                productData.UpdateAt = DateTime.Now;
+
+                var productCategoryData = _context.ProductCategorys.Where(r=> r.ProductId ==productData.Id).ToList();
+                if(productCategoryData.Count > 0)
+                {
+                    _context.ProductCategorys.RemoveRange(productCategoryData);
+                    await _context.SaveChangesAsync();
+                }    
+
+                List<ProductCategory> categories = new List<ProductCategory>();
+                if (modal.CategoryId != null)
+                {
+                    foreach (var c in modal.CategoryId)
+                    {
+                        ProductCategory itemCate = new ProductCategory();
+                        itemCate.ProductId = productData.Id;
+                        itemCate.CategoryId = c;
+                        categories.Add(itemCate);
+                    }
+                    _context.ProductCategorys.AddRange(categories);
+                }
+
+
+                var imageProductData = _context.ImageProducts.Where(r => r.ProductId == productData.Id).ToList();
+                foreach (var item in modal.ImageUrlOld)
+                {
+                    if(item != null)
+                    {
+                        if(imageProductData.Any(r=> r.ProductId == productData.Id && r.ImageUrl != item))
+                        {
+                            Helpper.Untils.DeleteFile(item);
+                        }
+                        _context.ImageProducts.Remove(_context.ImageProducts.FirstOrDefault(r=> r.ImageUrl == item));
+                    }    
+                }
+            
+                await _context.SaveChangesAsync();
+
+                List<ImageProduct> imageProduct = new List<ImageProduct>();
+                foreach (var item in modal.ImageUrl)
+                {
+                    if (item != null)
+                    {
+                        var ImageUrl = Helpper.Untils.UploadFileImage(item, "Products");
+                        ImageProduct dataImage = new ImageProduct();
+                        dataImage.Id = Guid.NewGuid();
+                        dataImage.ImageUrl = ImageUrl;
+                        dataImage.ProductId = productData.Id;
+                        imageProduct.Add(dataImage);
+                    }
+                }
+                _context.ImageProducts.AddRange(imageProduct);
+                _context.Products.Update(productData);
+
+                await _context.SaveChangesAsync();
+                return new ResultModal() {Status = 200 ,Message="Chỉnh sửa thành công" , Success=true}; 
+            }
+            return new ResultModal() { Status = 202, Message = "Không tìm thấy dữ liệu", Success = false };
+        }
+        public async Task<ResultModal> DeleteWithQuery(Guid productId)
+        {
+            var productData = _context.Products.FirstOrDefault(r => r.Id == productId);
+
+            var testDataa = productData;
+
+            if (productData != null)
+            {
+                productData.IsDelete = true;
+                var productImage = _context.ImageProducts.Where(r => r.ProductId == productId).ToList();
+
+                if (productImage.Any())
+                {
+                    foreach (var item in productImage)
+                    {
+                        if (!string.IsNullOrEmpty(item.ImageUrl)) 
+                        {
+                            Helpper.Untils.DeleteFile(item.ImageUrl);
+                        }
+                    }
+
+                    _context.ImageProducts.RemoveRange(productImage);
+                    await _context.SaveChangesAsync();
+
+                    return new ResultModal()
+                    {
+                        Status = 200,
+                        Message = "Xóa dữ liệu thành công",
+                        Success = true
+                    };
+                }
+            }
+
+            return new ResultModal()
+            {
+                Status = 202,
+                Message = "Không tìm thấy dữ liệu để xoá",
+                Success = false
+            };
+
+
+        }
+
+        public async Task<List<sp_WebFood_GetAllProductCategory>> GetProductCategory(Guid productId)
+        {
+            return await _storeContext.sp_WebFood_GetAllProductCategory.FromSql($"Execute sp_WebFood_GetAllProductCategory @productID={productId}").ToListAsync();
         }
     }
 }

@@ -1,4 +1,4 @@
-import { useGetProduct } from "@/Hooks/Product";
+import { useDeleteProduct, useGetProduct } from "@/Hooks/Product";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import {
@@ -21,26 +21,89 @@ import {
 import type { Product } from "@/Type/Product";
 import ImageIcon from "@mui/icons-material/Image";
 import ModalThem from "./-components/ModalThem";
+import ModalSua from "./-components/ModalSua";
 import ReactHtmlParser from "react-html-parser";
 import ModalXemHinhAnh from "./-components/ModalXemHinhAnh";
+import type { UpdateProduct } from "@/Type/UpdateProduct";
+import Swal from 'sweetalert2';
+import type { ResponseType } from "@/Type/ResponseType";
+
 export const Route = createFileRoute("/admin/Dashboard/Product/")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { data, isError: isLoadingMenuError } = useGetProduct(1, 10);
-  const dataProduct  : Product []  = data ??[]
+  const { data, isError: isLoadingMenuError ,refetch } = useGetProduct(1, 10);
+  const deleteProduct = useDeleteProduct()
+  const dataProduct: Product[] = data ?? []
   const [openModal, setOpenModal] = useState(false);
-  const [modalXemHinhAnh , setModalXemHinhAnh] = useState(false);
-  const [productId , setProductId] = useState<string>("")
+  const [modalXemHinhAnh, setModalXemHinhAnh] = useState(false);
+  const [openModalUpdate, setOpenModalUpdate] = useState(false);
+  const [selectedRow, setSelectedRow] = useState<UpdateProduct>();
+  const [productId, setProductId] = useState<string>("")
   const handleOpenModal = () => setOpenModal(true);
   const handleCloseModal = () => setOpenModal(false);
-  const handelOpenModalXemHinhAnh = (productId : string) => 
-    {
-      setModalXemHinhAnh(true)
-       setProductId(productId)
-    };
+  const handelOpenModalXemHinhAnh = (productId: string) => {
+    setModalXemHinhAnh(true)
+    setProductId(productId)
+  };
   const handleCloseModalXemHinhAnh = () => setModalXemHinhAnh(false);
+
+
+  const mapCategoryToUpdate = (p: Product): UpdateProduct => {
+    return {
+      id: p.id,
+      name: p.name,
+      managementCode: p.managementCode,
+      description: p.description,
+      unitPrice: p.unitPrice,
+      quantityInStock: p.quantityInStock,
+      discount: p.discount,
+      isActive: p.isActive,
+      inventory: p.inventory,
+      expiry: p.expiry,
+      preserve: p.preserve,
+      unitCaculateId: p.unitCaculateId,
+      tradeMarkId: p.tradeMarkId,
+      placeProductId: p.placeProductId,
+      categoryId: [],
+      imageUrl: []
+    };
+  };
+
+  const handleOpenModalUpdate = (row: Product) => {
+    const updateData: UpdateProduct = mapCategoryToUpdate(row);
+    setSelectedRow(updateData);
+    setOpenModalUpdate(true);
+  };
+
+  const handleDelete = (id: string) => {
+    Swal.fire({
+      title: "Bạn có muốn xóa dữ liệu này ? ",
+      showDenyButton: true,
+      confirmButtonText: "Xác nhận",
+      denyButtonText: `Không`
+    }).then(async (result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        const response: ResponseType = await deleteProduct.mutateAsync(
+          id,
+        );
+        
+        if (response?.status === 200) {
+          Swal.fire("Xóa dữ liệu thành công");
+          refetch();
+        } else {
+          Swal.fire("Đã có lỗi xảy ra");
+        }
+      }
+    });
+  }
+
+  const handleCloseModalUpdate = () => {
+    setSelectedRow(undefined);
+    setOpenModalUpdate(false);
+  };
 
   const columns = useMemo<MRT_ColumnDef<Product>[]>(
     () => [
@@ -60,10 +123,10 @@ function RouteComponent() {
         accessorKey: "description",
         header: "Mô tả sản phẩm",
         size: 250,
-        Cell : ({row})=>{
+        Cell: ({ row }) => {
           return (
             <>
-            <p>{ReactHtmlParser(row.original.description)}</p>
+              <p>{ReactHtmlParser(row.original.description)}</p>
             </>
           )
         }
@@ -82,14 +145,14 @@ function RouteComponent() {
         accessorKey: "id",
         header: "Hình ảnh",
         size: 150,
-        Cell: ({row}) => {
+        Cell: ({ row }) => {
 
           return (
             <>
               <Tooltip title="Xem danh sách hình ảnh">
                 <IconButton
                   color="error"
-                   onClick={() => handelOpenModalXemHinhAnh(row.original.id)}
+                  onClick={() => handelOpenModalXemHinhAnh(row.original.id)}
                 >
                   <ImageIcon />
                 </IconButton>
@@ -102,7 +165,6 @@ function RouteComponent() {
     []
   );
 
-  console.log(productId)
 
   const table = useMaterialReactTable({
     columns,
@@ -139,7 +201,7 @@ function RouteComponent() {
         <Tooltip title="Chỉnh sửa">
           <IconButton
             color="primary"
-            //onClick={() => handleOpenModalUpdate(row.original)}
+            onClick={() => handleOpenModalUpdate(row.original)}
           >
             <EditIcon />
           </IconButton>
@@ -147,7 +209,7 @@ function RouteComponent() {
         <Tooltip title="Xóa">
           <IconButton
             color="error"
-            // onClick={() => handleDelete(row.original.id)}
+            onClick={() => handleDelete(row.original.id)}
           >
             <DeleteIcon />
           </IconButton>
@@ -184,7 +246,8 @@ function RouteComponent() {
     <Card elevation={3} sx={{ p: 2 }}>
       <MaterialReactTable table={table} />
       <ModalThem openModal={openModal} handleClose={handleCloseModal} />
-      <ModalXemHinhAnh openModal={modalXemHinhAnh} handleClose={handleCloseModalXemHinhAnh} productId={productId}/>
+      <ModalXemHinhAnh openModal={modalXemHinhAnh} handleClose={handleCloseModalXemHinhAnh} productId={productId} />
+      <ModalSua handleClose={handleCloseModalUpdate} openModal={openModalUpdate} initialValues={selectedRow} />
     </Card>
   );
 }

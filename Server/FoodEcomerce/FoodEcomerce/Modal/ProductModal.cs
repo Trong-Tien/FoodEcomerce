@@ -20,6 +20,7 @@
         public int TradeMarkId { get; set; }
         public int PlaceProductId { get; set; }
         public List<IFormFile>? ImageUrl { get; set; }
+        public List<string>? ImageUrlOld { get; set; }
         public List<Guid>? CategoryId { get; set; }
     }
 }

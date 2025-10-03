@@ -21,6 +21,7 @@ import type { Category } from "@/Type/Category";
 import { v4 as uuidv4 } from 'uuid';
 import Swal from 'sweetalert2'
 import type { ResponseType } from "@/Type/ResponseType";
+  import { Typography, Divider } from "@mui/material";
 type props = {
   openModal: boolean;
   initialValues?: AddProduct;
@@ -127,290 +128,263 @@ const ModalThem: React.FC<props> = ({
     }
   }, [initialValues, reset]);
 
-  return (
-    <Dialog open={openModal} onClose={handleCloseWithFunction} fullWidth maxWidth={"md"}>
-      <DialogTitle>Thêm mới sản phẩm</DialogTitle>
-      <form id="subscription-form" onSubmit={handleSubmit(onSubmit)}>
-        <DialogContent>
-          {/* Grid để layout form */}
-          <Grid container spacing={2} mt={1}>
-            <Grid size={6}>
-              <TextField
-                label="mã sản phẩm"
-                type="text"
-                {...register("managementCode")}
-                error={!!errors.managementCode}
-                helperText={errors.managementCode?.message}
-                fullWidth
-              />
-            </Grid>
 
-            <Grid size={6}>
-              <TextField
-                label="Tên sản phẩm"
-                {...register("name")}
-                error={!!errors.name}
-                helperText={errors.name?.message}
-                fullWidth
-              />
-            </Grid>
-            <Grid size={12}>
-              <p>Mô tả sản phẩm</p>
-              <Controller
-                name="description"
-                control={control}
-                render={({ field }) => (
-                  <CKEditor
-                    {...register("description")}
-                    editor={ClassicEditor}
-                    data={field.value}
-                    onChange={(_: Event, editor: ClassicEditor) =>
-                      field.onChange(editor.getData())
-                    }
-                  />
-                )}
-              />
-            </Grid>
-            <Grid size={6}>
-              <TextField
-                label="Đơn giá"
-                type="number"
-                {...register("unitPrice")}
-                error={!!errors.unitPrice}
-                inputProps={{ step: "0.001", min: "0" }}
-                helperText={errors.unitPrice?.message}
-                fullWidth
-              />
-            </Grid>
-            <Grid size={6}>
-              <TextField
-                label="Số lượng"
-                {...register("quantityInStock")}
-                error={!!errors.quantityInStock}
-                helperText={errors.quantityInStock?.message}
-                fullWidth
-              />
-            </Grid>
-            <Grid size={6}>
-              <TextField
-                label="Giảm giá"
-                type="number"
-                {...register("discount")}
-                fullWidth
-              />
-            </Grid>
-            <Grid size={6}>
-              <TextField
-                label="Số lượng tồn"
-                type="number"
-                {...register("inventory")}
-                fullWidth
-              />
-            </Grid>
 
-            <Grid size={6}>
-              <Controller
-                name="categoryId"
-                control={control}
-                rules={{ required: "Vui lòng chọn loại sản phẩm" }}
-                render={({ field, fieldState }) => (
-                  <Autocomplete
-                    multiple
-                    options={category ?? []}
-                    getOptionLabel={(option) => option.name || ""}
-                    value={
-                      category?.filter((r) =>
-                        (field.value ?? []).includes(r.id)
-                      ) ?? []
-                    }
-                    onChange={(_, value) =>
-                      field.onChange(value.map((v) => v.id))
-                    }
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Loại sản phẩm"
-                        error={!!fieldState.error}
-                        helperText={fieldState.error?.message}
-                      />
-                    )}
-                  />
-                )}
-              />
+return (
+  <Dialog
+    open={openModal}
+    onClose={handleCloseWithFunction}
+    fullWidth
+    maxWidth="md"
+  >
+    <DialogTitle>{initialValues ? "Sửa sản phẩm" : "Thêm mới sản phẩm"}</DialogTitle>
 
-            </Grid>
+    <form id="subscription-form" onSubmit={handleSubmit(onSubmit)}>
+      <DialogContent>
+        <Grid container spacing={2}>
+          <Grid size={12}>
+            <Typography variant="subtitle1" fontWeight="bold">Thông tin cơ bản</Typography>
+            <Divider sx={{ mb: 2 }} />
+          </Grid>
 
-            <Grid size={6}>
-              <Controller
-                name="unitCaculateId"
-                control={control}
-                rules={{ required: "Vui lòng chọn đơn vị cha" }}
-                render={({ field, fieldState }) => (
-                  <Autocomplete
-                    options={unitCaculate ?? []}
-                    getOptionLabel={(option) => option.name || ""}
-                    value={
-                      unitCaculate?.find(
-                        (r) => r.id == field.value
-                      ) ?? null
-                    }
-                    onChange={(_, value) =>
-                      field.onChange(value ? value.id : null)
-                    }
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Đơn vị tính"
-                        error={!!fieldState.error}
-                        helperText={fieldState.error?.message}
-                      />
-                    )}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid size={6}>
-              <Controller
-                name="tradeMarkId"
-                control={control}
-                rules={{ required: "Vui lòng chọn thương hiệu" }}
-                render={({ field, fieldState }) => (
-                  <Autocomplete
-                    options={tradeMarkData ?? []}
-                    getOptionLabel={(option) => option.name || ""}
-                    value={
-                      tradeMarkData?.find(
-                        (r) => r.id == field.value
-                      ) ?? null
-                    }
-                    onChange={(_, value) =>
-                      field.onChange(value ? value.id : null)
-                    }
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Thương hiệu"
-                        error={!!fieldState.error}
-                        helperText={fieldState.error?.message}
-                      />
-                    )}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid size={6}>
-              <Controller
-                name="placeProductId"
-                control={control}
-                rules={{ required: "Vui lòng chọn xuất xứ" }}
-                render={({ field, fieldState }) => (
-                  <Autocomplete
-                    options={placeProduct ?? []}
-                    getOptionLabel={(option) => option.name || ""}
-                    value={
-                      placeProduct?.find(
-                        (r) => r.id == field.value
-                      ) ?? null
-                    }
-                    onChange={(_, value) =>
-                      field.onChange(value ? value.id : null)
-                    }
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Xuất xứ"
-                        error={!!fieldState.error}
-                        helperText={fieldState.error?.message}
-                      />
-                    )}
-                  />
-                )}
-              />
-            </Grid>
-            <Grid size={12}>
-              <TextField
-                label="Hạn sử dụng"
-                type="text"
-                {...register("expiry")}
-                fullWidth
-              />
-            </Grid>
-            <Grid size={12}>
-              <TextField
-                label="Cách bảo quản"
-                type="text"
-                {...register("preserve")}
-                fullWidth
-              />
-            </Grid>
-            <Grid size={12}>
-              <FormControlLabel control={<Switch  {...register("isActive")} />} label="Kích hoạt sản phẩm" />
-            </Grid>
-            <Grid size={12}>
-              <p>Chọn hình ảnh sản phẩm</p>
-              <Controller
-                name="imageUrl"
-                control={control}
-                rules={{ required: "Vui lòng chọn ít nhất 1 hình ảnh" }}
-                render={({ field, fieldState }) => (
-                  <>
+          <Grid size={6}>
+            <TextField
+              label="Mã sản phẩm"
+              {...register("managementCode")}
+              error={!!errors.managementCode}
+              helperText={errors.managementCode?.message}
+              fullWidth
+            />
+          </Grid>
+          <Grid size={6}>
+            <TextField
+              label="Tên sản phẩm"
+              {...register("name")}
+              error={!!errors.name}
+              helperText={errors.name?.message}
+              fullWidth
+            />
+          </Grid>
+
+          <Grid size={12}>
+            <Typography variant="subtitle2" gutterBottom>Mô tả sản phẩm</Typography>
+            <Controller
+              name="description"
+              control={control}
+              render={({ field }) => (
+                <CKEditor
+                  editor={ClassicEditor}
+                  data={field.value}
+                  onChange={(_, editor) => field.onChange(editor.getData())}
+                />
+              )}
+            />
+          </Grid>
+
+          {/* ========== CHI TIẾT SẢN PHẨM ========== */}
+          <Grid size={12} mt={2}>
+            <Typography variant="subtitle1" fontWeight="bold">Chi tiết sản phẩm</Typography>
+            <Divider sx={{ mb: 2 }} />
+          </Grid>
+
+          <Grid size={6}>
+            <TextField
+              label="Đơn giá"
+              type="number"
+              {...register("unitPrice")}
+              error={!!errors.unitPrice}
+              helperText={errors.unitPrice?.message}
+              fullWidth
+            />
+          </Grid>
+          <Grid size={6}>
+            <TextField
+              label="Số lượng"
+              type="number"
+              {...register("quantityInStock")}
+              error={!!errors.quantityInStock}
+              helperText={errors.quantityInStock?.message}
+              fullWidth
+            />
+          </Grid>
+          <Grid size={6}>
+            <TextField
+              label="Giảm giá (%)"
+              type="number"
+              {...register("discount")}
+              fullWidth
+            />
+          </Grid>
+          <Grid size={6}>
+            <TextField
+              label="Tồn kho"
+              type="number"
+              {...register("inventory")}
+              fullWidth
+            />
+          </Grid>
+
+          <Grid size={6}>
+            {/* Category */}
+            <Controller
+              name="categoryId"
+              control={control}
+              rules={{ required: "Vui lòng chọn loại sản phẩm" }}
+              render={({ field, fieldState }) => (
+                <Autocomplete
+                  multiple
+                  options={category}
+                  getOptionLabel={(option) => option.name || ""}
+                  value={category.filter((r) => (field.value ?? []).includes(r.id))}
+                  onChange={(_, value) => field.onChange(value.map((v) => v.id))}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Loại sản phẩm"
+                      error={!!fieldState.error}
+                      helperText={fieldState.error?.message}
+                    />
+                  )}
+                />
+              )}
+            />
+          </Grid>
+
+          <Grid size={6}>
+            {/* Unit */}
+            <Controller
+              name="unitCaculateId"
+              control={control}
+              render={({ field }) => (
+                <Autocomplete
+                  options={unitCaculate}
+                  getOptionLabel={(o) => o.name || ""}
+                  value={unitCaculate.find((r) => r.id === field.value) ?? null}
+                  onChange={(_, v) => field.onChange(v ? v.id : null)}
+                  renderInput={(params) => <TextField {...params} label="Đơn vị tính" />}
+                />
+              )}
+            />
+          </Grid>
+
+          <Grid size={6}>
+            {/* TradeMark */}
+            <Controller
+              name="tradeMarkId"
+              control={control}
+              render={({ field }) => (
+                <Autocomplete
+                  options={tradeMarkData}
+                  getOptionLabel={(o) => o.name || ""}
+                  value={tradeMarkData.find((r) => r.id === field.value) ?? null}
+                  onChange={(_, v) => field.onChange(v ? v.id : null)}
+                  renderInput={(params) => <TextField {...params} label="Thương hiệu" />}
+                />
+              )}
+            />
+          </Grid>
+
+          <Grid size={6}>
+            {/* Place */}
+            <Controller
+              name="placeProductId"
+              control={control}
+              render={({ field }) => (
+                <Autocomplete
+                  options={placeProduct}
+                  getOptionLabel={(o) => o.name || ""}
+                  value={placeProduct.find((r) => r.id === field.value) ?? null}
+                  onChange={(_, v) => field.onChange(v ? v.id : null)}
+                  renderInput={(params) => <TextField {...params} label="Xuất xứ" />}
+                />
+              )}
+            />
+          </Grid>
+
+          <Grid size={6}>
+            <TextField label="Hạn sử dụng" {...register("expiry")} fullWidth />
+          </Grid>
+          <Grid size={6}>
+            <TextField label="Cách bảo quản" {...register("preserve")} fullWidth />
+          </Grid>
+
+
+          <Grid size={12} mt={2}>
+            <Typography variant="subtitle1" fontWeight="bold">Hình ảnh sản phẩm</Typography>
+            <Divider sx={{ mb: 2 }} />
+          </Grid>
+
+          <Grid size={12}>
+            <Controller
+              name="imageUrl"
+              control={control}
+              rules={{ required: "Vui lòng chọn ít nhất 1 hình ảnh" }}
+              render={({ field, fieldState }) => (
+                <>
+                  <Button variant="outlined" component="label">
+                    Chọn ảnh
                     <input
+                      hidden
                       type="file"
                       multiple
                       accept="image/*"
                       onChange={(e) => handleFilesChange(e, field.onChange)}
                     />
-                    {fieldState.error && <p style={{ color: "red" }}>{fieldState.error.message}</p>}
-
-                    <div style={{ display: "flex", gap: "10px", marginTop: "10px", flexWrap: "wrap" }}>
-                      {previews.map((src, idx) => (
-                        <img
-                          key={idx}
-                          src={src}
-                          alt={`preview-${idx}`}
-                          width={120}
-                          style={{ borderRadius: "8px", objectFit: "cover" }}
-                        />
-                      ))}
-                    </div>
-                  </>
-                )}
-              />
-
-            </Grid>
-            <Grid size={12} style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-
-              {previews.map((src, index) => (
-                <img
-                  key={index}
-                  src={src}
-                  alt={`preview-${index}`}
-                  width={120}
-                  style={{ borderRadius: "8px", objectFit: "cover" }}
-                />
-              ))}
-            </Grid>
-
-
+                  </Button>
+                  {fieldState.error && (
+                    <Typography color="error" variant="caption" display="block">
+                      {fieldState.error.message}
+                    </Typography>
+                  )}
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "12px",
+                      marginTop: "10px",
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    {previews.map((src, idx) => (
+                      <img
+                        key={idx}
+                        src={src}
+                        alt={`preview-${idx}`}
+                        width={120}
+                        height={120}
+                        style={{
+                          borderRadius: "8px",
+                          objectFit: "cover",
+                          border: "1px solid #ccc",
+                        }}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+            />
           </Grid>
-        </DialogContent>
 
-        <DialogActions>
-          <Button variant="contained" color="error" onClick={handleClose}>
-            Hủy
-          </Button>
-          <Button
-            variant="contained"
-            color="info"
-            type="submit"
-            form="subscription-form"
-          >
-            Lưu
-          </Button>
-        </DialogActions>
-      </form>
-    </Dialog>
-  );
+
+          <Grid size={12}>
+            <FormControlLabel
+              control={<Switch {...register("isActive")} />}
+              label="Kích hoạt sản phẩm"
+            />
+          </Grid>
+        </Grid>
+      </DialogContent>
+
+      <DialogActions>
+        <Button variant="outlined" onClick={handleClose}>
+          Hủy
+        </Button>
+        <Button variant="contained" color="primary" type="submit">
+          Lưu
+        </Button>
+      </DialogActions>
+    </form>
+  </Dialog>
+);
 };
 
 export default ModalThem;
