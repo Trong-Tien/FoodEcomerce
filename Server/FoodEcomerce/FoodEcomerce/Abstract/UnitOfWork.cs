@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 using FoodEcomerce.Entity;
 using FoodEcomerce.Entity.StoreProcedure;
-using FoodEcomerce.Reposiroty;
 using FoodEcomerce.Reposiroty.Auths;
 using FoodEcomerce.Reposiroty.Banners;
+using FoodEcomerce.Reposiroty.CartItems;
 using FoodEcomerce.Reposiroty.Categorys;
 using FoodEcomerce.Reposiroty.MenuRoles;
 using FoodEcomerce.Reposiroty.Menus;
@@ -32,6 +32,7 @@ namespace FoodEcomerce.Abstract
         private IProductRepository _productRepository;
         private ITRadeMarkRepository _tRadeMarkRepository;
         private IPlaceOfProduct _placeOfProduct;
+        private ICartItemRepository _cartItemRepository;
 
         public UnitOfWork(FoodDbContex dbContext, IMapper mapper, StoreDbcontext storeDbcontext)
         {
@@ -54,13 +55,17 @@ namespace FoodEcomerce.Abstract
         public IRoleRepository RoleRepository
         => _roleRepository ??= new RoleRepository(_dbContext, _mapper);
         public IMenuRoleRepository MenuRoleReposirory
-       => _menuRoleRepository ??= new MenuRoleRepository(_dbContext, _mapper);
+        => _menuRoleRepository ??= new MenuRoleRepository(_dbContext, _mapper);
         public IProductRepository ProductRepository
-       => _productRepository ??= new ProductRepository(_dbContext, _mapper, _storeDbcontext);
+        => _productRepository ??= new ProductRepository(_dbContext, _mapper, _storeDbcontext);
         public ITRadeMarkRepository TradeMarkRepository
          => _tRadeMarkRepository ??= new TradeMarkRepository(_dbContext, _mapper);
         public IPlaceOfProduct PlaceOfProductRepository
-     => _placeOfProduct ??= new PlaceOfProductRepository(_dbContext, _mapper);
+        => _placeOfProduct ??= new PlaceOfProductRepository(_dbContext, _mapper);
+
+        public ICartItemRepository CartItemRepository
+       => _cartItemRepository ??= new CartItemRepository(_dbContext, _mapper);
+
         public bool Save()
         {
             bool isSuccess = _dbContext.SaveChanges() > 0;

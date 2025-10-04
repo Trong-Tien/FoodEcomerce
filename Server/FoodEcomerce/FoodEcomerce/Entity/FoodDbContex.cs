@@ -20,7 +20,7 @@ namespace FoodEcomerce.Entity
         public virtual DbSet<UnitCaculate> UnitCaculates { get; set; }
         public virtual DbSet<PlaceProduct> PlaceProducts { get; set; }
 
-        public virtual DbSet<ImageProduct> ImageProducts { get; set; }  
+        public virtual DbSet<ImageProduct> ImageProducts { get; set; }
         public virtual DbSet<Cart> Carts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -97,7 +97,7 @@ namespace FoodEcomerce.Entity
             {
                 entity.HasKey(x => x.Id).HasName("PK_Panner");
                 entity.ToTable("Panner");
-                entity.Property(x => x.Id).ValueGeneratedNever();
+                entity.Property(x => x.Id).ValueGeneratedOnAdd();
                 entity.Property(x => x.Name).HasMaxLength(50);
                 entity.Property(x => x.ImageUrl).HasMaxLength(300);
                 entity.Property(x => x.Active).HasColumnType("bit");
