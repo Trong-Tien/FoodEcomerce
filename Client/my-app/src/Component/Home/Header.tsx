@@ -1,19 +1,58 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaSearch, FaShoppingCart, FaUser } from "react-icons/fa";
 import CategorySidebar from "./CategorySidebar";
 import { useNavigate, useLocation } from "@tanstack/react-router";
 import LocationModal from "../Common/LocationModal";
 import logo from "@/assets/img/logo.jpg";
-
+import { isAuthenticated, isTokenExpired } from "@/Until/Authcheck";
 
 function Header() {
   const [showSidebar, setShowSidebar] = useState(false);
   const [showLocationModal, setShowLocationModal] = useState(false);
-  const [locationInput, setLocationInput] = useState<string>(""); // ✅ chỉ lưu string
+  const [locationInput, setLocationInput] = useState<string>("");
+  const [user, setUser] = useState<{ name?: string } | null>(null);
 
   const location = useLocation();
   const navigate = useNavigate();
   const isHome = location.pathname === "/";
+
+  // 🔹 Khi Header load, đọc user nếu token còn hạn
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    const storedUser = localStorage.getItem("user");
+
+    if (token && isAuthenticated() && storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch {
+        setUser(null);
+      }
+    } else {
+      // Token hết hạn hoặc không có -> logout tự động
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("user");
+      setUser(null);
+    }
+  }, []);
+
+  // 🔁 Tự động kiểm tra token mỗi 1 phút
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const token = localStorage.getItem("access_token");
+      if (token && isTokenExpired(token)) {
+        handleLogout(); // tự logout khi token hết hạn
+      }
+    }, 60 * 1000); // mỗi phút kiểm tra 1 lần
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("user");
+    setUser(null);
+    navigate({ to: "/Dangnhap" });
+  };
 
   return (
     <header className="background_header_mobile m-auto w-full fixed inset-x-0 top-0 z-[11] pt-3 bg-gradient-to-r from-[#2E7D32] via-[#4CAF50] to-[#CDDC39]">
@@ -24,10 +63,7 @@ function Header() {
             className="icon__logo ml-[22px] mt-[6px] cursor-pointer"
             onClick={() => navigate({ to: "/" })}
           >
-            <img
-              src={logo} alt="Logo"
-              className="h-[60px] w-auto"
-            />
+            <img src={logo} alt="Logo" className="h-[60px] w-auto" />
           </div>
 
           <div
@@ -74,7 +110,9 @@ function Header() {
           </div>
         </div>
 
+        {/* User + Địa chỉ */}
         <div className="flex flex-col items-end">
+          {/* Nút chọn vị trí */}
           <div
             id="btn_choose_location"
             onClick={() => setShowLocationModal(true)}
@@ -88,16 +126,10 @@ function Header() {
               </span>
             ) : (
               <div className="flex items-center gap-2">
-                {/* icon nhỏ, KHÔNG dùng w-full */}
                 <img
                   alt="Select Location"
                   src="https://cdnv2.tgdd.vn/bhx/product-fe/cart/home/_next/public/static/images/unselect-location.svg"
                   className="h-5 w-5 object-contain"
-                  onError={(e) => {
-                    // nếu ảnh bị chặn/404, fallback sang emoji/icon
-                    (e.currentTarget as HTMLImageElement).style.display =
-                      "none";
-                  }}
                 />
                 <span className="text-sm text-gray-600">
                   Chọn vị trí nhận hàng
@@ -106,13 +138,29 @@ function Header() {
             )}
           </div>
 
+          {/* 🔹 Hiển thị user */}
           <div className="flex">
-            <a
-              className="mt-2 mr-[16px] flex w-fit cursor-pointer items-center rounded-md bg-[#4CAF50] px-2 py-1 text-sm text-white"
-              href="/Dangnhap"
-            >
-              <FaUser className="mr-2" /> Đăng nhập
-            </a>
+            {user ? (
+              <div className="mt-2 mr-[16px] flex items-center gap-3 bg-white px-3 py-1.5 rounded-md shadow-sm">
+                <FaUser className="text-[#4CAF50]" />
+                <span className="text-sm font-semibold text-gray-700">
+                  {user.name || "Người dùng"}
+                </span>
+                <button
+                  onClick={handleLogout}
+                  className="text-xs text-red-500 hover:underline"
+                >
+                  Đăng xuất
+                </button>
+              </div>
+            ) : (
+              <a
+                className="mt-2 mr-[16px] flex w-fit cursor-pointer items-center rounded-md bg-[#4CAF50] px-2 py-1 text-sm text-white"
+                href="/Dangnhap"
+              >
+                <FaUser className="mr-2" /> Đăng nhập
+              </a>
+            )}
           </div>
         </div>
       </div>
@@ -122,7 +170,6 @@ function Header() {
         <LocationModal
           onClose={() => setShowLocationModal(false)}
           onConfirm={(address) => {
-            // address: { province: string; ward: string; addressDetail: string }
             const parts = [
               address.addressDetail,
               address.ward,

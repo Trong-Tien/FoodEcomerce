@@ -1,7 +1,9 @@
-const API_BASE = "https://localhost:7004/api/Auth";
+const API_BASE = "http://localhost:5292/api/Auth";
 
 export const AuthService = {
-  // 👉 Đăng ký
+  // ==========================
+  // 👉 Đăng ký tài khoản
+  // ==========================
   async register(payload: {
     userName: string;
     email: string;
@@ -16,11 +18,10 @@ export const AuthService = {
       phoneNumber: payload.phoneNumber,
       password: payload.password,
       otp: payload.otp,
-
-      acvite: true, // ✅ đúng key như backend yêu cầu
+      acvite: true,
       isAdmin: false,
       statusId: 1,
-      roleId: "3fa85f64-5717-4562-b3fc-2c963f66afa6", // 👉 thay bằng roleId thực nếu có
+      roleId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
       isDelete: false,
       createAt: new Date().toISOString(),
       updateAt: new Date().toISOString(),
@@ -36,11 +37,11 @@ export const AuthService = {
     });
 
     const data = await res.json().catch(() => null);
+
     if (!res.ok) throw new Error(data?.message || "Đăng ký thất bại");
     return data;
   },
 
-  // 👉 Đăng nhập
   async login(payload: { phoneNumber: string; password: string }) {
     const res = await fetch(`${API_BASE}/Login`, {
       method: "POST",
@@ -49,16 +50,32 @@ export const AuthService = {
     });
 
     const data = await res.json().catch(() => null);
-    if (!res.ok) throw new Error(data?.message || "Đăng nhập thất bại");
-    return data;
+
+    // ⚠️ Backend trả accessToken, không phải token
+    if (!res.ok || !data?.accessToken) {
+      throw new Error(data?.message || "Sai tài khoản hoặc mật khẩu");
+    }
+
+    return {
+      token: data.accessToken,
+      user: {
+        id: data.id,
+        name: data.userName,
+        email: data.email,
+        phoneNumber: data.phoneNumber,
+        roleId: data.roleId,
+      },
+    };
   },
 
-  // 👉 Gửi OTP (✔️ sửa lại đúng cách gửi qua query string)
   async sendOtp(email: string) {
-    const res = await fetch(`${API_BASE}/send-otp?email=${encodeURIComponent(email)}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-    });
+    const res = await fetch(
+      `${API_BASE}/send-otp?email=${encodeURIComponent(email)}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      }
+    );
 
     const data = await res.json().catch(() => null);
     if (!res.ok) throw new Error(data?.message || "Gửi OTP thất bại");
