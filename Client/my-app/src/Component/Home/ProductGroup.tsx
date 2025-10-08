@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Flame } from "lucide-react";
 import ProductCard from "../Common/ProductCard";
-import type { Product } from "../../Types/product";
+import type { Product } from "@/Type/Product"; // ✅ dùng type thật
 
 interface ProductGroupProps {
   title: string;
@@ -16,7 +16,7 @@ interface ProductGroupProps {
   titleAlign?: "left" | "center";
   titleVariant?: "default" | "boxed";
   showTitle?: boolean;
-  showMore?: boolean; // 🆕 thêm prop này
+  showMore?: boolean;
 }
 
 const ProductGroup: React.FC<ProductGroupProps> = ({
@@ -38,6 +38,17 @@ const ProductGroup: React.FC<ProductGroupProps> = ({
   const [topBannerIndex, setTopBannerIndex] = useState(0);
   const [bottomBannerIndex, setBottomBannerIndex] = useState(0);
 
+  // ✅ Tạo mảng sản phẩm hiển thị cho UI
+  const mappedProducts = products.map((p) => ({
+    ...p,
+    price: p.unitPrice * (1 - p.discount / 100), // giá sau giảm
+    oldPrice: p.discount > 0 ? p.unitPrice : undefined,
+    img:
+      p.images && p.images.length > 0
+        ? `http://localhost:5292/${p.images[0]}`
+        : "/assets/img/no-image.png",
+  }));
+
   // Xử lý chuyển sản phẩm
   const handlePrev = () => {
     setStartIndex((prevIndex) => Math.max(0, prevIndex - maxItems));
@@ -46,16 +57,18 @@ const ProductGroup: React.FC<ProductGroupProps> = ({
   const handleNext = () => {
     setStartIndex((prevIndex) => {
       const newIndex = prevIndex + maxItems;
-      const maxStartIndex = Math.max(0, products.length - maxItems);
+      const maxStartIndex = Math.max(0, mappedProducts.length - maxItems);
       return newIndex > maxStartIndex ? maxStartIndex : newIndex;
     });
   };
 
-  // ✅ chỉ lấy đúng maxItems sản phẩm (fix lỗi thêm hàng)
-  const visibleProducts = products.slice(startIndex, startIndex + maxItems);
+  const visibleProducts = mappedProducts.slice(
+    startIndex,
+    startIndex + maxItems
+  );
 
   const canGoPrev = startIndex > 0;
-  const canGoNext = startIndex < Math.max(0, products.length - maxItems);
+  const canGoNext = startIndex < Math.max(0, mappedProducts.length - maxItems);
 
   // Banner handler
   const prevTop = () =>
@@ -129,7 +142,6 @@ const ProductGroup: React.FC<ProductGroupProps> = ({
             </span>
           )}
         </div>
-        
       </div>
     );
   };
@@ -212,7 +224,6 @@ const ProductGroup: React.FC<ProductGroupProps> = ({
                 <ProductCard p={p} />
               </div>
             ))}
-            {/* Giữ layout 2 hàng luôn ổn định */}
             {Array.from({
               length: Math.max(0, maxItems - visibleProducts.length),
             }).map((_, index) => (
@@ -230,7 +241,7 @@ const ProductGroup: React.FC<ProductGroupProps> = ({
         </div>
       )}
 
-      {showMore && ( // 🆕 chỉ hiển thị khi true
+      {showMore && (
         <div className="flex justify-center mt-4">
           <a
             href={`/category/${title}`}

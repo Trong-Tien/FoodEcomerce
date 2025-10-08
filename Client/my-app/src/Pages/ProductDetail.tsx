@@ -3,7 +3,7 @@ import React, { useEffect, useState, useRef } from "react";
 import Header from "@/Component/Home/Header";
 import CategorySidebar from "@/Component/Home/CategorySidebar";
 import productService from "@/Services/ProductService";
-import type { Product } from "@/Types/product";
+import type { Product } from "@/Types/product1";
 import ProductGroup from "@/Component/Home/ProductGroup";
 import { useNavigate } from "@tanstack/react-router";
 import Footer from "@/Component/Home/Footer";

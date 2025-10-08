@@ -3,7 +3,7 @@ import { useParams } from "@tanstack/react-router";
 import { Route } from "@/routes/category/$category";
 import productService from "@/Services/ProductService";
 import ProductCard from "@/Component/Common/ProductCard";
-import type { Product } from "@/Types/product";
+import type { Product } from "@/Types/product1";
 
 export default function CategoryPage() {
   const { category } = useParams({ from: Route.id });

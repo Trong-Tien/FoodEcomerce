@@ -1,52 +1,71 @@
-import type { Product, CartItem } from "@/Types/product";
+// src/Services/CardService.ts
+import type { Product } from "@/Type/Product";
 
-const STORAGE_KEY = "cart:items";
-
-function loadCart(): CartItem[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
+export interface CartItem {
+  id: string;
+  name: string;
+  quantity: number;
+  unitPrice: number;
+  discount: number;
+  images: string;
 }
 
-function saveCart(items: CartItem[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+const STORAGE_KEY = "cart";
+
+function getCart(): CartItem[] {
+  const data = localStorage.getItem(STORAGE_KEY);
+  return data ? JSON.parse(data) : [];
+}
+
+function saveCart(cart: CartItem[]) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
+}
+
+function addToCart(product: Product, qty = 1): CartItem[] {
+  const cart = getCart();
+  const existing = cart.find((i) => i.id === product.id);
+
+  if (existing) {
+    existing.quantity += qty;
+  } else {
+    cart.push({
+      id: product.id,
+      name: product.name,
+      quantity: qty,
+      unitPrice: product.unitPrice,
+      discount: product.discount,
+      images: product.images,
+    });
+  }
+
+  saveCart(cart);
+  return cart;
+}
+
+// ✅ Đổi id: number → string
+function updateQuantity(id: string, qty: number): CartItem[] {
+  const cart = getCart();
+  const item = cart.find((i) => i.id === id);
+  if (item) item.quantity = qty;
+  saveCart(cart);
+  return cart;
+}
+
+// ✅ Đổi id: number → string
+function removeFromCart(id: string): CartItem[] {
+  const cart = getCart().filter((i) => i.id !== id);
+  saveCart(cart);
+  return cart;
+}
+
+function clearCart() {
+  localStorage.removeItem(STORAGE_KEY);
 }
 
 export const CartService = {
-  getCart(): CartItem[] {
-    return loadCart();
-  },
-
-  addToCart(product: Product, qty: number = 1) {
-    const items = loadCart();
-    const idx = items.findIndex((i) => i.id === product.id);
-    if (idx >= 0) {
-      items[idx].quantity += qty;
-    } else {
-      items.push({ ...product, quantity: qty });
-    }
-    saveCart(items);
-    return items;
-  },
-
-  updateQuantity(productId: number, qty: number) {
-    const items = loadCart().map((i) =>
-      i.id === productId ? { ...i, quantity: Math.max(1, qty) } : i
-    );
-    saveCart(items);
-    return items;
-  },
-
-  removeFromCart(productId: number) {
-    const items = loadCart().filter((i) => i.id !== productId);
-    saveCart(items);
-    return items;
-  },
-
-  clearCart() {
-    saveCart([]);
-  },
+  getCart,
+  addToCart,
+  updateQuantity,
+  removeFromCart,
+  clearCart,
 };

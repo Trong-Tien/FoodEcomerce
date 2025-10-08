@@ -2,7 +2,6 @@
 import { useCart } from "@/Context/CartContext";
 import { useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import type { CartItem } from "@/Types/product";
 import Header from "@/Component/Home/Header";
 import { ArrowLeft } from "lucide-react";
 
@@ -77,20 +76,35 @@ function AddressInfo() {
   );
 }
 
-// ============ Cart Item Row =============
+// ============ Cart Item Row ============
 function CartItemRow({
   item,
   update,
   remove,
 }: {
-  item: CartItem;
-  update: (id: number, qty: number) => void;
-  remove: (id: number) => void;
+  item: {
+    id: string;
+    name: string;
+    image: string;
+    quantity: number;
+    unitPrice: number;
+    discount: number;
+  };
+  update: (id: string, qty: number) => void;
+  remove: (id: string) => void;
 }) {
+  const finalPrice = item.unitPrice * (1 - item.discount / 100);
+
   return (
     <div className="flex gap-3 p-4 hover:bg-gray-50 transition border-b border-gray-100 last:border-0">
       <img
-        src={item.img}
+        src={
+          item.image
+            ? `http://localhost:5292/api/File/image?path=${encodeURIComponent(
+                item.image
+              )}`
+            : "/assets/img/no-image.png"
+        }
         alt={item.name}
         className="w-16 h-16 object-cover rounded-md border border-gray-200"
       />
@@ -98,17 +112,17 @@ function CartItemRow({
         <p className="font-medium text-sm line-clamp-2">{item.name}</p>
         <div className="flex items-center gap-2 mt-1">
           <p className="text-red-600 font-bold text-sm">
-            {item.price.toLocaleString("vi-VN")}₫
+            {finalPrice.toLocaleString("vi-VN")}₫
           </p>
-          {item.originalPrice && (
+          {item.discount > 0 && (
             <p className="line-through text-xs text-gray-400">
-              {item.originalPrice.toLocaleString("vi-VN")}₫
+              {item.unitPrice.toLocaleString("vi-VN")}₫
             </p>
           )}
         </div>
         <div className="flex items-center mt-2 gap-2">
           <button
-            onClick={() => update(item.id, item.quantity - 1)}
+            onClick={() => update(item.id, Math.max(1, item.quantity - 1))}
             className="px-2 rounded border border-gray-300 bg-gray-50"
           >
             -
@@ -132,7 +146,7 @@ function CartItemRow({
   );
 }
 
-// ============ Summary =============
+// ============ Summary ============
 function Summary({ total, shipping }: { total: number; shipping: number }) {
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-4 text-sm space-y-2">
@@ -157,128 +171,7 @@ function Summary({ total, shipping }: { total: number; shipping: number }) {
   );
 }
 
-// ============ Promotions =============
-function PromotionSection() {
-  const promotions = [
-    {
-      id: "gift1",
-      name: "Nước ngọt Coca 6 lon",
-      price: 39000,
-      img: "https://cdn.tgdd.vn/Products/Images/2282/247939/bhx/6-lon-nuoc-ngot-coca-cola-320ml-202203231016459797.jpg",
-    },
-    {
-      id: "gift2",
-      name: "Táo Gala mini",
-      price: 39900,
-      img: "https://cdn.tgdd.vn/Products/Images/8788/226928/bhx/tao-gala-mini-new-zealand-tui-1kg-202111011450022144.jpg",
-    },
-    {
-      id: "gift3",
-      name: "Sữa tắm Pigeon",
-      price: 150000,
-      img: "https://cdn.tgdd.vn/Products/Images/2282/247939/bhx/sua-tam-pigeon-202203231016459797.jpg",
-    },
-  ];
-  return (
-    <div className="bg-white rounded-lg border border-gray-200 p-4">
-      <h3 className="font-semibold text-sm mb-2 text-orange-600">
-        🎁 Ưu đãi cho đơn hàng này
-      </h3>
-      <div className="flex gap-3 overflow-x-auto pb-2">
-        {promotions.map((p) => (
-          <div
-            key={p.id}
-            className="min-w-[140px] border border-gray-200 rounded-md p-2 flex-shrink-0 text-center hover:shadow-md transition"
-          >
-            <img
-              src={p.img}
-              alt={p.name}
-              className="w-full h-20 object-cover rounded"
-            />
-            <p className="text-xs mt-1 line-clamp-2">{p.name}</p>
-            <p className="text-green-700 text-sm font-bold">
-              {p.price.toLocaleString("vi-VN")}₫
-            </p>
-            <button className="mt-1 w-full text-xs py-1 rounded bg-[#F0FFF3] text-[#007E42] hover:bg-[#E0FFE8]">
-              Mua
-            </button>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ============ Payment Options =============
-function PaymentOptions() {
-  const [method, setMethod] = useState<"cash" | "card" | "wallet">("cash");
-  return (
-    <div className="bg-white rounded-lg border border-gray-200 p-4 space-y-2 text-sm">
-      <h3 className="font-semibold mb-2">Thanh toán</h3>
-      <div className="space-y-2">
-        <label className="flex items-center gap-2">
-          <input
-            type="radio"
-            checked={method === "cash"}
-            onChange={() => setMethod("cash")}
-          />
-          <span>Tiền mặt khi nhận hàng</span>
-        </label>
-        <label className="flex items-center gap-2">
-          <input
-            type="radio"
-            checked={method === "card"}
-            onChange={() => setMethod("card")}
-          />
-          <span>Thẻ ATM / Visa / Mastercard</span>
-        </label>
-        <label className="flex items-center gap-2">
-          <input
-            type="radio"
-            checked={method === "wallet"}
-            onChange={() => setMethod("wallet")}
-          />
-          <span>Ví điện tử (Momo, ZaloPay, ShopeePay)</span>
-        </label>
-      </div>
-    </div>
-  );
-}
-
-// ============ Invoice =============
-function InvoiceOption() {
-  const [companyInvoice, setCompanyInvoice] = useState(false);
-  return (
-    <div className="bg-white rounded-lg border border-gray-200 p-4 text-sm">
-      <label className="flex items-center gap-2">
-        <input
-          type="checkbox"
-          checked={companyInvoice}
-          onChange={(e) => setCompanyInvoice(e.target.checked)}
-        />
-        <span>Xuất hoá đơn công ty</span>
-      </label>
-      {companyInvoice && (
-        <textarea
-          placeholder="Nhập thông tin xuất hoá đơn..."
-          className="mt-2 w-full border rounded p-2 text-sm"
-        />
-      )}
-    </div>
-  );
-}
-
-// ============ Extra Note =============
-function ExtraNote() {
-  return (
-      <textarea
-        placeholder="Yêu cầu khác (nếu có)"
-        className="w-full border border-gray-200 rounded p-2 text-sm"
-      />
-  );
-}
-
-// ============ Main Cart Page =============
+// ============ Main Cart Page ============
 export default function CartPage() {
   const { items, update, remove, total, shipping } = useCart();
   const navigate = useNavigate();
@@ -312,26 +205,32 @@ export default function CartPage() {
           <CartHeaderCard />
           <CartTabs />
           <AddressInfo />
+
+          {/* Danh sách sản phẩm trong giỏ */}
           <div className="bg-white rounded-lg border border-gray-200">
             {items.map((item) => (
               <CartItemRow
                 key={item.id}
-                item={item}
+                item={{
+                  id: item.id,
+                  name: item.name,
+                  image: item.images,
+                  quantity: item.quantity,
+                  unitPrice: item.unitPrice,
+                  discount: item.discount,
+                }}
                 update={update}
                 remove={remove}
               />
             ))}
           </div>
-          <Summary total={total} shipping={shipping} />
-          <PromotionSection />
-          <PaymentOptions />
-          <InvoiceOption />
-          <ExtraNote />
 
-          {/* ✅ Nút luôn ở cuối giỏ hàng */}
+          <Summary total={total} shipping={shipping} />
+
+          {/* ✅ Nút đặt hàng */}
           <div className="mt-auto sticky bottom-0 bg-white p-3 shadow-md">
             <button
-              onClick={() => navigate({ to: "/checkout" })}
+              onClick={() => alert("Đặt hàng fake thành công 🎉")}
               className="flex items-center justify-center gap-2 w-full py-3 rounded-md 
                      bg-gradient-to-r from-green-600 to-green-700 
                      text-white font-bold text-lg shadow-md relative"

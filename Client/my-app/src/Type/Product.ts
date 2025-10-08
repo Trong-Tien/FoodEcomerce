@@ -15,3 +15,12 @@ export type Product  ={
     tradeMarkId : string,
     placeProductId : string,
 }
+
+export type CartItem = {
+  id: string;
+  name: string;
+  quantity: number;
+  unitPrice: number;
+  discount: number;
+  images: string;
+};

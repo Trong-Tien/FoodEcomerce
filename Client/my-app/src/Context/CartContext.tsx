@@ -1,13 +1,14 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { CartService } from "@/Services/CardService";
-import type { Product, CartItem } from "@/Types/product";
+import type { CartItem } from "@/Type/Product";
+import type { Product } from "@/Type/Product";
 
 interface CartContextType {
   items: CartItem[];
   add: (product: Product, qty?: number) => void;
-  update: (productId: number, qty: number) => void;
-  remove: (productId: number) => void;
+  update: (id: string, qty: number) => void;
+  remove: (id: string) => void;
   clear: () => void;
   total: number;
   shipping: number;
@@ -27,12 +28,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setItems(updated);
   };
 
-  const update = (id: number, qty: number) => {
+  const update = (id: string, qty: number) => {
     const updated = CartService.updateQuantity(id, qty);
     setItems(updated);
   };
 
-  const remove = (id: number) => {
+  const remove = (id: string) => {
     const updated = CartService.removeFromCart(id);
     setItems(updated);
   };
@@ -42,8 +43,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setItems([]);
   };
 
-  const total = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
-  const shipping = total >= 300000 ? 0 : 15000; // freeship trên 300k
+  const total = items.reduce(
+    (sum, i) => sum + i.unitPrice * (1 - i.discount / 100) * i.quantity,
+    0
+  );
+  const shipping = total >= 300000 ? 0 : 15000;
 
   return (
     <CartContext.Provider
@@ -56,6 +60,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
 export function useCart() {
   const ctx = useContext(CartContext);
-  if (!ctx) throw new Error("useCart phải được bọc bởi CartProvider");
+  if (!ctx) throw new Error("useCart phải được bọc trong <CartProvider>");
   return ctx;
 }

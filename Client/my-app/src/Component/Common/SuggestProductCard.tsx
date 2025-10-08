@@ -1,5 +1,5 @@
 import { useCart } from "@/Context/CartContext";
-import type { Product } from "@/Types/product";
+import type { Product } from "@/Types/product1";
 
 export default function SuggestProductCard({ product }: { product: Product }) {
   const { items, add, update, remove } = useCart();
