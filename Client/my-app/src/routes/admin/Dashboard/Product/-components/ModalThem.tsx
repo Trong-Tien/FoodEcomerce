@@ -88,7 +88,7 @@ const ModalThem: React.FC<props> = ({
   }
 
   const onSubmit = async (data: AddProduct) => {
-    var tempdata = {
+    const tempdata = {
       id: uuidv4(),
       name: data.name,
       managementCode: data.managementCode,
