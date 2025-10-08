@@ -18,10 +18,10 @@ function ProductCard({ p }: { p: ProductWithSuggest }) {
 
   // ✅ Tạo URL ảnh đúng format (không encode 2 lần)
   const imgUrl =
-  typeof p.images === "string" && p.images.length > 0
-    ? p.images.split(",")[0] // 🔥 Không nối thêm prefix nữa
-    : "/assets/img/no-image.png";
-    
+    typeof p.images === "string" && p.images.length > 0
+      ? p.images.split(",")[0] // 🔥 Không nối thêm prefix nữa
+      : "/assets/img/no-image.png";
+
   return (
     <>
       <div className="flex flex-col border border-gray-200 rounded-lg bg-white overflow-hidden min-h-[354px] shadow-sm hover:shadow-md transition">
@@ -65,15 +65,16 @@ function ProductCard({ p }: { p: ProductWithSuggest }) {
             </div>
           </div>
 
-          
+
 
           {/* Nút mua ngay */}
           <button
-  onClick={() => add(p, 1)}
-  className="mt-3 w-full h-[35px] bg-[#F0FFF3] text-[#007E42] text-[13px] font-bold uppercase rounded-md hover:bg-[#E0FFE8] transition"
->
-  Mua ngay
-</button>
+            onClick={() => setOpen(true)}   // ✅ thay vì add(p, 1)
+            className="mt-3 w-full h-[35px] bg-[#F0FFF3] text-[#007E42] text-[13px] font-bold uppercase rounded-md hover:bg-[#E0FFE8] transition"
+          >
+            Mua ngay
+          </button>
+
         </div>
       </div>
 
