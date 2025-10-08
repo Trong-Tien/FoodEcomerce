@@ -218,5 +218,6 @@ namespace FoodEcomerce.Reposiroty.Products
         {
             return await _storeContext.sp_WebFood_GetAllProductCategory.FromSql($"Execute sp_WebFood_GetAllProductCategory @productID={productId}").ToListAsync();
         }
+
     }
 }

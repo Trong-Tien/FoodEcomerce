@@ -33,7 +33,7 @@ namespace FoodEcomerce.Controllers
         {
             try
             {
-                var result = await _unitOfWork.UnitCaculateRepository.GetById(id);
+                var result = await _unitOfWork.UnitCaculateRepository.GetById(id );
                 return Ok(result);
             }
             catch (Exception ex)
