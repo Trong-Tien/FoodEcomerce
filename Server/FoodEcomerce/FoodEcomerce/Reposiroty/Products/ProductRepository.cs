@@ -134,21 +134,22 @@ namespace FoodEcomerce.Reposiroty.Products
                     _context.ProductCategorys.AddRange(categories);
                 }
 
-
-                var imageProductData = _context.ImageProducts.Where(r => r.ProductId == productData.Id).ToList();
-                foreach (var item in modal.ImageUrlOld)
+                 var listDataProductImage  = _context.ImageProducts.Where(r => r.ProductId == productData.Id).ToList(); 
+                foreach(var data in listDataProductImage)
                 {
-                    if(item != null)
+                   if (!string.IsNullOrEmpty(data.ImageUrl)) 
                     {
-                        if(imageProductData.Any(r=> r.ProductId == productData.Id && r.ImageUrl != item))
-                        {
-                            Helpper.Untils.DeleteFile(item);
-                        }
-                        _context.ImageProducts.Remove(_context.ImageProducts.FirstOrDefault(r=> r.ImageUrl == item));
-                    }    
-                }
-            
-                await _context.SaveChangesAsync();
+                        Helpper.Untils.DeleteFile(data.ImageUrl);
+                    }
+                }    
+
+                if(listDataProductImage.Count > 0)
+                {
+                    _context.ImageProducts.RemoveRange(listDataProductImage);   
+                    await _context.SaveChangesAsync();
+                }  
+                    
+
 
                 List<ImageProduct> imageProduct = new List<ImageProduct>();
                 foreach (var item in modal.ImageUrl)
@@ -174,9 +175,6 @@ namespace FoodEcomerce.Reposiroty.Products
         public async Task<ResultModal> DeleteWithQuery(Guid productId)
         {
             var productData = _context.Products.FirstOrDefault(r => r.Id == productId);
-
-            var testDataa = productData;
-
             if (productData != null)
             {
                 productData.IsDelete = true;
@@ -193,17 +191,18 @@ namespace FoodEcomerce.Reposiroty.Products
                     }
 
                     _context.ImageProducts.RemoveRange(productImage);
-                    await _context.SaveChangesAsync();
-
-                    return new ResultModal()
-                    {
-                        Status = 200,
-                        Message = "Xóa dữ liệu thành công",
-                        Success = true
-                    };
                 }
-            }
+                _context.Products.Update(productData);
+                await _context.SaveChangesAsync();
+               
 
+                return new ResultModal()
+                {
+                    Status = 200,
+                    Message = "Xóa dữ liệu thành công",
+                    Success = true
+                };
+            }
             return new ResultModal()
             {
                 Status = 202,

@@ -23,5 +23,7 @@ namespace FoodEcomerce.Entity.StoreProcedure
         public Guid UnitCaculateId { get; set; }
         public int TradeMarkId { get; set; }
         public int PlaceProductId { get; set; }
+        public string? Expiry { get; set; }  // hạn sử dụng
+        public string? Preserve { get; set; }    // bảo quản
     }
 }
