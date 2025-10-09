@@ -1,10 +1,10 @@
-// src/pages/Auth/Login.tsx
 import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { FaLock, FaUser } from "react-icons/fa";
 import Input from "@/Component/Common/Input";
 import { AuthService } from "@/Services/AuthService";
 import logo from "@/assets/img/logo.jpg";
+import toast from "react-hot-toast";
 
 interface LoginForm {
   identity: string;
@@ -35,19 +35,20 @@ export default function Dangnhap() {
 
       // 👉 Gọi API đăng nhập thật
       const data = await AuthService.login({
-        phoneNumber: form.identity, // backend login theo PhoneNumber
+        phoneNumber: form.identity,
         password: form.password,
       });
 
-      // ✅ Xóa token & user cũ (nếu có)
+      // ✅ Xóa token & user cũ
       localStorage.removeItem("access_token");
       localStorage.removeItem("user");
 
-      // ✅ Lưu token & user mới
+      // ✅ Lưu token & user mới (đồng bộ với AuthService)
       if (data.token) localStorage.setItem("access_token", data.token);
       if (data.user) localStorage.setItem("user", JSON.stringify(data.user));
 
-      // ✅ Điều hướng về trang chủ
+      // ✅ Thông báo thành công + chuyển trang
+      toast.success("🎉 Đăng nhập thành công!");
       navigate({ to: "/" });
     } catch (err: unknown) {
       if (err instanceof Error) setServerError(err.message);
@@ -70,11 +71,10 @@ export default function Dangnhap() {
           <h1 className="text-xl font-extrabold text-white">
             Đăng nhập tài khoản
           </h1>
-          <p className="text-green-100 text-sm mt-1">
-            Chào mừng bạn quay lại
-          </p>
+          <p className="text-green-100 text-sm mt-1">Chào mừng bạn quay lại</p>
         </div>
 
+        {/* Form */}
         <form onSubmit={handleSubmit} className="px-6 py-6 space-y-4">
           <Input
             label="Số điện thoại"
@@ -114,7 +114,7 @@ export default function Dangnhap() {
             {loading ? "Đang xử lý..." : "Đăng nhập"}
           </button>
 
-          {/* Đăng nhập OTP */}
+          {/* Đăng nhập bằng OTP */}
           <Link
             to="/DangNhapOTP"
             className="w-full block text-center py-3 rounded-lg font-semibold border border-green-600 text-green-700 hover:bg-green-50"

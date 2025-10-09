@@ -37,11 +37,13 @@ export const AuthService = {
     });
 
     const data = await res.json().catch(() => null);
-
     if (!res.ok) throw new Error(data?.message || "Đăng ký thất bại");
     return data;
   },
 
+  // ==========================
+  // 👉 Đăng nhập
+  // ==========================
   async login(payload: { phoneNumber: string; password: string }) {
     const res = await fetch(`${API_BASE}/Login`, {
       method: "POST",
@@ -51,21 +53,38 @@ export const AuthService = {
 
     const data = await res.json().catch(() => null);
 
-    // ⚠️ Backend trả accessToken, không phải token
     if (!res.ok || !data?.accessToken) {
       throw new Error(data?.message || "Sai tài khoản hoặc mật khẩu");
     }
 
-    return {
-      token: data.accessToken,
-      user: {
-        id: data.id,
-        name: data.userName,
-        email: data.email,
-        phoneNumber: data.phoneNumber,
-        roleId: data.roleId,
-      },
+    // ✅ Lưu token và thông tin user
+    const userData = {
+      id: data.id,
+      name: data.userName,
+      email: data.email,
+      phoneNumber: data.phoneNumber,
+      roleId: data.roleId,
     };
+
+    localStorage.setItem("access_token", data.accessToken);
+    localStorage.setItem("user", JSON.stringify(userData));
+
+    return { token: data.accessToken, user: userData };
+  },
+
+  // ==========================
+  // 👉 Đăng xuất
+  // ==========================
+  logout() {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("user");
+  },
+
+  // ==========================
+  // 👉 Kiểm tra trạng thái đăng nhập
+  // ==========================
+  isLoggedIn() {
+    return !!localStorage.getItem("access_token");
   },
 
   async sendOtp(email: string) {

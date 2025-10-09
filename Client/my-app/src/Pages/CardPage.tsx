@@ -1,9 +1,10 @@
-// src/Pages/CartPage.tsx
 import { useCart } from "@/Context/CartContext";
 import { useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import Header from "@/Component/Home/Header";
 import { ArrowLeft } from "lucide-react";
+import { useAuth } from "@/Hooks/useAuth"; // ✅ Thêm dòng này
+import toast from "react-hot-toast"; // ✅ Thêm dòng này
 
 // ============ Card Header =============
 function CartHeaderCard() {
@@ -20,7 +21,7 @@ function CartHeaderCard() {
   );
 }
 
-// ============ Tabs =============
+// ============ Tabs ============
 function CartTabs() {
   const [active, setActive] = useState<"home" | "store">("home");
   return (
@@ -49,7 +50,7 @@ function CartTabs() {
   );
 }
 
-// ============ Address =============
+// ============ Address ============
 function AddressInfo() {
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-4 text-sm space-y-2">
@@ -175,11 +176,29 @@ function Summary({ total, shipping }: { total: number; shipping: number }) {
 export default function CartPage() {
   const { items, update, remove, total, shipping } = useCart();
   const navigate = useNavigate();
+  const { isLoggedIn } = useAuth(); // ✅ Kiểm tra đăng nhập
 
   useEffect(() => {
     document.title = "Giỏ hàng - FoodEcommerce";
   }, []);
 
+  // ✅ Nếu chưa đăng nhập → Giỏ hàng trống
+  if (!isLoggedIn) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center text-gray-600">
+        <Header />
+        <p>Bạn cần đăng nhập để xem giỏ hàng.</p>
+        <button
+          onClick={() => navigate({ to: "/DangNhap" })}
+          className="mt-3 px-4 py-2 bg-green-600 text-white rounded-md"
+        >
+          Đăng nhập ngay
+        </button>
+      </div>
+    );
+  }
+
+  // ✅ Nếu đã login mà giỏ hàng rỗng
   if (items.length === 0) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center text-gray-600">
@@ -198,15 +217,12 @@ export default function CartPage() {
   return (
     <div className="bg-[#F5F6F7] min-h-screen flex flex-col">
       <Header />
-
-      {/* Container giỏ hàng */}
       <div className="flex-1 max-w-2xl mx-auto w-full px-3 pt-32">
         <div className="bg-white shadow-md p-4 space-y-3 flex flex-col h-full">
           <CartHeaderCard />
           <CartTabs />
           <AddressInfo />
 
-          {/* Danh sách sản phẩm trong giỏ */}
           <div className="bg-white rounded-lg border border-gray-200">
             {items.map((item) => (
               <CartItemRow
@@ -230,7 +246,7 @@ export default function CartPage() {
           {/* ✅ Nút đặt hàng */}
           <div className="mt-auto sticky bottom-0 bg-white p-3 shadow-md">
             <button
-              onClick={() => alert("Đặt hàng fake thành công 🎉")}
+              onClick={() => toast.success("Đặt hàng thành công 🎉")}
               className="flex items-center justify-center gap-2 w-full py-3 rounded-md 
                      bg-gradient-to-r from-green-600 to-green-700 
                      text-white font-bold text-lg shadow-md relative"

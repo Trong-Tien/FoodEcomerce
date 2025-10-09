@@ -3,13 +3,15 @@ import { Link } from "@tanstack/react-router";
 import ProductModal from "./ProductModal";
 import type { Product } from "@/Type/Product";
 import { useCart } from "@/Context/CartContext";
-
+import { useAuth } from "@/Hooks/useAuth"; // ✅ Thêm dòng này
+import { toast } from "react-hot-toast"; // ✅ Thêm dòng này
 
 type ProductWithSuggest = Product & { suggestedProducts?: Product[] };
 
 function ProductCard({ p }: { p: ProductWithSuggest }) {
   const [open, setOpen] = useState(false);
   const { add } = useCart();
+  const { isLoggedIn } = useAuth(); // ✅ Kiểm tra login
 
   // ✅ Tính giá sau khi giảm
   const finalPrice = p.discount
@@ -21,6 +23,15 @@ function ProductCard({ p }: { p: ProductWithSuggest }) {
     typeof p.images === "string" && p.images.length > 0
       ? p.images.split(",")[0] // 🔥 Không nối thêm prefix nữa
       : "/assets/img/no-image.png";
+
+  // ✅ Xử lý khi nhấn "Mua ngay"
+  const handleBuyNow = () => {
+    if (!isLoggedIn) {
+      toast.error("Vui lòng đăng nhập để mua hàng!");
+      return;
+    }
+    setOpen(true);
+  };
 
   return (
     <>
@@ -65,19 +76,17 @@ function ProductCard({ p }: { p: ProductWithSuggest }) {
             </div>
           </div>
 
-
-
-          {/* Nút mua ngay */}
+          {/* ✅ Nút mua ngay */}
           <button
-            onClick={() => setOpen(true)}   // ✅ thay vì add(p, 1)
+            onClick={handleBuyNow}
             className="mt-3 w-full h-[35px] bg-[#F0FFF3] text-[#007E42] text-[13px] font-bold uppercase rounded-md hover:bg-[#E0FFE8] transition"
           >
             Mua ngay
           </button>
-
         </div>
       </div>
 
+      {/* ✅ Mở modal chỉ khi đã đăng nhập */}
       {open && (
         <ProductModal
           product={p}
