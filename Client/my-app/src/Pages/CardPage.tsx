@@ -3,8 +3,9 @@ import { useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import Header from "@/Component/Home/Header";
 import { ArrowLeft } from "lucide-react";
-import { useAuth } from "@/Hooks/useAuth"; // ✅ Thêm dòng này
-import toast from "react-hot-toast"; // ✅ Thêm dòng này
+import { useAuth } from "@/Hooks/useAuth";
+import toast from "react-hot-toast";
+import confetti from "canvas-confetti"; // ✅ Hiệu ứng pháo hoa
 
 // ============ Card Header =============
 function CartHeaderCard() {
@@ -101,9 +102,9 @@ function CartItemRow({
       <img
         src={
           item.image
-            ? `http://localhost:5292/api/File/image?path=${encodeURIComponent(
-                item.image
-              )}`
+            ? item.image.includes(",")
+              ? item.image.split(",")[0]
+              : item.image
             : "/assets/img/no-image.png"
         }
         alt={item.name}
@@ -174,15 +175,30 @@ function Summary({ total, shipping }: { total: number; shipping: number }) {
 
 // ============ Main Cart Page ============
 export default function CartPage() {
-  const { items, update, remove, total, shipping } = useCart();
+  const { items, update, remove, total, shipping, clear } = useCart();
   const navigate = useNavigate();
-  const { isLoggedIn } = useAuth(); // ✅ Kiểm tra đăng nhập
+  const { isLoggedIn } = useAuth();
+  const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
     document.title = "Giỏ hàng - FoodEcommerce";
   }, []);
 
-  // ✅ Nếu chưa đăng nhập → Giỏ hàng trống
+  const handleOrder = () => {
+    toast.success("🎉 Đặt hàng thành công!");
+    clear();
+    confetti({
+      particleCount: 200,
+      spread: 90,
+      origin: { y: 0.6 },
+    });
+    setShowSuccess(true);
+    setTimeout(() => {
+      setShowSuccess(false);
+      navigate({ to: "/" });
+    }, 3000);
+  };
+
   if (!isLoggedIn) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center text-gray-600">
@@ -198,7 +214,6 @@ export default function CartPage() {
     );
   }
 
-  // ✅ Nếu đã login mà giỏ hàng rỗng
   if (items.length === 0) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center text-gray-600">
@@ -246,7 +261,7 @@ export default function CartPage() {
           {/* ✅ Nút đặt hàng */}
           <div className="mt-auto sticky bottom-0 bg-white p-3 shadow-md">
             <button
-              onClick={() => toast.success("Đặt hàng thành công 🎉")}
+              onClick={handleOrder}
               className="flex items-center justify-center gap-2 w-full py-3 rounded-md 
                      bg-gradient-to-r from-green-600 to-green-700 
                      text-white font-bold text-lg shadow-md relative"
@@ -275,6 +290,24 @@ export default function CartPage() {
           </div>
         </div>
       </div>
+
+      {/* ✅ Modal thành công */}
+      {showSuccess && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+          <div className="bg-white rounded-2xl shadow-lg p-8 text-center animate-fade-in-up">
+            <div className="text-green-600 text-6xl mb-3">✅</div>
+            <h2 className="text-xl font-bold text-gray-800 mb-1">
+              Đặt hàng thành công!
+            </h2>
+            <p className="text-gray-500 mb-3">
+              Cảm ơn bạn đã mua sắm tại Bách Hóa Xanh 💚
+            </p>
+            <p className="text-sm text-gray-400">
+              Hệ thống đang chuyển bạn về trang chủ...
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,16 +1,15 @@
 ﻿using FoodEcomerce.Abstract;
 using FoodEcomerce.Modal;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FoodEcomerce.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UnitCaculateController : ControllerBase
+    public class CartItemController : ControllerBase
     {
         private readonly UnitOfWork _unitOfWork;
-        public UnitCaculateController(UnitOfWork unitOfWork)
+        public CartItemController(UnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
@@ -20,7 +19,7 @@ namespace FoodEcomerce.Controllers
         {
             try
             {
-                var result = await _unitOfWork.UnitCaculateRepository.GetAll(pageNumber, pageSize);
+                var result = await _unitOfWork.CartItemRepository.GetAll(pageNumber, pageSize);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -33,20 +32,7 @@ namespace FoodEcomerce.Controllers
         {
             try
             {
-                var result = await _unitOfWork.UnitCaculateRepository.GetById(id );
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-        [HttpGet("GetByParent")]
-        public async Task<IActionResult> GetByParent()
-        {
-            try
-            {
-                var result = await _unitOfWork.UnitCaculateRepository.GetByParent();
+                var result = await _unitOfWork.CartItemRepository.GetById(id);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -56,11 +42,11 @@ namespace FoodEcomerce.Controllers
         }
 
         [HttpPost("Create")]
-        public async Task<IActionResult> Create(UnitCaculateModal modal)
+        public async Task<IActionResult> Create(CartItemModa modal)
         {
             try
             {
-                var result = await _unitOfWork.UnitCaculateRepository.CreateByQuery(modal);
+                var result = await _unitOfWork.CartItemRepository.Create(modal);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -69,11 +55,11 @@ namespace FoodEcomerce.Controllers
             }
         }
         [HttpPut("Update")]
-        public async Task<IActionResult> Update(UnitCaculateModal modal)
+        public async Task<IActionResult> Update(CartItemModa modal)
         {
             try
             {
-                var result = await _unitOfWork.UnitCaculateRepository.Update(modal);
+                var result = await _unitOfWork.CartItemRepository.Update(modal);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -86,7 +72,7 @@ namespace FoodEcomerce.Controllers
         {
             try
             {
-                var result = await _unitOfWork.UnitCaculateRepository.Delete(id);
+                var result = await _unitOfWork.CartItemRepository.Delete(id);
                 return Ok(result);
             }
             catch (Exception ex)

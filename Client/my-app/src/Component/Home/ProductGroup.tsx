@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Flame } from "lucide-react";
 import ProductCard from "../Common/ProductCard";
-import type { Product } from "@/Type/Product"; // ✅ dùng type thật
+import type { Product } from "@/Type/Product";
 
 interface ProductGroupProps {
   title: string;
@@ -38,46 +38,41 @@ const ProductGroup: React.FC<ProductGroupProps> = ({
   const [topBannerIndex, setTopBannerIndex] = useState(0);
   const [bottomBannerIndex, setBottomBannerIndex] = useState(0);
 
-  // ✅ Tạo mảng sản phẩm hiển thị cho UI
+  // ✅ Chuẩn hóa ảnh và giá — KHÔNG thêm localhost/api lần nữa
   const mappedProducts = products.map((p) => ({
     ...p,
-    price: p.unitPrice * (1 - p.discount / 100), // giá sau giảm
+    price: p.unitPrice * (1 - p.discount / 100),
     oldPrice: p.discount > 0 ? p.unitPrice : undefined,
     img:
-      p.images && p.images.length > 0
-        ? `http://localhost:5292/${p.images[0]}`
+      typeof p.images === "string" && p.images.length > 0
+        ? p.images.split(",")[0] // đã được map sẵn trong ProductService
         : "/assets/img/no-image.png",
   }));
 
-  // Xử lý chuyển sản phẩm
-  const handlePrev = () => {
+  // ✅ Điều khiển cuộn sản phẩm
+  const handlePrev = () =>
     setStartIndex((prevIndex) => Math.max(0, prevIndex - maxItems));
-  };
-
-  const handleNext = () => {
+  const handleNext = () =>
     setStartIndex((prevIndex) => {
       const newIndex = prevIndex + maxItems;
-      const maxStartIndex = Math.max(0, mappedProducts.length - maxItems);
-      return newIndex > maxStartIndex ? maxStartIndex : newIndex;
+      const maxStart = Math.max(0, mappedProducts.length - maxItems);
+      return newIndex > maxStart ? maxStart : newIndex;
     });
-  };
 
   const visibleProducts = mappedProducts.slice(
     startIndex,
     startIndex + maxItems
   );
-
   const canGoPrev = startIndex > 0;
   const canGoNext = startIndex < Math.max(0, mappedProducts.length - maxItems);
 
-  // Banner handler
+  // ✅ Điều khiển banner
   const prevTop = () =>
     setTopBannerIndex(
       (topBannerIndex - 1 + topBanners.length) % topBanners.length
     );
   const nextTop = () =>
     setTopBannerIndex((topBannerIndex + 1) % topBanners.length);
-
   const prevBottom = () =>
     setBottomBannerIndex(
       (bottomBannerIndex - 1 + bottomBanners.length) % bottomBanners.length
@@ -85,7 +80,7 @@ const ProductGroup: React.FC<ProductGroupProps> = ({
   const nextBottom = () =>
     setBottomBannerIndex((bottomBannerIndex + 1) % bottomBanners.length);
 
-  // Render tiêu đề
+  // ✅ Render tiêu đề nhóm sản phẩm
   const renderTitle = () => {
     const titleElement = (
       <h2 className="text-xl sm:text-2xl font-bold text-gray-900">{title}</h2>
@@ -126,7 +121,7 @@ const ProductGroup: React.FC<ProductGroupProps> = ({
       );
     }
 
-    // ecommerce style
+    // ✅ ecommerce style
     return (
       <div
         className={`flex items-center justify-between mb-6 ${
@@ -146,7 +141,7 @@ const ProductGroup: React.FC<ProductGroupProps> = ({
     );
   };
 
-  // Render banner
+  // ✅ Render banner (top/bottom)
   const renderBanner = (
     banners: string[],
     index: number,
@@ -195,6 +190,7 @@ const ProductGroup: React.FC<ProductGroupProps> = ({
     );
   };
 
+  // ✅ Render chính
   return (
     <section
       className={`${bgColor} relative shadow-2xl px-1 sm:px-2 lg:px-3 pt-0 mb-[20px] border border-gray-200`}
@@ -204,7 +200,9 @@ const ProductGroup: React.FC<ProductGroupProps> = ({
       {showTitle && renderTitle()}
 
       {loading ? (
-        <p className="text-gray-400 italic">Đang tải sản phẩm...</p>
+        <p className="text-gray-400 italic text-center py-4">
+          Đang tải sản phẩm...
+        </p>
       ) : (
         <div className="relative mt-4">
           {canGoPrev && (
@@ -215,6 +213,7 @@ const ProductGroup: React.FC<ProductGroupProps> = ({
               &#10094;
             </button>
           )}
+
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-1 relative z-0">
             {visibleProducts.map((p) => (
               <div
@@ -224,12 +223,8 @@ const ProductGroup: React.FC<ProductGroupProps> = ({
                 <ProductCard p={p} />
               </div>
             ))}
-            {Array.from({
-              length: Math.max(0, maxItems - visibleProducts.length),
-            }).map((_, index) => (
-              <div key={`placeholder-${index}`} className="w-full h-full" />
-            ))}
           </div>
+
           {canGoNext && (
             <button
               onClick={handleNext}

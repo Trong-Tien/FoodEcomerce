@@ -32,8 +32,11 @@ namespace FoodEcomerce.Helpper
             CreateMap<MenuModal, Menu>();
             CreateMap<MenuRole, MenuRoleModal>().ReverseMap();
             CreateMap<MenuRole, MenuRoleDTO>().ReverseMap();
-
-
+            CreateMap<Product, ProductDTO>().ReverseMap();
+            CreateMap<TradeMark, TradeMarkDTO>().ReverseMap();
+            CreateMap<PlaceProduct, PlaceOfProductDTO>().ReverseMap();
+            CreateMap<ProductCategory, ProductCategoryDTO>().ReverseMap();
+            CreateMap<ImageProduct, ImageProductDTO>().ReverseMap();
         }
     }
 }
