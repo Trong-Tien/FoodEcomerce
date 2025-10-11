@@ -40,6 +40,8 @@ const QUICK_MENU = [
   { name: "Gia vị", icon: <FaPepperHot /> },
 ];
 
+
+
 /// ✅ Chuẩn hóa đường dẫn ảnh sản phẩm (dùng API File/image)
 const mapProductToUI = (p: Product) => ({
   ...p,
@@ -48,8 +50,8 @@ const mapProductToUI = (p: Product) => ({
   img:
     typeof p.images === "string" && p.images.length > 0
       ? `http://localhost:5292/api/File/image?path=${encodeURIComponent(
-          p.images.split(",")[0]
-        )}`
+        p.images.split(",")[0]
+      )}`
       : "/assets/img/no-image.png",
 });
 
@@ -59,23 +61,28 @@ export default function Home() {
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [rauProducts, setRauProducts] = useState<Product[]>([]);
 
-  // Fetch dữ liệu song song
+
   useEffect(() => {
     setLoading(true);
     Promise.all([
       productService.getAll(),
+      productService.getByCategory("4693d14a-b0fa-4a71-8693-bd3ea4322cd3"), // 🌿 danh mục Rau củ nấm
       blogService.getBlogs(),
       brandService.getBrands(),
     ])
-      .then(([productData, blogData, brandData]) => {
-        setProducts(productData);
+      .then(([allProducts, rauData, blogData, brandData]) => {
+        setProducts(allProducts);
+        setRauProducts(rauData);
         setBlogs(blogData);
         setBrands(brandData);
       })
       .catch((err) => console.error("Lỗi khi fetch data:", err))
       .finally(() => setLoading(false));
   }, []);
+
+  // Fetch dữ liệu song song
 
   // ✅ Map toàn bộ sản phẩm sang format UI
   const mappedProducts = products.map(mapProductToUI);
@@ -117,7 +124,7 @@ export default function Home() {
             ]}
             title="Sản phẩm mới"
             badge="NEW"
-            products={mappedProducts.filter((p) => p.discount === 0)}
+             products={rauProducts.map(mapProductToUI)}
             loading={loading}
             maxItems={5}
             bgColor="bg-gradient-to-b from-yellow-50 to-yellow-400"
@@ -129,18 +136,18 @@ export default function Home() {
             showTitle={false}
           />
 
-          {/* 🥬 Rau củ nấm (lọc theo tên chứa “rau”) */}
+          {/* 🥬 Rau củ nấm (lọc theo CategoryId) */}
+          {/* 🥬 Rau củ nấm */}
           <ProductGroup
             title="Rau, củ, nấm"
             titleAlign="left"
             titleVariant="boxed"
             badge="RAU"
-            products={mappedProducts.filter((p) =>
-              p.name.toLowerCase().includes("rau")
-            )}
+            products={rauProducts.map(mapProductToUI)}
             loading={loading}
             maxItems={5}
           />
+
 
           {/* 👶 Mẹ và bé (lọc tên chứa “sữa”) */}
           <ProductGroup

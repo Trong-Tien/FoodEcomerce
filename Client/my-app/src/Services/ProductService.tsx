@@ -3,11 +3,10 @@ import type { Product } from "@/Type/Product";
 
 const API_BASE = "http://localhost:5292/api";
 
-// ✅ Chuẩn hóa ảnh (tự xử lý cả imageProducts & images)
+// ✅ Hàm chuẩn hóa đường dẫn ảnh (xử lý imageProducts & images)
 const mapProduct = (p: Product): Product => ({
   ...p,
   images:
-    // Nếu backend trả về mảng imageProducts
     Array.isArray(p.imageProducts) && p.imageProducts.length > 0
       ? p.imageProducts
           .map(
@@ -15,7 +14,6 @@ const mapProduct = (p: Product): Product => ({
               `${API_BASE}/File/image?path=${encodeURIComponent(img.imageUrl)}`
           )
           .join(",")
-      // Nếu backend trả về chuỗi images
       : typeof p.images === "string" && p.images.length > 0
       ? p.images
           .split(",")
@@ -32,25 +30,30 @@ export const productService = {
     pageNumber: number = 1,
     pageSize: number = 12
   ): Promise<Product[]> {
-    const url = `${API_BASE}/Product/GetAll?pageNumber=${pageNumber}&pageSize=${pageSize}&ids=00000000-0000-0000-0000-000000000000`;
+    const url = `${API_BASE}/Product/getall?pageNumber=${pageNumber}&pageSize=${pageSize}&ids=00000000-0000-0000-0000-000000000000`;
     const res = await fetch(url);
-    if (!res.ok) throw new Error("Không tải được sản phẩm");
+    if (!res.ok) throw new Error("Không tải được danh sách sản phẩm");
     const data: Product[] = await res.json();
     return data.map(mapProduct);
   },
 
-  // ✅ Lấy sản phẩm theo danh mục
-  async getByCategory(categoryId: string): Promise<Product[]> {
-    const url = `${API_BASE}/Product/GetByCategory/${categoryId}`;
+  // ✅ Lấy sản phẩm theo danh mục (dùng query param `ids=` — vì backend của bạn dùng cách này)
+  async getByCategory(
+    categoryId: string,
+    pageNumber: number = 1,
+    pageSize: number = 12
+  ): Promise<Product[]> {
+    const url = `${API_BASE}/Product/getall?pageNumber=${pageNumber}&pageSize=${pageSize}&ids=${categoryId}`;
     const res = await fetch(url);
-    if (!res.ok) throw new Error("Không tải được sản phẩm theo danh mục");
+    if (!res.ok)
+      throw new Error("Không tải được sản phẩm theo danh mục");
     const data: Product[] = await res.json();
     return data.map(mapProduct);
   },
 
   // ✅ Lấy chi tiết 1 sản phẩm
   async getById(id: string): Promise<Product | null> {
-    const url = `${API_BASE}/Product/GetById/${id}`;
+    const url = `${API_BASE}/Product/getbyid/${id}`;
     const res = await fetch(url);
     if (!res.ok) return null;
     const data: Product = await res.json();
@@ -58,5 +61,4 @@ export const productService = {
   },
 };
 
-// 👇 Giữ lại export default để import dễ hơn
 export default productService;

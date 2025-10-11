@@ -5,6 +5,7 @@ import { useNavigate, useLocation } from "@tanstack/react-router";
 import LocationModal from "../Common/LocationModal";
 import logo from "@/assets/img/logo.jpg";
 import { isAuthenticated, isTokenExpired } from "@/Until/Authcheck";
+import { useCart } from "@/Context/CartContext"; // ✅ Context giỏ hàng
 
 function Header() {
   const [showSidebar, setShowSidebar] = useState(false);
@@ -15,6 +16,9 @@ function Header() {
   const location = useLocation();
   const navigate = useNavigate();
   const isHome = location.pathname === "/";
+
+  // ✅ Lấy dữ liệu từ CartContext
+  const { totalQuantity, clear } = useCart();
 
   // 🔹 Khi Header load, đọc user nếu token còn hạn
   useEffect(() => {
@@ -28,7 +32,6 @@ function Header() {
         setUser(null);
       }
     } else {
-      // Token hết hạn hoặc không có -> logout tự động
       localStorage.removeItem("access_token");
       localStorage.removeItem("user");
       setUser(null);
@@ -42,14 +45,15 @@ function Header() {
       if (token && isTokenExpired(token)) {
         handleLogout(); // tự logout khi token hết hạn
       }
-    }, 60 * 1000); // mỗi phút kiểm tra 1 lần
-
+    }, 60 * 1000);
     return () => clearInterval(interval);
   }, []);
 
+  // ✅ Đăng xuất & xóa giỏ hàng
   const handleLogout = () => {
     localStorage.removeItem("access_token");
     localStorage.removeItem("user");
+    clear(); // ✅ xóa giỏ hàng khi đăng xuất
     setUser(null);
     navigate({ to: "/Dangnhap" });
   };
@@ -102,10 +106,15 @@ function Header() {
               className="rounded-r-md w-full relative bg-white flex items-center pr-[64px] text-sm text-gray-700 focus:outline-none"
             />
             <a
-              className="absolute right-[10px] top-1/2 -translate-y-1/2 text-[#4CAF50]"
               href="/GioHang"
+              className="absolute right-[12px] top-1/2 -translate-y-1/2 flex items-center justify-center text-[#4CAF50] h-[32px] w-[32px] rounded-full relative"
             >
-              <FaShoppingCart size={20} />
+              <FaShoppingCart size={20} className="text-[#4CAF50]" />
+              {totalQuantity > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[11px] font-bold px-[5px] py-[1px] rounded-full leading-none">
+                  {totalQuantity}
+                </span>
+              )}
             </a>
           </div>
         </div>
@@ -138,7 +147,7 @@ function Header() {
             )}
           </div>
 
-          {/* 🔹 Hiển thị user */}
+          {/* Hiển thị user */}
           <div className="flex">
             {user ? (
               <div className="mt-2 mr-[16px] flex items-center gap-3 bg-white px-3 py-1.5 rounded-md shadow-sm">
@@ -165,7 +174,7 @@ function Header() {
         </div>
       </div>
 
-      {/* ✅ Modal nhập vị trí */}
+      {/* Modal nhập vị trí */}
       {showLocationModal && (
         <LocationModal
           onClose={() => setShowLocationModal(false)}
