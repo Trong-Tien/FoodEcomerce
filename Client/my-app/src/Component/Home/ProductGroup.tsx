@@ -14,7 +14,7 @@ interface ProductGroupProps {
   bottomBanners?: string[];
   titleStyle?: "minimal" | "ecommerce";
   titleAlign?: "left" | "center";
-  titleVariant?: "default" | "boxed";
+  titleVariant?: "default" | "boxed" | "minimal";
   showTitle?: boolean;
   showMore?: boolean;
 }

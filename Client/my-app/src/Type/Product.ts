@@ -26,10 +26,11 @@ export type Product = {
   images?: string; // ✅ có thể rỗng hoặc được map từ imageProducts
   tradeMarkId: string;
   placeProductId: string;
-
-  // ✅ Bổ sung các trường backend trả về nhưng bạn chưa khai báo
-  imageProducts?: ImageProduct[]; // để ProductService không lỗi
+  imageProducts?: ImageProduct[];
   productCategories?: ProductCategory[];
+  categoryId: string;
+
+  
 
   tradeMark?: {
     id: number;
