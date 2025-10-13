@@ -24,6 +24,11 @@ namespace FoodEcomerce.Entity
         public virtual DbSet<Cart> Carts { get; set; }
         public virtual DbSet<CartItem> CartItems { get; set; }
 
+        public virtual DbSet<Voucher> Voucher { get; set; }
+
+        public virtual DbSet<VoucherUser> VoucherUser { get; set; }
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Status>(entity =>
@@ -275,6 +280,11 @@ namespace FoodEcomerce.Entity
                    .HasForeignKey(x => x.StatusOrdersId)
                    .HasConstraintName("FK_Orders_StatusOrders")
                    .OnDelete(DeleteBehavior.ClientSetNull);
+                entity.HasOne(x => x.Voucher)
+                  .WithMany(x => x.Orders)
+                  .HasForeignKey(x => x.VoucherId)
+                  .HasConstraintName("FK_Orders_Voucher")
+                  .OnDelete(DeleteBehavior.ClientSetNull);
             });
             modelBuilder.Entity<OrderDetail>(entity =>
             {
@@ -311,6 +321,42 @@ namespace FoodEcomerce.Entity
                 entity.Property(x => x.Expiry).HasColumnType("datetime");
             });
 
+            modelBuilder.Entity<Voucher>(entity =>
+            {
+                entity.HasKey(x => x.VoucherId).HasName("PK_VoucherId");
+                entity.ToTable("Voucher");
+                entity.Property(x => x.VoucherId).ValueGeneratedOnAdd();
+                entity.Property(x => x.Code).HasMaxLength(50);
+                entity.Property(x => x.Name).HasMaxLength(50);
+                entity.Property(x => x.Description).HasMaxLength(300);
+                entity.Property(x => x.DiscountType).HasMaxLength(50);
+                entity.Property(x => x.DiscountValue).HasColumnType("DECIMAL(18,2)");
+                entity.Property(x => x.MinOrderAmount).HasColumnType("DECIMAL(18,2)");
+                entity.Property(x => x.MaxDiscountAmount).HasColumnType("DECIMAL(18,2)");
+                entity.Property(x => x.StartDate).HasColumnType("Datetime");
+                entity.Property(x => x.EndTime).HasColumnType("Datetime");
+                entity.Property(x => x.UsageLimit).HasColumnType("int");
+                entity.Property(x => x.UsedCount).HasColumnType("int");
+                entity.Property(x => x.IsActive).HasColumnType("bit");
+                entity.Property(x => x.CreatedAt).HasColumnType("Datetime");
+            });
+            modelBuilder.Entity<VoucherUser>(entity =>
+            {
+                entity.HasKey(x => x.VoucherUserId).HasName("PK_VoucherUserId");
+                entity.ToTable("VoucherUser");
+                entity.Property(x => x.VoucherId).ValueGeneratedOnAdd();
+                entity.Property(x => x.UsedAt).HasColumnType("Datetime");
+                entity.HasOne(x => x.Voucher)
+                   .WithMany(x => x.VoucherUsers)
+                   .HasForeignKey(x => x.VoucherUserId)
+                   .HasConstraintName("FK_Voucher_VoucherUsers")
+                   .OnDelete(DeleteBehavior.ClientSetNull);
+                entity.HasOne(x => x.User)
+                   .WithMany(x => x.VoucherUser)
+                   .HasForeignKey(x => x.UserId)
+                   .HasConstraintName("FK_User_VoucherUsers")
+                   .OnDelete(DeleteBehavior.ClientSetNull);
+            });
         }
     }
 }

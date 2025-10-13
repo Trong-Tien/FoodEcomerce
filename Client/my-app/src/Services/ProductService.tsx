@@ -37,11 +37,6 @@ export const productService = {
     return data.map(mapProduct);
   },
 
-<<<<<<< HEAD
-  // ✅ Lấy sản phẩm theo danh mục
-  async getByCategory(categoryId: string): Promise<Product[]> {
-    const url = `${API_BASE}/Product/GetProductCategory/${categoryId}`;
-=======
   // ✅ Lấy sản phẩm theo danh mục (dùng query param `ids=` — vì backend của bạn dùng cách này)
   async getByCategory(
     categoryId: string,
@@ -49,7 +44,6 @@ export const productService = {
     pageSize: number = 12
   ): Promise<Product[]> {
     const url = `${API_BASE}/Product/getall?pageNumber=${pageNumber}&pageSize=${pageSize}&ids=${categoryId}`;
->>>>>>> 017dce559b8139c698a9c4ca07863e9231075a42
     const res = await fetch(url);
     if (!res.ok)
       throw new Error("Không tải được sản phẩm theo danh mục");
