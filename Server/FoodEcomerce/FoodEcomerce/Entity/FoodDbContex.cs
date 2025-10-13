@@ -22,6 +22,7 @@ namespace FoodEcomerce.Entity
 
         public virtual DbSet<ImageProduct> ImageProducts { get; set; }
         public virtual DbSet<Cart> Carts { get; set; }
+        public virtual DbSet<CartItem> CartItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

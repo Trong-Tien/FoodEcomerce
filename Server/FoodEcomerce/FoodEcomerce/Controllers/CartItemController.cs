@@ -40,6 +40,19 @@ namespace FoodEcomerce.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpGet("GetByCartId")]
+        public async Task<IActionResult> GetByCartId(Guid cartId)
+        {
+            try
+            {
+                var result = await _unitOfWork.CartItemRepository.GetCartByAccount(cartId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
         [HttpPost("Create")]
         public async Task<IActionResult> Create(CartItemModa modal)

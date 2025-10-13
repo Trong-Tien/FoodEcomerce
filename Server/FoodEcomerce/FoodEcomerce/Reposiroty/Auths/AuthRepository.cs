@@ -25,8 +25,10 @@ namespace FoodEcomerce.Reposiroty.Auths
             LoginDTO result = new LoginDTO();
             var paswordHash = Helpper.Untils.EncrypePassword(modal.Password);
             var db = await _context.Users.FirstOrDefaultAsync(x => x.PhoneNumber == modal.PhoneNumber && x.Password == paswordHash);
+           
             if (db != null)
             {
+                var CartItem = await _context.Carts.FirstOrDefaultAsync(c => c.UserId == db.Id);
                 result = new LoginDTO()
                 {
                     Id = db.Id,
@@ -35,6 +37,7 @@ namespace FoodEcomerce.Reposiroty.Auths
                     PhoneNumber = db.PhoneNumber,
                     UserName = db.UserName,
                     RoleId = db.RoleId,
+                    CartId = CartItem != null ? CartItem.Id : Guid.Empty,   
                     Status = 200
                 };
                 if (!string.IsNullOrEmpty(result.Email) || !string.IsNullOrEmpty(result.UserName))
