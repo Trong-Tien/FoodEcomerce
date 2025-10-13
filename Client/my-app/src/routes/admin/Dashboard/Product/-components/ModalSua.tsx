@@ -1,12 +1,12 @@
 import { useGetCategoryByChild } from '@/Hooks/Category';
-import {  useFiles } from '@/Hooks/File';
+import { useFiles } from '@/Hooks/File';
 import { useGetPlaceOfProduct } from '@/Hooks/PlaceOfProduct';
 import { useGetTradeMark } from '@/Hooks/TradeMark';
 import { useGetUnitCaculate } from '@/Hooks/UnitCaculate';
 import type { UpdateProduct } from '@/Type/UpdateProduct';
 import React, { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form';
-import { Autocomplete, Button, Grid,TextField } from "@mui/material";
+import { Autocomplete, Button, Grid, TextField } from "@mui/material";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import Dialog from "@mui/material/Dialog";
@@ -81,9 +81,11 @@ const ModalSua: React.FC<Props> = ({ openModal, handleClose, initialValues }) =>
             preserve: data.preserve,
             inventory: data.inventory,
             categoryId: data.categoryId,
-            imageUrl: data.imageUrl ,
+            imageUrl: data.imageUrl,
             isActive: data.isActive
         }
+
+        console.log(tempdata)
 
         const response: ResponseType = await updateProduct.mutateAsync(tempdata);
 
@@ -114,7 +116,7 @@ const ModalSua: React.FC<Props> = ({ openModal, handleClose, initialValues }) =>
         if (initialValues) {
             reset({
                 ...initialValues,
-                categoryId: dataProductCategory.map((c) => c.id), 
+                categoryId: dataProductCategory.map((c) => c.id),
             });
         }
     }, [initialValues, dataProductCategory, reset]);
@@ -299,6 +301,12 @@ const ModalSua: React.FC<Props> = ({ openModal, handleClose, initialValues }) =>
                                     </Grid>
                                 </CardContent>
                             </Card>
+                        </Grid>
+                        <Grid size={6}>
+                            <TextField label="Hạn sử dụng" {...register("expiry")} fullWidth />
+                        </Grid>
+                        <Grid size={6}>
+                            <TextField label="Cách bảo quản" {...register("preserve")} fullWidth />
                         </Grid>
 
                         {/* --- Hình ảnh sản phẩm --- */}

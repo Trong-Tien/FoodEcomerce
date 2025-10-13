@@ -41,7 +41,7 @@ export const productService = {
 
   // ✅ Lấy sản phẩm theo danh mục
   async getByCategory(categoryId: string): Promise<Product[]> {
-    const url = `${API_BASE}/Product/GetByCategory/${categoryId}`;
+    const url = `${API_BASE}/Product/GetProductCategory/${categoryId}`;
     const res = await fetch(url);
     if (!res.ok) throw new Error("Không tải được sản phẩm theo danh mục");
     const data: Product[] = await res.json();
