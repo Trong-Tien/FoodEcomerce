@@ -5,9 +5,10 @@ import Header from "@/Component/Home/Header";
 import { ArrowLeft } from "lucide-react";
 import { useAuth } from "@/Hooks/useAuth";
 import toast from "react-hot-toast";
-import confetti from "canvas-confetti"; // ✅ Hiệu ứng pháo hoa
+import confetti from "canvas-confetti";
+import { productService } from "@/Services/ProductService";
 
-// ============ Card Header =============
+/* ========================== Header ========================== */
 function CartHeaderCard() {
   return (
     <div className="relative flex items-center p-4 border-b border-gray-200">
@@ -22,7 +23,7 @@ function CartHeaderCard() {
   );
 }
 
-// ============ Tabs ============
+/* ========================== Tabs ========================== */
 function CartTabs() {
   const [active, setActive] = useState<"home" | "store">("home");
   return (
@@ -51,15 +52,14 @@ function CartTabs() {
   );
 }
 
-// ============ Address ============
+/* ========================== Address ========================== */
 function AddressInfo() {
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-4 text-sm space-y-2">
       <div className="flex justify-between">
         <div>
           <p>
-            <span className="font-semibold">Giao đến:</span> Anh Thịnh
-            0947xxxxxx
+            <span className="font-semibold">Giao đến:</span> Anh Thịnh 0947xxxxxx
           </p>
           <p className="text-gray-600">87/1, Xã Long Phú, TP. Cần Thơ</p>
         </div>
@@ -78,7 +78,7 @@ function AddressInfo() {
   );
 }
 
-// ============ Cart Item Row ============
+/* ========================== Cart Item Row ========================== */
 function CartItemRow({
   item,
   update,
@@ -86,6 +86,7 @@ function CartItemRow({
 }: {
   item: {
     id: string;
+    productId: string;
     name: string;
     image: string;
     quantity: number;
@@ -95,23 +96,20 @@ function CartItemRow({
   update: (id: string, qty: number) => void;
   remove: (id: string) => void;
 }) {
-  const finalPrice = item.unitPrice * (1 - item.discount / 100);
+  const finalPrice =
+    item.unitPrice * item.quantity * (1 - (item.discount || 0) / 100);
 
   return (
     <div className="flex gap-3 p-4 hover:bg-gray-50 transition border-b border-gray-100 last:border-0">
       <img
-        src={
-          item.image
-            ? item.image.includes(",")
-              ? item.image.split(",")[0]
-              : item.image
-            : "/assets/img/no-image.png"
-        }
+        src={item.image || "/assets/img/no-image.png"}
         alt={item.name}
         className="w-16 h-16 object-cover rounded-md border border-gray-200"
       />
+
       <div className="flex-1 flex flex-col justify-between">
         <p className="font-medium text-sm line-clamp-2">{item.name}</p>
+
         <div className="flex items-center gap-2 mt-1">
           <p className="text-red-600 font-bold text-sm">
             {finalPrice.toLocaleString("vi-VN")}₫
@@ -122,6 +120,7 @@ function CartItemRow({
             </p>
           )}
         </div>
+
         <div className="flex items-center mt-2 gap-2">
           <button
             onClick={() => update(item.id, Math.max(1, item.quantity - 1))}
@@ -138,6 +137,7 @@ function CartItemRow({
           </button>
         </div>
       </div>
+
       <button
         onClick={() => remove(item.id)}
         className="text-red-500 text-xs hover:underline"
@@ -148,7 +148,7 @@ function CartItemRow({
   );
 }
 
-// ============ Summary ============
+/* ========================== Summary ========================== */
 function Summary({ total, shipping }: { total: number; shipping: number }) {
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-4 text-sm space-y-2">
@@ -173,16 +173,39 @@ function Summary({ total, shipping }: { total: number; shipping: number }) {
   );
 }
 
-// ============ Main Cart Page ============
+/* ========================== Main Cart Page ========================== */
 export default function CartPage() {
   const { items, update, remove, total, shipping, clear } = useCart();
   const navigate = useNavigate();
   const { isLoggedIn } = useAuth();
   const [showSuccess, setShowSuccess] = useState(false);
+  const [productCache, setProductCache] = useState<Record<string, any>>({});
 
   useEffect(() => {
     document.title = "Giỏ hàng - FoodEcommerce";
   }, []);
+
+  // ✅ Load thông tin product cho mỗi item
+  useEffect(() => {
+    const loadProducts = async () => {
+      const cache: Record<string, any> = {};
+      for (const item of items) {
+        const p = await productService.getById(item.productId);
+        if (p) {
+          cache[item.productId] = {
+            name: p.name,
+            image:
+              p.images?.split(",")[0] ||
+              p.imageProducts?.[0]?.imageUrl ||
+              "/assets/img/no-image.png",
+          };
+        }
+      }
+      setProductCache(cache);
+    };
+
+    if (items.length > 0) loadProducts();
+  }, [items]);
 
   const handleOrder = () => {
     toast.success("🎉 Đặt hàng thành công!");
@@ -238,17 +261,21 @@ export default function CartPage() {
           <CartTabs />
           <AddressInfo />
 
+          {/* ✅ Danh sách sản phẩm */}
           <div className="bg-white rounded-lg border border-gray-200">
             {items.map((item) => (
               <CartItemRow
                 key={item.id}
                 item={{
                   id: item.id,
-                  name: item.name,
-                  image: item.images,
+                  productId: item.productId,
+                  name: productCache[item.productId]?.name || "Đang tải...",
+                  image:
+                    productCache[item.productId]?.image ||
+                    "/assets/img/no-image.png",
                   quantity: item.quantity,
                   unitPrice: item.unitPrice,
-                  discount: item.discount,
+                  discount: 0,
                 }}
                 update={update}
                 remove={remove}
@@ -269,23 +296,7 @@ export default function CartPage() {
               <span className="absolute left-4 flex items-center justify-center w-6 h-6 rounded-full bg-yellow-400 text-green-900 text-xs font-bold">
                 {items.length}
               </span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-5 h-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.293 2.293A1 1 0 007 17h10a1 1 0 00.894-.553L21 9M7 13l1.5 9h7L17 13"
-                />
-              </svg>
-              <span>
-                Đặt hàng {(total + shipping).toLocaleString("vi-VN")}₫
-              </span>
+              <span>Đặt hàng {(total + shipping).toLocaleString("vi-VN")}₫</span>
             </button>
           </div>
         </div>

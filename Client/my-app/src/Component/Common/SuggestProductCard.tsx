@@ -1,22 +1,41 @@
 import { useCart } from "@/Context/CartContext";
-import type { Product } from "@/Types/product1";
+import type { Product } from "@/Type/Product";
 
 export default function SuggestProductCard({ product }: { product: Product }) {
   const { items, add, update, remove } = useCart();
   const cartItem = items.find((i) => i.id === product.id);
   const qty = cartItem?.quantity || 0;
 
+  // ✅ Tính giá sau khi giảm
+  const finalPrice = product.discount
+    ? Math.round(product.unitPrice * (1 - product.discount / 100))
+    : product.unitPrice;
+
+  // ✅ Ảnh sản phẩm đầu tiên (nếu có)
+  const imageUrl =
+    product.images && product.images.length > 0
+      ? `http://localhost:5292/${product.images[0]}`
+      : "/assets/img/no-image.png";
+
   return (
-    <div className="min-w-[140px] border rounded-md p-2 flex-shrink-0 text-center">
+    <div className="min-w-[140px] border rounded-md p-2 flex-shrink-0 text-center bg-white hover:shadow-md transition">
       <img
-        src={product.img}
+        src={imageUrl}
         alt={product.name}
         className="w-full h-20 object-cover rounded"
       />
+
       <p className="text-xs mt-1 line-clamp-2">{product.name}</p>
+
       <p className="text-green-700 text-sm font-bold">
-        {product.price.toLocaleString("vi-VN")}₫
+        {finalPrice.toLocaleString("vi-VN")}₫
       </p>
+
+      {product.discount > 0 && (
+        <p className="text-gray-400 text-xs line-through">
+          {product.unitPrice.toLocaleString("vi-VN")}₫
+        </p>
+      )}
 
       {qty > 0 ? (
         <div className="flex items-center justify-center gap-2 mt-1">

@@ -3,14 +3,19 @@ import type { Product } from "@/Type/Product";
 
 const API_BASE = "http://localhost:5292/api";
 
-// ✅ Hàm chuẩn hóa đường dẫn ảnh (xử lý imageProducts & images)
-const mapProduct = (p: Product): Product => ({
+/* ============================================================
+   🔹 Hàm chuẩn hóa Product từ backend → frontend
+============================================================ */
+
+const mapProduct = (p: any): Product => ({
   ...p,
+
+  // ✅ Chuẩn hóa hình ảnh (xử lý cả imageProducts & images)
   images:
     Array.isArray(p.imageProducts) && p.imageProducts.length > 0
       ? p.imageProducts
           .map(
-            (img) =>
+            (img: any) =>
               `${API_BASE}/File/image?path=${encodeURIComponent(img.imageUrl)}`
           )
           .join(",")
@@ -18,51 +23,71 @@ const mapProduct = (p: Product): Product => ({
       ? p.images
           .split(",")
           .map(
-            (path) => `${API_BASE}/File/image?path=${encodeURIComponent(path)}`
+            (path: string) =>
+              `${API_BASE}/File/image?path=${encodeURIComponent(path)}`
           )
           .join(",")
       : "",
+
+  // ✅ Đảm bảo luôn có unitCaculateId để dùng trong Cart
+  unitCaculateId:
+    p.unitCaculate?.id || p.unitCaculateId || "00000000-0000-0000-0000-000000000000",
+
+  // ✅ Gắn thêm tên đơn vị (nếu cần hiển thị)
+  unitCaculate: p.unitCaculate
+    ? {
+        id: p.unitCaculate.id,
+        name: p.unitCaculate.name,
+      }
+    : undefined,
+
+  // ✅ Chuẩn hóa danh mục (phòng trường hợp backend trả trống)
+  productCategories: Array.isArray(p.productCategories)
+    ? p.productCategories
+    : [],
+
+  // ✅ Gắn thêm các khóa phụ trợ nếu backend trả null
+  tradeMarkId: p.tradeMark?.id || p.tradeMarkId || "",
+  placeProductId: p.placeProduct?.id || p.placeProductId || "",
+  categoryId:
+    Array.isArray(p.productCategories) && p.productCategories.length > 0
+      ? p.productCategories[0].categoryId
+      : "",
 });
 
+/* ============================================================
+   🔹 Product Service
+============================================================ */
+
 export const productService = {
-  // ✅ Lấy toàn bộ sản phẩm (có phân trang)
-  async getAll(
-    pageNumber: number = 1,
-    pageSize: number = 12
-  ): Promise<Product[]> {
+  /** 🔹 Lấy toàn bộ sản phẩm (có phân trang) */
+  async getAll(pageNumber: number = 1, pageSize: number = 12): Promise<Product[]> {
     const url = `${API_BASE}/Product/getall?pageNumber=${pageNumber}&pageSize=${pageSize}&ids=00000000-0000-0000-0000-000000000000`;
     const res = await fetch(url);
     if (!res.ok) throw new Error("Không tải được danh sách sản phẩm");
-    const data: Product[] = await res.json();
-    return data.map(mapProduct);
+    const data = await res.json();
+    return (data.items || data).map(mapProduct);
   },
 
-<<<<<<< HEAD
-  // ✅ Lấy sản phẩm theo danh mục
-  async getByCategory(categoryId: string): Promise<Product[]> {
-    const url = `${API_BASE}/Product/GetProductCategory/${categoryId}`;
-=======
-  // ✅ Lấy sản phẩm theo danh mục (dùng query param `ids=` — vì backend của bạn dùng cách này)
+  /** 🔹 Lấy sản phẩm theo danh mục */
   async getByCategory(
     categoryId: string,
     pageNumber: number = 1,
     pageSize: number = 12
   ): Promise<Product[]> {
     const url = `${API_BASE}/Product/getall?pageNumber=${pageNumber}&pageSize=${pageSize}&ids=${categoryId}`;
->>>>>>> 017dce559b8139c698a9c4ca07863e9231075a42
     const res = await fetch(url);
-    if (!res.ok)
-      throw new Error("Không tải được sản phẩm theo danh mục");
-    const data: Product[] = await res.json();
-    return data.map(mapProduct);
+    if (!res.ok) throw new Error("Không tải được sản phẩm theo danh mục");
+    const data = await res.json();
+    return (data.items || data).map(mapProduct);
   },
 
-  // ✅ Lấy chi tiết 1 sản phẩm
+  /** 🔹 Lấy chi tiết 1 sản phẩm */
   async getById(id: string): Promise<Product | null> {
     const url = `${API_BASE}/Product/getbyid/${id}`;
     const res = await fetch(url);
     if (!res.ok) return null;
-    const data: Product = await res.json();
+    const data = await res.json();
     return mapProduct(data);
   },
 };

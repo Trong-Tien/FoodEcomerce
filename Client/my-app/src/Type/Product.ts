@@ -22,7 +22,13 @@ export type Product = {
   inventory: number;
   expiry: string;
   preserve: string;
-  unitCaculateId: string;
+   unitCaculate?: {
+    id: string;
+    name: string;
+  };
+
+  // ✅ Vẫn giữ cho các service khác (form thêm sản phẩm)
+  unitCaculateId?: string;
   images?: string; // ✅ có thể rỗng hoặc được map từ imageProducts
   tradeMarkId: string;
   placeProductId: string;
@@ -49,10 +55,14 @@ export type Product = {
 
 // ========== Giỏ hàng ==========
 export type CartItem = {
-  id: string;
-  name: string;
+  id: string; // Guid của item
+  cartId: string; // ✅ thêm
+  productId: string; // ✅ thêm
+  unitCaculateId?: string; // ✅ thêm (backend có)
   quantity: number;
   unitPrice: number;
-  discount: number;
-  images: string;
+  totalPrice: number; // ✅ thêm
+  discount?: number; // Có thể null
+  images?: string; // ảnh hiển thị (FE tự map)
+  name?: string; // tên hiển thị (FE tự map)
 };
