@@ -15,6 +15,7 @@
         public int UsageLimit   { get; set; }
         public int UsedCount { get; set; }
         public bool IsActive { get; set; }
+        public string ImageUrl { get; set; } = null!;
         public DateTime CreatedAt   { get; set; }
         public virtual ICollection<VoucherUser> VoucherUsers { get; set; } = new List<VoucherUser>();
         public virtual ICollection<Orders> Orders { get; set; } = new List<Orders>();

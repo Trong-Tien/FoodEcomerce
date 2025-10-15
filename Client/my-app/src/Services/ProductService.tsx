@@ -1,7 +1,7 @@
 // src/Services/ProductService.ts
 import type { Product } from "@/Type/Product";
 
-const API_BASE = "http://localhost:5292/api";
+const API_BASE = "https://localhost:7004/api";
 
 // ✅ Hàm chuẩn hóa đường dẫn ảnh (xử lý imageProducts & images)
 const mapProduct = (p: Product): Product => ({

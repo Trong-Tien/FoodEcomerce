@@ -18,6 +18,7 @@ import { Route as DangKyIndexRouteImport } from './routes/DangKy/index'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
 import { Route as CategoryCategoryRouteImport } from './routes/category/$category'
 import { Route as AdminDashboardRouteRouteImport } from './routes/admin/Dashboard/route'
+import { Route as AdminDashboardVoucherIndexRouteImport } from './routes/admin/Dashboard/Voucher/index'
 import { Route as AdminDashboardProductIndexRouteImport } from './routes/admin/Dashboard/Product/index'
 import { Route as AdminDashboardPannerIndexRouteImport } from './routes/admin/Dashboard/Panner/index'
 import { Route as AdminDashboardNguoiDungIndexRouteImport } from './routes/admin/Dashboard/NguoiDung/index'
@@ -71,6 +72,12 @@ const AdminDashboardRouteRoute = AdminDashboardRouteRouteImport.update({
   path: '/admin/Dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminDashboardVoucherIndexRoute =
+  AdminDashboardVoucherIndexRouteImport.update({
+    id: '/Voucher/',
+    path: '/Voucher/',
+    getParentRoute: () => AdminDashboardRouteRoute,
+  } as any)
 const AdminDashboardProductIndexRoute =
   AdminDashboardProductIndexRouteImport.update({
     id: '/Product/',
@@ -130,6 +137,7 @@ export interface FileRoutesByFullPath {
   '/admin/Dashboard/NguoiDung': typeof AdminDashboardNguoiDungIndexRoute
   '/admin/Dashboard/Panner': typeof AdminDashboardPannerIndexRoute
   '/admin/Dashboard/Product': typeof AdminDashboardProductIndexRoute
+  '/admin/Dashboard/Voucher': typeof AdminDashboardVoucherIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -148,6 +156,7 @@ export interface FileRoutesByTo {
   '/admin/Dashboard/NguoiDung': typeof AdminDashboardNguoiDungIndexRoute
   '/admin/Dashboard/Panner': typeof AdminDashboardPannerIndexRoute
   '/admin/Dashboard/Product': typeof AdminDashboardProductIndexRoute
+  '/admin/Dashboard/Voucher': typeof AdminDashboardVoucherIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -167,6 +176,7 @@ export interface FileRoutesById {
   '/admin/Dashboard/NguoiDung/': typeof AdminDashboardNguoiDungIndexRoute
   '/admin/Dashboard/Panner/': typeof AdminDashboardPannerIndexRoute
   '/admin/Dashboard/Product/': typeof AdminDashboardProductIndexRoute
+  '/admin/Dashboard/Voucher/': typeof AdminDashboardVoucherIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -187,6 +197,7 @@ export interface FileRouteTypes {
     | '/admin/Dashboard/NguoiDung'
     | '/admin/Dashboard/Panner'
     | '/admin/Dashboard/Product'
+    | '/admin/Dashboard/Voucher'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -205,6 +216,7 @@ export interface FileRouteTypes {
     | '/admin/Dashboard/NguoiDung'
     | '/admin/Dashboard/Panner'
     | '/admin/Dashboard/Product'
+    | '/admin/Dashboard/Voucher'
   id:
     | '__root__'
     | '/'
@@ -223,6 +235,7 @@ export interface FileRouteTypes {
     | '/admin/Dashboard/NguoiDung/'
     | '/admin/Dashboard/Panner/'
     | '/admin/Dashboard/Product/'
+    | '/admin/Dashboard/Voucher/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -302,6 +315,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminDashboardRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/Dashboard/Voucher/': {
+      id: '/admin/Dashboard/Voucher/'
+      path: '/Voucher'
+      fullPath: '/admin/Dashboard/Voucher'
+      preLoaderRoute: typeof AdminDashboardVoucherIndexRouteImport
+      parentRoute: typeof AdminDashboardRouteRoute
+    }
     '/admin/Dashboard/Product/': {
       id: '/admin/Dashboard/Product/'
       path: '/Product'
@@ -362,6 +382,7 @@ interface AdminDashboardRouteRouteChildren {
   AdminDashboardNguoiDungIndexRoute: typeof AdminDashboardNguoiDungIndexRoute
   AdminDashboardPannerIndexRoute: typeof AdminDashboardPannerIndexRoute
   AdminDashboardProductIndexRoute: typeof AdminDashboardProductIndexRoute
+  AdminDashboardVoucherIndexRoute: typeof AdminDashboardVoucherIndexRoute
 }
 
 const AdminDashboardRouteRouteChildren: AdminDashboardRouteRouteChildren = {
@@ -372,6 +393,7 @@ const AdminDashboardRouteRouteChildren: AdminDashboardRouteRouteChildren = {
   AdminDashboardNguoiDungIndexRoute: AdminDashboardNguoiDungIndexRoute,
   AdminDashboardPannerIndexRoute: AdminDashboardPannerIndexRoute,
   AdminDashboardProductIndexRoute: AdminDashboardProductIndexRoute,
+  AdminDashboardVoucherIndexRoute: AdminDashboardVoucherIndexRoute,
 }
 
 const AdminDashboardRouteRouteWithChildren =

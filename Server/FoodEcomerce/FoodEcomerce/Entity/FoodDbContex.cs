@@ -338,6 +338,7 @@ namespace FoodEcomerce.Entity
                 entity.Property(x => x.UsageLimit).HasColumnType("int");
                 entity.Property(x => x.UsedCount).HasColumnType("int");
                 entity.Property(x => x.IsActive).HasColumnType("bit");
+                entity.Property(x => x.ImageUrl).HasColumnType("nvarchar(max)");
                 entity.Property(x => x.CreatedAt).HasColumnType("Datetime");
             });
             modelBuilder.Entity<VoucherUser>(entity =>

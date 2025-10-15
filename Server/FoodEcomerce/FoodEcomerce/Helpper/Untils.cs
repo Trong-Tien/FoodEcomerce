@@ -149,7 +149,7 @@ namespace FoodEcomerce.Helpper
                         new Claim("UserName", username.ToString()),
                         new Claim("Role", role.ToString()),
                }),
-                Expires = DateTime.UtcNow.AddHours(1),
+                Expires = DateTime.UtcNow.AddMinutes(15),
                 SigningCredentials = new SigningCredentials
                    (new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };

@@ -1,6 +1,5 @@
 ﻿using FoodEcomerce.Abstract;
 using FoodEcomerce.Modal;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,21 +7,20 @@ namespace FoodEcomerce.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class MenuController : ControllerBase
+    public class VoucherController : ControllerBase
     {
         private readonly UnitOfWork _unitOfWork;
-
-        public MenuController(UnitOfWork unitOfWork)
+        public VoucherController(UnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
 
         [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAll(int pageNumber, int pagesize)
+        public async Task<IActionResult> GetAll(int pageNumber, int pageSize)
         {
             try
             {
-                var result = await _unitOfWork.MenuRepository.GetAll(pageNumber, pagesize);
+                var result = await _unitOfWork.VoucherRepository.GetAll(pageNumber, pageSize);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -31,11 +29,11 @@ namespace FoodEcomerce.Controllers
             }
         }
         [HttpGet("GetById")]
-        public async Task<IActionResult> GetById(Guid id)
+        public async Task<IActionResult> GetById(int id)
         {
             try
             {
-                var result = await _unitOfWork.MenuRepository.GetById(id);
+                var result = await _unitOfWork.VoucherRepository.GetById(id);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -43,25 +41,13 @@ namespace FoodEcomerce.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [HttpGet("GetByPermission/{roleId}")]
-        public async Task<IActionResult> GetByPermission(Guid roleId)
-        {
-            try
-            {
-                var result = await _unitOfWork.MenuRepository.GetMenuPermission(roleId);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
+
         [HttpPost("Create")]
-        public async Task<IActionResult> Create(MenuModal modal)
+        public async Task<IActionResult> Create([FromForm] VoucherModal modal)
         {
             try
             {
-                var result = await _unitOfWork.MenuRepository.Create(modal);
+                var result = await _unitOfWork.VoucherRepository.Create(modal);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -70,11 +56,11 @@ namespace FoodEcomerce.Controllers
             }
         }
         [HttpPut("Update")]
-        public async Task<IActionResult> Update(MenuModal modal)
+        public async Task<IActionResult> Update([FromForm] VoucherModal modal)
         {
             try
             {
-                var result = await _unitOfWork.MenuRepository.Update(modal);
+                var result = await _unitOfWork.VoucherRepository.Update(modal);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -82,12 +68,12 @@ namespace FoodEcomerce.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [HttpDelete("Delete/{id}")]
-        public async Task<IActionResult> Delete(Guid id)
+        [HttpDelete("Delete")]
+        public async Task<IActionResult> Delete(int id)
         {
             try
             {
-                var result = await _unitOfWork.MenuRepository.Delete(id);
+                var result = await _unitOfWork.VoucherRepository.Delete(id);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -95,5 +81,6 @@ namespace FoodEcomerce.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
     }
 }

@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:5292/api/Auth";
+const API_BASE = "https://localhost:7004/api/Auth";
 
 export const AuthService = {
   // ==========================
