@@ -24,6 +24,10 @@ namespace FoodEcomerce.Helpper
                    ForMember(dest => dest.ImageUrl, opt => opt.
                    MapFrom(src => src.ImageUrl != null ? Helpper.Untils.UploadFileImage(src.ImageUrl, "Categorys")
                    : null));
+            CreateMap<VoucherModal, Voucher>().
+                  ForMember(dest => dest.ImageUrl, opt => opt.
+                  MapFrom(src => src.ImageUrl != null ? Helpper.Untils.UploadFileImage(src.ImageUrl, "Vouchers")
+                  : null));
             CreateMap<Category, CategoryDTO>().ReverseMap();
             CreateMap<RegisterModal, User>();
             CreateMap<UnitCaculate, UnitCaculateModal>();
@@ -37,6 +41,11 @@ namespace FoodEcomerce.Helpper
             CreateMap<PlaceProduct, PlaceOfProductDTO>().ReverseMap();
             CreateMap<ProductCategory, ProductCategoryDTO>().ReverseMap();
             CreateMap<ImageProduct, ImageProductDTO>().ReverseMap();
+
+            CreateMap<CartItemModa, CartItem>().ReverseMap();
+            CreateMap<CartItem, CartItemDTO>().ReverseMap();
+
+
         }
     }
 }

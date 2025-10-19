@@ -1,9 +1,7 @@
 const API_BASE = "https://localhost:7004/api/Auth";
 
 export const AuthService = {
-  // ==========================
-  // 👉 Đăng ký tài khoản
-  // ==========================
+
   async register(payload: {
     userName: string;
     email: string;
@@ -42,7 +40,7 @@ export const AuthService = {
   },
 
   // ==========================
-  // 👉 Đăng nhập
+  // 👉 Đăng nhập (có cartId)
   // ==========================
   async login(payload: { phoneNumber: string; password: string }) {
     const res = await fetch(`${API_BASE}/Login`, {
@@ -57,17 +55,20 @@ export const AuthService = {
       throw new Error(data?.message || "Sai tài khoản hoặc mật khẩu");
     }
 
-    // ✅ Lưu token và thông tin user
+    // ✅ Lưu thông tin user và token, bao gồm cartId (nếu backend có trả)
     const userData = {
       id: data.id,
       name: data.userName,
       email: data.email,
       phoneNumber: data.phoneNumber,
       roleId: data.roleId,
+      cartId: data.cartId ?? null, // 🔹 lấy thêm cột cartId
     };
 
     localStorage.setItem("access_token", data.accessToken);
     localStorage.setItem("user", JSON.stringify(userData));
+
+    console.log("✅ User login success:", userData);
 
     return { token: data.accessToken, user: userData };
   },
@@ -87,6 +88,9 @@ export const AuthService = {
     return !!localStorage.getItem("access_token");
   },
 
+  // ==========================
+  // 👉 Gửi OTP
+  // ==========================
   async sendOtp(email: string) {
     const res = await fetch(
       `${API_BASE}/send-otp?email=${encodeURIComponent(email)}`,

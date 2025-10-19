@@ -56,11 +56,11 @@ namespace FoodEcomerce.Controllers
             }
         }
         [HttpPut("Update")]
-        public async Task<IActionResult> Update([FromForm] VoucherModal modal)
+        public async Task<IActionResult> Update([FromForm] UpdateVoucherModal modal)
         {
             try
             {
-                var result = await _unitOfWork.VoucherRepository.Update(modal);
+                var result = await _unitOfWork.VoucherRepository.UpdateWithQuery(modal);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -68,7 +68,7 @@ namespace FoodEcomerce.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [HttpDelete("Delete")]
+        [HttpDelete("Delete/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             try

@@ -1,9 +1,10 @@
 export type Voucher= {
+    id :number,
     code : string,
     name : string ,
     description : string,
     discountType : string,
-    discountValue : string,
+    discountValue : number,
     minOrderAmount : number,
     maxDiscountAmount : number,
     startDate : Date,

@@ -6,6 +6,6 @@ namespace FoodEcomerce.Reposiroty.Vouchers
 {
     public interface IVoucherRepository : IBaseRepository<Voucher, VoucherModal, VoucherDTO , int>
     {
-
+        Task<ResultModal> UpdateWithQuery(UpdateVoucherModal modal);
     }
 }

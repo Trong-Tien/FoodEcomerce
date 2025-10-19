@@ -181,7 +181,6 @@ return (
             />
           </Grid>
 
-          {/* ========== CHI TIẾT SẢN PHẨM ========== */}
           <Grid size={12} mt={2}>
             <Typography variant="subtitle1" fontWeight="bold">Chi tiết sản phẩm</Typography>
             <Divider sx={{ mb: 2 }} />

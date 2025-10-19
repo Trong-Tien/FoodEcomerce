@@ -47,7 +47,6 @@ const ModalAdd: React.FC<props> = ({
       imageUrl: data.imageUrl,
       name: data.name,
     };
-    console.log(tempData)
     const response: ResponseType = await createPanner.mutateAsync(tempData);
     if (response?.status === 200) {
       Swal.fire({

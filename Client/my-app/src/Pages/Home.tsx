@@ -68,7 +68,7 @@ export default function Home() {
     setLoading(true);
     Promise.all([
       productService.getAll(),
-      productService.getByCategory("4693d14a-b0fa-4a71-8693-bd3ea4322cd3"), // 🌿 danh mục Rau củ nấm
+      productService.getByCategory("4693d14a-b0fa-4a71-8693-bd3ea4322cd3"),
       blogService.getBlogs(),
       brandService.getBrands(),
     ])
@@ -136,7 +136,6 @@ export default function Home() {
             showTitle={false}
           />
 
-          {/* 🥬 Rau củ nấm (lọc theo CategoryId) */}
           {/* 🥬 Rau củ nấm */}
           <ProductGroup
             title="Rau, củ, nấm"

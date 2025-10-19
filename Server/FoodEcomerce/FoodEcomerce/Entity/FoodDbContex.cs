@@ -323,12 +323,12 @@ namespace FoodEcomerce.Entity
 
             modelBuilder.Entity<Voucher>(entity =>
             {
-                entity.HasKey(x => x.VoucherId).HasName("PK_VoucherId");
+                entity.HasKey(x => x.Id).HasName("PK_VoucherId");
                 entity.ToTable("Voucher");
-                entity.Property(x => x.VoucherId).ValueGeneratedOnAdd();
+                entity.Property(x => x.Id).ValueGeneratedOnAdd();
                 entity.Property(x => x.Code).HasMaxLength(50);
-                entity.Property(x => x.Name).HasMaxLength(50);
-                entity.Property(x => x.Description).HasMaxLength(300);
+                entity.Property(x => x.Name).HasColumnType("nvarchar(max)");
+                entity.Property(x => x.Description).HasColumnType("nvarchar(max)");
                 entity.Property(x => x.DiscountType).HasMaxLength(50);
                 entity.Property(x => x.DiscountValue).HasColumnType("DECIMAL(18,2)");
                 entity.Property(x => x.MinOrderAmount).HasColumnType("DECIMAL(18,2)");
