@@ -17,5 +17,6 @@
         public Cart? Cart { get; set; } 
         public ICollection<Orders>? Orders { get; set; } = new List<Orders>();
         public ICollection<VoucherUser>? VoucherUser { get; set; } = new List<VoucherUser>();
+        public ICollection<ProductReview>? ProductReviews { get; set; } = new List<ProductReview>();
     }
 }
