@@ -3,6 +3,7 @@ import { FaSearch, FaShoppingCart, FaUser } from "react-icons/fa";
 import CategorySidebar from "./CategorySidebar";
 import { useNavigate, useLocation } from "@tanstack/react-router";
 import LocationModal from "../Common/LocationModal";
+import AccountSidebar from "../Common/AccountSidebar"; // ✅ Thêm mới
 import logo from "@/assets/img/logo.jpg";
 import { isAuthenticated, isTokenExpired } from "@/Until/Authcheck";
 import { useCart } from "@/Context/CartContext"; // ✅ Context giỏ hàng
@@ -11,7 +12,9 @@ function Header() {
   const [showSidebar, setShowSidebar] = useState(false);
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [locationInput, setLocationInput] = useState<string>("");
-  const [user, setUser] = useState<{ name?: string } | null>(null);
+  const [user, setUser] = useState<{ name?: string; email?: string } | null>(null);
+
+  const [openAccount, setOpenAccount] = useState(false); // ✅ Sidebar tài khoản
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -55,6 +58,7 @@ function Header() {
     localStorage.removeItem("user");
     clear(); // ✅ xóa giỏ hàng khi đăng xuất
     setUser(null);
+    setOpenAccount(false); // ✅ Đóng sidebar
     navigate({ to: "/Dangnhap" });
   };
 
@@ -130,9 +134,7 @@ function Header() {
                hover:shadow-sm transition"
           >
             {locationInput ? (
-              <span className="text-sm text-gray-700 truncate">
-                {locationInput}
-              </span>
+              <span className="text-sm text-gray-700 truncate">{locationInput}</span>
             ) : (
               <div className="flex items-center gap-2">
                 <img
@@ -140,9 +142,7 @@ function Header() {
                   src="https://cdnv2.tgdd.vn/bhx/product-fe/cart/home/_next/public/static/images/unselect-location.svg"
                   className="h-5 w-5 object-contain"
                 />
-                <span className="text-sm text-gray-600">
-                  Chọn vị trí nhận hàng
-                </span>
+                <span className="text-sm text-gray-600">Chọn vị trí nhận hàng</span>
               </div>
             )}
           </div>
@@ -150,18 +150,15 @@ function Header() {
           {/* Hiển thị user */}
           <div className="flex">
             {user ? (
-              <div className="mt-2 mr-[16px] flex items-center gap-3 bg-white px-3 py-1.5 rounded-md shadow-sm">
+              <button
+                onClick={() => setOpenAccount(true)}
+                className="mt-2 mr-[16px] flex items-center gap-2 bg-white px-3 py-1.5 rounded-md shadow-sm hover:shadow-md transition"
+              >
                 <FaUser className="text-[#4CAF50]" />
                 <span className="text-sm font-semibold text-gray-700">
                   {user.name || "Người dùng"}
                 </span>
-                <button
-                  onClick={handleLogout}
-                  className="text-xs text-red-500 hover:underline"
-                >
-                  Đăng xuất
-                </button>
-              </div>
+              </button>
             ) : (
               <a
                 className="mt-2 mr-[16px] flex w-fit cursor-pointer items-center rounded-md bg-[#4CAF50] px-2 py-1 text-sm text-white"
@@ -174,16 +171,20 @@ function Header() {
         </div>
       </div>
 
+      {/* ✅ Sidebar tài khoản giống Bách Hóa Xanh */}
+      <AccountSidebar
+        open={openAccount}
+        onClose={() => setOpenAccount(false)}
+        user={user || undefined}
+        onLogout={handleLogout}
+      />
+
       {/* Modal nhập vị trí */}
       {showLocationModal && (
         <LocationModal
           onClose={() => setShowLocationModal(false)}
           onConfirm={(address) => {
-            const parts = [
-              address.addressDetail,
-              address.ward,
-              address.province,
-            ].filter(Boolean);
+            const parts = [address.addressDetail, address.ward, address.province].filter(Boolean);
             setLocationInput(parts.join(", "));
             setShowLocationModal(false);
           }}
