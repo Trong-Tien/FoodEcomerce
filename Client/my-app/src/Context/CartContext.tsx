@@ -53,7 +53,7 @@ const grouped = Object.values(
 
 setItems(grouped);
 localStorage.setItem("cart_items_cache", JSON.stringify(grouped));
-
+  
     } catch (err) {
       console.error("❌ Lỗi khi tải giỏ hàng:", err);
       setItems([]);
@@ -134,14 +134,27 @@ localStorage.setItem("cart_items_cache", JSON.stringify(grouped));
   /* ============================================================
      🔹 Xoá toàn bộ giỏ
   ============================================================ */
-  const clear = async () => {
-    try {
-      setItems([]);
-      localStorage.removeItem("cart_items_cache");
-    } catch (error) {
-      console.error("❌ Lỗi khi xoá toàn bộ giỏ hàng:", error);
+  /* ============================================================
+   🔹 Xoá toàn bộ giỏ hàng sau khi thanh toán
+============================================================ */
+const clear = async () => {
+  try {
+    // ✅ Xoá cache cục bộ ngay
+    setItems([]);
+    localStorage.removeItem("cart_items_cache");
+
+    // ✅ Xoá luôn giỏ hàng thật trên server
+    const data = await CartItemService.getByCartId();
+    for (const item of data) {
+      await CartItemService.delete(item.id);
     }
-  };
+
+    console.log("🧹 Giỏ hàng đã được xoá hoàn toàn (FE + BE)");
+  } catch (error) {
+    console.error("❌ Lỗi khi xoá toàn bộ giỏ hàng:", error);
+  }
+};
+
 
   /* ============================================================
      🔹 Tính tổng tiền, tổng SL và phí giao hàng
