@@ -72,7 +72,7 @@ namespace FoodEcomerce.Abstract
         public IVoucherRepository VoucherRepository
        => _voucherRepository ??= new VoucherRepository(_dbContext, _mapper);
         public IVoucherUserRepository VoucherUserRepository
-     => _voucherUserRepository ??= new VoucherUserRepository(_dbContext, _mapper);
+     => _voucherUserRepository ??= new VoucherUserRepository(_dbContext, _mapper , _storeDbcontext);
 
         public bool Save()
         {

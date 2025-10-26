@@ -5,7 +5,7 @@ import Swal from "sweetalert2";
 import type { Voucher } from "@/Type/Voucher";
 
 export default function VoucherPage() {
-  const API_BASE = "http://localhost:5292";
+  const API_BASE = "https://localhost:7004";
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -35,11 +35,10 @@ export default function VoucherPage() {
   const handleClaimVoucher = async (voucherId: number) => {
   try {
     const body = {
-      id: 0, // ✅ int
       voucherId: voucherId, // ✅ int
-      userId: userId, // ✅ GUID string
+      userId: userId, 
       isUsed: false,
-      usedAt: new Date().toISOString(),
+      usedAt: null,
     };
 
     const res = await fetch(`${API_BASE}/api/VoucherUser/Create`, {

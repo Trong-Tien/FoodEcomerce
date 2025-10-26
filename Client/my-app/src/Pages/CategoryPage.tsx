@@ -30,7 +30,7 @@ export default function CategoryPage() {
   const [hasMore, setHasMore] = useState(true);
   const [pageSize] = useState(10);
 
-  const API_BASE = "http://localhost:5292";
+  const API_BASE = "https://localhost:7004";
 
   // ✅ Flatten danh mục
   const flattenCategories = (categories: Category[]): Category[] => {

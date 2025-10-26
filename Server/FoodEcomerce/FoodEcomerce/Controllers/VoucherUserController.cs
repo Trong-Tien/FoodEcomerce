@@ -32,7 +32,7 @@ namespace FoodEcomerce.Controllers
         {
             try
             {
-                var result = await _unitOfWork.VoucherRepository.GetById(id);
+                var result = await _unitOfWork.VoucherUserRepository.GetById(id);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -41,12 +41,27 @@ namespace FoodEcomerce.Controllers
             }
         }
 
-        [HttpPost("Create")]
-        public async Task<IActionResult> Create([FromForm] VoucherUserModal modal)
+        [HttpGet("GetByuserId/{userId}")]
+        public async Task<IActionResult> GetById(Guid userId)
         {
             try
             {
-                var result = await _unitOfWork.VoucherUserRepository.Create(modal);
+                var result = await _unitOfWork.VoucherUserRepository.GetVoucherByUserId(userId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        [HttpPost("Create")]
+        public async Task<IActionResult> Create(VoucherUserModal modal)
+        {
+            try
+            {
+                var result = await _unitOfWork.VoucherUserRepository.CreateWithQuery(modal);
                 return Ok(result);
             }
             catch (Exception ex)

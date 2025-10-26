@@ -34,7 +34,7 @@ function RouteComponent() {
   const [openModalUpdate, setOpenModalUpdate] = useState(false);
   const [selectedRow, setSelectedRow] = useState<UpdateCategory | undefined>();
 
-  const { data, isError: isLoadingMenuError } = useGetCategory(1, 10);
+  const { data, isError: isLoadingMenuError } = useGetCategory(1, 25);
   const dataCategory: Category[] = data ?? [];
   const deleteCategory = useDeleteCategory()
 
