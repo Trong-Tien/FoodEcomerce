@@ -26,17 +26,13 @@ export default function CategoryPage() {
   const [subCategories, setSubCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-
-  // ✅ Phân trang “xem thêm”
   const [pageNumber, setPageNumber] = useState(1);
-  const [pageSize] = useState(10);
   const [hasMore, setHasMore] = useState(true);
+  const [pageSize] = useState(10);
 
   const API_BASE = "http://localhost:5292";
 
-  /* ==========================================================
-     🔹 Flatten danh mục
-  ========================================================== */
+  // ✅ Flatten danh mục
   const flattenCategories = (categories: Category[]): Category[] => {
     const result: Category[] = [];
     const traverse = (cats: Category[]) => {
@@ -48,18 +44,14 @@ export default function CategoryPage() {
           imageUrl: c.imageUrl,
           categoryParentId: c.categoryParentId,
         });
-        if (Array.isArray(c.categorys) && c.categorys.length > 0) {
-          traverse(c.categorys);
-        }
+        if (Array.isArray(c.categorys) && c.categorys.length > 0) traverse(c.categorys);
       }
     };
     traverse(categories);
     return result;
   };
 
-  /* ==========================================================
-     🔹 Lấy danh mục
-  ========================================================== */
+  // ✅ Load tất cả danh mục
   useEffect(() => {
     fetch(`${API_BASE}/api/Category/GetAll`)
       .then((res) => res.json())
@@ -67,9 +59,7 @@ export default function CategoryPage() {
       .catch(() => setAllCategories([]));
   }, []);
 
-  /* ==========================================================
-     🔹 Lấy thông tin danh mục hiện tại
-  ========================================================== */
+  // ✅ Lấy thông tin danh mục hiện tại
   useEffect(() => {
     if (!category) return;
     fetch(`${API_BASE}/api/Category/GetById?id=${category}`)
@@ -78,9 +68,7 @@ export default function CategoryPage() {
       .catch(() => setCategoryInfo(null));
   }, [category]);
 
-  /* ==========================================================
-     🔹 Lọc danh mục con đúng cấp
-  ========================================================== */
+  // ✅ Lọc danh mục con cùng cấp
   useEffect(() => {
     if (!categoryInfo || allCategories.length === 0) return;
 
@@ -91,9 +79,7 @@ export default function CategoryPage() {
     let filtered: Category[] = [];
 
     if (isRoot) {
-      filtered = allCategories.filter(
-        (c) => c.categoryParentId === categoryInfo.id
-      );
+      filtered = allCategories.filter((c) => c.categoryParentId === categoryInfo.id);
     } else {
       filtered = allCategories.filter(
         (c) => c.categoryParentId === categoryInfo.categoryParentId
@@ -111,9 +97,7 @@ export default function CategoryPage() {
     setSubCategories(filtered);
   }, [categoryInfo, allCategories]);
 
-  /* ==========================================================
-     🔹 Lấy sản phẩm (theo trang)
-  ========================================================== */
+  // ✅ Lấy sản phẩm
   const loadProducts = async (page: number, append = false) => {
     if (!category) return;
 
@@ -121,7 +105,6 @@ export default function CategoryPage() {
     else setLoading(true);
 
     try {
-      // ✅ productService trả về mảng Product[], không có .items
       const res = await productService.getByCategory(category, page, pageSize);
       const items: Product[] = Array.isArray(res) ? res : [];
 
@@ -148,18 +131,10 @@ export default function CategoryPage() {
             : "/no-image.png",
       }));
 
-      if (append) {
-        setProducts((prev) => [...prev, ...fixed]);
-      } else {
-        setProducts(fixed);
-      }
+      if (append) setProducts((prev) => [...prev, ...fixed]);
+      else setProducts(fixed);
 
-      // ✅ Kiểm tra còn sản phẩm để “Xem thêm” không
-      if (items.length < pageSize) {
-        setHasMore(false);
-      } else {
-        setHasMore(true);
-      }
+      setHasMore(items.length >= pageSize);
     } catch (err) {
       console.error("❌ Lỗi tải sản phẩm:", err);
     } finally {
@@ -168,7 +143,6 @@ export default function CategoryPage() {
     }
   };
 
-  // ✅ Gọi khi thay danh mục
   useEffect(() => {
     setProducts([]);
     setPageNumber(1);
@@ -176,9 +150,6 @@ export default function CategoryPage() {
     loadProducts(1, false);
   }, [category]);
 
-  /* ==========================================================
-     🔹 Xử lý nút “Xem thêm”
-  ========================================================== */
   const handleLoadMore = () => {
     const nextPage = pageNumber + 1;
     setPageNumber(nextPage);
@@ -186,14 +157,14 @@ export default function CategoryPage() {
   };
 
   /* ==========================================================
-     🔹 Giao diện
+     🔹 GIAO DIỆN (đồng bộ với ProductDetail)
   ========================================================== */
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-gray-100 min-h-screen">
       <Header />
 
-      {/* ✅ Breadcrumb */}
-      <div className="pt-[130px] max-w-7xl mx-auto px-4">
+      <div className="pt-[122px] max-w-7xl mx-auto px-3 relative">
+        {/* Breadcrumb */}
         <div className="text-sm text-gray-600 mb-3 flex flex-wrap items-center gap-1">
           <span
             onClick={() => navigate({ to: "/" })}
@@ -206,67 +177,64 @@ export default function CategoryPage() {
             {categoryInfo?.name || "Danh mục"}
           </span>
         </div>
-      </div>
 
-      {/* ✅ Menu ngang danh mục con */}
-      {subCategories.length > 0 && (
-        <SubCategoryMenu
-          subCategories={subCategories.map((c) => ({
-            id: c.id,
-            name: c.name,
-            icon: c.imageUrl
-              ? `${API_BASE}/api/File/image?path=${encodeURIComponent(
-                  c.imageUrl
-                )}`
-              : undefined,
-          }))}
-          activeId={category}
-        />
-      )}
-
-      {/* ✅ Danh sách sản phẩm */}
-      <main className="max-w-7xl mx-auto px-3 py-6 space-y-6">
-        <h1 className="text-2xl font-bold capitalize border-b pb-2 text-green-700">
-          {categoryInfo?.name || "Danh mục sản phẩm"}
-        </h1>
-
-        {loading ? (
-          <p className="text-gray-500 italic text-center">Đang tải sản phẩm...</p>
-        ) : products.length > 0 ? (
-          <>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {products.map((p) => (
-                <ProductCard key={p.id} p={p} />
-              ))}
-            </div>
-
-            {/* ✅ Nút “Xem thêm sản phẩm” */}
-            {hasMore && (
-              <div className="flex justify-center mt-8">
-                <button
-                  onClick={handleLoadMore}
-                  disabled={loadingMore}
-                  className="bg-green-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-green-700 shadow transition-all disabled:opacity-60"
-                >
-                  {loadingMore ? "Đang tải thêm..." : "Xem thêm sản phẩm"}
-                </button>
-              </div>
-            )}
-
-            {!hasMore && (
-              <p className="text-center text-gray-500 mt-4">
-                🎉 Bạn đã xem hết tất cả sản phẩm trong danh mục này!
-              </p>
-            )}
-          </>
-        ) : (
-          <p className="text-gray-500 text-center">
-            Không có sản phẩm nào trong danh mục này.
-          </p>
+        {/* Subcategory Menu */}
+        {subCategories.length > 0 && (
+          <SubCategoryMenu
+            subCategories={subCategories.map((c) => ({
+              id: c.id,
+              name: c.name,
+              icon: c.imageUrl
+                ? `${API_BASE}/api/File/image?path=${encodeURIComponent(c.imageUrl)}`
+                : undefined,
+            }))}
+            activeId={category}
+          />
         )}
-      </main>
 
-      <Footer />
+        {/* Main product list card */}
+        <div className="bg-white rounded-2xl shadow-md p-6 mt-5">
+          <h1 className="text-2xl font-bold text-green-700 border-b pb-2 mb-5">
+            {categoryInfo?.name || "Danh mục sản phẩm"}
+          </h1>
+
+          {loading ? (
+            <p className="text-gray-500 italic text-center py-10">
+              Đang tải sản phẩm...
+            </p>
+          ) : products.length > 0 ? (
+            <>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                {products.map((p) => (
+                  <ProductCard key={p.id} p={p} />
+                ))}
+              </div>
+
+              {hasMore ? (
+                <div className="flex justify-center mt-8">
+                  <button
+                    onClick={handleLoadMore}
+                    disabled={loadingMore}
+                    className="bg-green-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-green-700 shadow transition-all disabled:opacity-60"
+                  >
+                    {loadingMore ? "Đang tải thêm..." : "Xem thêm sản phẩm"}
+                  </button>
+                </div>
+              ) : (
+                <p className="text-center text-gray-500 mt-4">
+                  🎉 Bạn đã xem hết tất cả sản phẩm trong danh mục này!
+                </p>
+              )}
+            </>
+          ) : (
+            <p className="text-gray-500 text-center">
+              Không có sản phẩm nào trong danh mục này.
+            </p>
+          )}
+        </div>
+
+        <Footer />
+      </div>
     </div>
   );
 }

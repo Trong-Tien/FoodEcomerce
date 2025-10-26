@@ -27,6 +27,7 @@
         public ICollection<ImageProduct> ImageProducts { get; set; } = new List<ImageProduct>();
         public ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
         public ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();   
+        public ICollection<ProductReview> productReviews { get; set; } = new List<ProductReview>(); 
 
     }
 }

@@ -15,7 +15,7 @@ import { useAuth } from "@/Hooks/useAuth"; // thêm import ở đầu file
 // 👇 import Route từ file route
 import { Route as ProductRoute } from "@/routes/product.$id";
 
-const { isLoggedIn } = useAuth(); // thêm dòng này bên trên useCart()
+ // thêm dòng này bên trên useCart()
 
 const DetailProduct: React.FC = () => {
   const { id } = ProductRoute.useParams();
@@ -26,6 +26,7 @@ const DetailProduct: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"info" | "desc">("info");
   const leftRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const { isLoggedIn } = useAuth();
   const { add } = useCart();
 
   useEffect(() => {

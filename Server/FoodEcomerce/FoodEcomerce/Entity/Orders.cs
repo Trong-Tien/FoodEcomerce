@@ -12,10 +12,11 @@
         public Guid UserId { get; set; }
         public int PaymentMenthodId { get; set; }
         public int StatusOrdersId { get; set; }
-
+        public int VoucherId { get; set; }
         public User? User { get; set; }
         public PaymentMenthod? PaymentMenthod { get; set; }
         public StatusOrders? StatusOrders { get; set; }  
+        public Voucher? Voucher { get; set; }   
         public ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();   
     }
 }

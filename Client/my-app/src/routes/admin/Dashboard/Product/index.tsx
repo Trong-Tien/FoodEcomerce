@@ -17,6 +17,7 @@ import {
   MaterialReactTable,
   useMaterialReactTable,
   type MRT_ColumnDef,
+  type MRT_PaginationState,
 } from "material-react-table";
 import type { Product } from "@/Type/Product";
 import ImageIcon from "@mui/icons-material/Image";
@@ -33,7 +34,12 @@ export const Route = createFileRoute("/admin/Dashboard/Product/")({
 });
 
 function RouteComponent() {
-  const { data, isError: isLoadingMenuError ,refetch } = useGetProduct(1, 10);
+ const [pagination, setPagination] = useState<MRT_PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+  console.log(pagination)
+  const { data, isError: isLoadingMenuError ,refetch , isFetching } = useGetProduct(1, 25);
   const deleteProduct = useDeleteProduct()
   const dataProduct: Product[] = data ?? []
   const [openModal, setOpenModal] = useState(false);
@@ -186,7 +192,13 @@ function RouteComponent() {
     editDisplayMode: "modal",
     paginationDisplayMode: "pages",
     positionToolbarAlertBanner: "bottom",
+    manualPagination: true,
     //enableRowOrdering: true,
+     state: {
+      pagination,
+      isLoading: isFetching,
+    },
+    onPaginationChange : setPagination,
     enableEditing: true,
 
     muiToolbarAlertBannerProps: isLoadingMenuError
@@ -244,7 +256,9 @@ function RouteComponent() {
 
   return (
     <Card elevation={3} sx={{ p: 2 }}>
-      <MaterialReactTable table={table} />
+      <MaterialReactTable table={table} 
+        
+      />
       <ModalThem openModal={openModal} handleClose={handleCloseModal} />
       <ModalXemHinhAnh openModal={modalXemHinhAnh} handleClose={handleCloseModalXemHinhAnh} productId={productId} />
       <ModalSua handleClose={handleCloseModalUpdate} openModal={openModalUpdate} initialValues={selectedRow} />

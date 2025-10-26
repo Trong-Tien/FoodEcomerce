@@ -2,12 +2,14 @@
 using FoodEcomerce.Abstract;
 using FoodEcomerce.DTO;
 using FoodEcomerce.Modal;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FoodEcomerce.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    //[Authorize]
     public class UserController : ControllerBase
     {
         private readonly UnitOfWork _unitOfWork;
@@ -59,7 +61,7 @@ namespace FoodEcomerce.Controllers
             }
         }
         [HttpGet("GetById")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetById(Guid id)
         {
             try
             {

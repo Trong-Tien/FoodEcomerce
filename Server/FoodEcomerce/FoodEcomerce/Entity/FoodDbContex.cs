@@ -19,10 +19,14 @@ namespace FoodEcomerce.Entity
         public virtual DbSet<Category> Categories { get; set; }
         public virtual DbSet<UnitCaculate> UnitCaculates { get; set; }
         public virtual DbSet<PlaceProduct> PlaceProducts { get; set; }
-
         public virtual DbSet<ImageProduct> ImageProducts { get; set; }
         public virtual DbSet<Cart> Carts { get; set; }
         public virtual DbSet<CartItem> CartItems { get; set; }
+        public virtual DbSet<Voucher> Voucher { get; set; }
+        public virtual DbSet<VoucherUser> VoucherUser { get; set; }
+        public virtual DbSet<ProductReview> ProductReviews { get; set; }    
+        public virtual DbSet<ProductReviewImage> ProductReviewImages { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -275,6 +279,11 @@ namespace FoodEcomerce.Entity
                    .HasForeignKey(x => x.StatusOrdersId)
                    .HasConstraintName("FK_Orders_StatusOrders")
                    .OnDelete(DeleteBehavior.ClientSetNull);
+                entity.HasOne(x => x.Voucher)
+                  .WithMany(x => x.Orders)
+                  .HasForeignKey(x => x.VoucherId)
+                  .HasConstraintName("FK_Orders_Voucher")
+                  .OnDelete(DeleteBehavior.ClientSetNull);
             });
             modelBuilder.Entity<OrderDetail>(entity =>
             {
@@ -311,6 +320,77 @@ namespace FoodEcomerce.Entity
                 entity.Property(x => x.Expiry).HasColumnType("datetime");
             });
 
+            modelBuilder.Entity<Voucher>(entity =>
+            {
+                entity.HasKey(x => x.Id).HasName("PK_VoucherId");
+                entity.ToTable("Voucher");
+                entity.Property(x => x.Id).ValueGeneratedOnAdd();
+                entity.Property(x => x.Code).HasMaxLength(50);
+                entity.Property(x => x.Name).HasColumnType("nvarchar(max)");
+                entity.Property(x => x.Description).HasColumnType("nvarchar(max)");
+                entity.Property(x => x.DiscountType).HasMaxLength(50);
+                entity.Property(x => x.DiscountValue).HasColumnType("DECIMAL(18,2)");
+                entity.Property(x => x.MinOrderAmount).HasColumnType("DECIMAL(18,2)");
+                entity.Property(x => x.MaxDiscountAmount).HasColumnType("DECIMAL(18,2)");
+                entity.Property(x => x.StartDate).HasColumnType("Datetime");
+                entity.Property(x => x.EndTime).HasColumnType("Datetime");
+                entity.Property(x => x.UsageLimit).HasColumnType("int");
+                entity.Property(x => x.UsedCount).HasColumnType("int");
+                entity.Property(x => x.IsActive).HasColumnType("bit");
+                entity.Property(x => x.ImageUrl).HasColumnType("nvarchar(max)");
+                entity.Property(x => x.CreatedAt).HasColumnType("Datetime");
+            });
+            modelBuilder.Entity<VoucherUser>(entity =>
+            {
+                entity.HasKey(x => x.Id).HasName("PK_VoucherUserId");
+                entity.ToTable("VoucherUser");
+                entity.Property(x => x.VoucherId).ValueGeneratedOnAdd();
+                entity.Property(x => x.UsedAt).HasColumnType("Datetime");
+                entity.HasOne(x => x.Voucher)
+                   .WithMany(x => x.VoucherUsers)
+                   .HasForeignKey(x => x.VoucherId)
+                   .HasConstraintName("FK_Voucher_VoucherUsers")
+                   .OnDelete(DeleteBehavior.ClientSetNull);
+                entity.HasOne(x => x.User)
+                   .WithMany(x => x.VoucherUser)
+                   .HasForeignKey(x => x.UserId)
+                   .HasConstraintName("FK_User_VoucherUsers")
+                   .OnDelete(DeleteBehavior.ClientSetNull);
+            });
+            modelBuilder.Entity<ProductReview>(entity =>
+            {
+                entity.HasKey(x => x.Id).HasName("PK_ProductReviewId");
+                entity.ToTable("ProductReview");
+                entity.Property(x => x.Id).ValueGeneratedOnAdd();
+                entity.Property(x => x.Rating).HasColumnType("tinyint");
+                entity.Property(x => x.Comment).HasMaxLength(300);
+                entity.Property(x => x.CreatedAt).HasColumnType("Datetime");
+                entity.Property(x => x.UpdatedAt).HasColumnType("Datetime");
+                entity.HasOne(x => x.Product)
+                  .WithMany(x => x.productReviews)
+                  .HasForeignKey(x => x.ProductId)
+                  .HasConstraintName("FK_ProductReview_Product")
+                  .OnDelete(DeleteBehavior.ClientSetNull);
+                entity.HasOne(x => x.User)
+                 .WithMany(x => x.ProductReviews)
+                 .HasForeignKey(x => x.UserId)
+                 .HasConstraintName("FK_ProductReview_User")
+                 .OnDelete(DeleteBehavior.ClientSetNull);
+            });
+            modelBuilder.Entity<ProductReviewImage>(entity =>
+            {
+                entity.HasKey(x => x.Id).HasName("PK_ProductReviewImage");
+                entity.ToTable("ProductReviewImage");
+                entity.Property(x => x.Id).ValueGeneratedOnAdd();
+                entity.Property(x => x.ImageUrl).HasMaxLength(300);
+                entity.Property(x => x.CreatedAt).HasColumnType("Datetime");
+                entity.Property(x => x.UpdatedAt).HasColumnType("Datetime");
+                entity.HasOne(x => x.ProductReview)
+                  .WithMany(x => x.ProductReviewImages)
+                  .HasForeignKey(x => x.ProductReviewId)
+                  .HasConstraintName("FK_ProductReview_ProductReviewImage")
+                  .OnDelete(DeleteBehavior.ClientSetNull);
+            });
         }
     }
 }

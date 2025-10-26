@@ -1,10 +1,7 @@
-// src/Services/AuthService.ts
 const API_BASE = "http://localhost:5292/api/Auth";
 
 export const AuthService = {
-  // ==========================
-  // 👉 Đăng ký tài khoản
-  // ==========================
+
   async register(payload: {
     userName: string;
     email: string;
@@ -46,35 +43,39 @@ export const AuthService = {
   // 👉 Đăng nhập (có cartId)
   // ==========================
   async login(payload: { phoneNumber: string; password: string }) {
-    const res = await fetch(`${API_BASE}/Login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
+  const res = await fetch(`${API_BASE}/Login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
 
-    const data = await res.json().catch(() => null);
+  const data = await res.json().catch(() => null);
 
-    if (!res.ok || !data?.accessToken) {
-      throw new Error(data?.message || "Sai tài khoản hoặc mật khẩu");
-    }
+  if (!res.ok || !data?.accessToken) {
+    throw new Error(data?.message || "Sai tài khoản hoặc mật khẩu");
+  }
 
-    // ✅ Lưu thông tin user và token, bao gồm cartId (nếu backend có trả)
-    const userData = {
-      id: data.id,
-      name: data.userName,
-      email: data.email,
-      phoneNumber: data.phoneNumber,
-      roleId: data.roleId,
-      cartId: data.cartId ?? null, // 🔹 lấy thêm cột cartId
-    };
+  // ✅ Lưu thông tin user và token
+  const userData = {
+    id: data.id,
+    name: data.userName,
+    email: data.email,
+    phoneNumber: data.phoneNumber,
+    roleId: data.roleId,
+    cartId: data.cartId ?? null,
+  };
 
-    localStorage.setItem("access_token", data.accessToken);
-    localStorage.setItem("user", JSON.stringify(userData));
+  localStorage.setItem("access_token", data.accessToken);
+  localStorage.setItem("user", JSON.stringify(userData));
 
-    console.log("✅ User login success:", userData);
+  // ✅ Thêm 2 dòng này để ProfilePage hoạt động đúng
+  localStorage.setItem("userId", data.id);
+  localStorage.setItem("userName", data.userName);
 
-    return { token: data.accessToken, user: userData };
-  },
+  console.log("✅ User login success:", userData);
+
+  return { token: data.accessToken, user: userData };
+},
 
   // ==========================
   // 👉 Đăng xuất

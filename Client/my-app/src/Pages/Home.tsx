@@ -62,6 +62,8 @@ export default function Home() {
   const [brands, setBrands] = useState<Brand[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [rauProducts, setRauProducts] = useState<Product[]>([]);
+  const [banhProducts, setBanhProducts] = useState<Product[]>([]);
+  const [suaProducts, setSuaProducts] = useState<Product[]>([]);
 
 
   useEffect(() => {
@@ -69,12 +71,16 @@ export default function Home() {
     Promise.all([
       productService.getAll(),
       productService.getByCategory("4693d14a-b0fa-4a71-8693-bd3ea4322cd3"),
+      productService.getByCategory("7de26305-0653-4d4f-b40b-40284cceee84"),
+      productService.getByCategory("10926cc4-5cf1-4207-b132-9197ddd7937f"),
       blogService.getBlogs(),
       brandService.getBrands(),
     ])
-      .then(([allProducts, rauData, blogData, brandData]) => {
+      .then(([allProducts, rauData,banhData,suaData, blogData, brandData]) => {
         setProducts(allProducts);
         setRauProducts(rauData);
+        setBanhProducts(banhData);
+        setSuaProducts(suaData);
         setBlogs(blogData);
         setBrands(brandData);
       })
@@ -142,7 +148,7 @@ export default function Home() {
             titleAlign="left"
             titleVariant="boxed"
             badge="RAU"
-            products={rauProducts.map(mapProductToUI)}
+            products={banhProducts.map(mapProductToUI)}
             loading={loading}
             maxItems={5}
           />
@@ -150,14 +156,12 @@ export default function Home() {
 
           {/* 👶 Mẹ và bé (lọc tên chứa “sữa”) */}
           <ProductGroup
-            title="Mẹ và bé"
+            title="Sữa"
             titleVariant="boxed"
-            badge="M&B"
-            products={mappedProducts.filter((p) =>
-              p.name.toLowerCase().includes("sữa")
-            )}
+            badge="Sua"
+            products={suaProducts.map(mapProductToUI)}
             loading={loading}
-            maxItems={10}
+            maxItems={5}
           />
 
           {/* 🏷️ Brand */}

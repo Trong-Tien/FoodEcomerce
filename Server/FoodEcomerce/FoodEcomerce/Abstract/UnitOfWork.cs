@@ -13,6 +13,8 @@ using FoodEcomerce.Reposiroty.Roles;
 using FoodEcomerce.Reposiroty.TradeMarks;
 using FoodEcomerce.Reposiroty.UnitCaculates;
 using FoodEcomerce.Reposiroty.Users;
+using FoodEcomerce.Reposiroty.Vouchers;
+using FoodEcomerce.Reposiroty.VoucherUsers;
 
 namespace FoodEcomerce.Abstract
 {
@@ -33,6 +35,8 @@ namespace FoodEcomerce.Abstract
         private ITRadeMarkRepository _tRadeMarkRepository;
         private IPlaceOfProduct _placeOfProduct;
         private ICartItemRepository _cartItemRepository;
+        private IVoucherRepository _voucherRepository;
+        private IVoucherUserRepository _voucherUserRepository;
 
         public UnitOfWork(FoodDbContex dbContext, IMapper mapper, StoreDbcontext storeDbcontext)
         {
@@ -65,6 +69,10 @@ namespace FoodEcomerce.Abstract
 
         public ICartItemRepository CartItemRepository
        => _cartItemRepository ??= new CartItemRepository(_dbContext, _mapper);
+        public IVoucherRepository VoucherRepository
+       => _voucherRepository ??= new VoucherRepository(_dbContext, _mapper);
+        public IVoucherUserRepository VoucherUserRepository
+     => _voucherUserRepository ??= new VoucherUserRepository(_dbContext, _mapper);
 
         public bool Save()
         {

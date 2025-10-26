@@ -116,7 +116,7 @@ const Footer: React.FC = () => {
         {/* Certifications */}
         <div className="col-span-2 flex flex-col gap-3 justify-center items-start md:items-end">
           <img
-            src="/cert-bocongthuong.png"
+            src="https://webmedia.com.vn/images/2021/09/logo-da-thong-bao-bo-cong-thuong-mau-xanh.png"
             alt="Bộ Công Thương"
             className="h-12"
           />

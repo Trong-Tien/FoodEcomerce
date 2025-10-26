@@ -69,7 +69,7 @@ export const productService = {
     return (data.items || data).map(mapProduct);
   },
 
-  /** 🔹 Lấy sản phẩm theo danh mục */
+  // ✅ Lấy sản phẩm theo danh mục (dùng query param `ids=` — vì backend của bạn dùng cách này)
   async getByCategory(
     categoryId: string,
     pageNumber: number = 1,

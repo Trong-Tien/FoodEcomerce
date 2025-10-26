@@ -19,8 +19,9 @@ type props = {
 }
 const ModalThem: React.FC<props> = ({ openModal, initialValues, handleClose }) => {
     const createCategory = useCreateCategory()
-    const { data: data }  = useGetCategoryByParent()
-    const dataCategory :Category[] = data ?? []
+    const { data: data } = useGetCategoryByParent()
+    const dataCategory: Category[] = data ?? []
+
     const {
         register,
         handleSubmit,
@@ -49,6 +50,7 @@ const ModalThem: React.FC<props> = ({ openModal, initialValues, handleClose }) =
             imageUrl: data.imageUrl,
             name: data.name
         }
+        console.log(tempData)
         var response: ResponseType = await createCategory.mutateAsync(tempData)
         if (response?.status === 200) {
             Swal.fire({
@@ -101,6 +103,7 @@ const ModalThem: React.FC<props> = ({ openModal, initialValues, handleClose }) =
                                     inputProps={{ accept: ".jpg,.png,.pdf" }}
                                     error={!!errors.imageUrl}
                                     helperText={errors.imageUrl?.message}
+                                    // 👇 cần custom onChange để lấy file
                                     {...register("imageUrl", {
                                         onChange: (e) => e.target.files?.[0],
                                     })}

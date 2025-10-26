@@ -1,4 +1,4 @@
-// ========== Kiểu con ==========
+
 export type ImageProduct = {
   id: string;
   imageUrl: string;
@@ -9,7 +9,6 @@ export type ProductCategory = {
   categoryId: string;
 };
 
-// ========== Sản phẩm ==========
 export type Product = {
   id: string;
   managementCode: string;
@@ -27,9 +26,8 @@ export type Product = {
     name: string;
   };
 
-  // ✅ Vẫn giữ cho các service khác (form thêm sản phẩm)
-  unitCaculateId?: string;
-  images?: string; // ✅ có thể rỗng hoặc được map từ imageProducts
+  unitCaculateId: string;
+  images?: string; 
   tradeMarkId: string;
   placeProductId: string;
   imageProducts?: ImageProduct[];
@@ -53,16 +51,15 @@ export type Product = {
   };
 };
 
-// ========== Giỏ hàng ==========
 export type CartItem = {
-  id: string; // Guid của item
-  cartId: string; // ✅ thêm
-  productId: string; // ✅ thêm
-  unitCaculateId?: string; // ✅ thêm (backend có)
+  id: string; 
+  cartId: string; 
+  productId: string;
+  unitCaculateId?: string;
   quantity: number;
   unitPrice: number;
-  totalPrice: number; // ✅ thêm
-  discount?: number; // Có thể null
-  images?: string; // ảnh hiển thị (FE tự map)
-  name?: string; // tên hiển thị (FE tự map)
+  totalPrice: number; 
+  discount?: number; 
+  images?: string; 
+  name?: string; 
 };
