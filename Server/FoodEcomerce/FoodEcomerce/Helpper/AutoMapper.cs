@@ -46,6 +46,12 @@ namespace FoodEcomerce.Helpper
             CreateMap<CartItem, CartItemDTO>().ReverseMap();
             CreateMap<VoucherUserModal, VoucherUser>().ReverseMap();
 
+            CreateMap<Voucher, VoucherDTO>().ReverseMap();
+
+            CreateMap<VoucherUser, VoucherUserDTO>()
+                .ForMember(dest => dest.VoucherDTO, opt => opt.MapFrom(src => src.Voucher))
+                .ReverseMap();
+
 
         }
     }

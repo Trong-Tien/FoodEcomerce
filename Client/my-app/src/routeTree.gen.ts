@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as UuDaiIndexRouteImport } from './routes/UuDai/index'
 import { Route as ThongTinIndexRouteImport } from './routes/ThongTin/index'
+import { Route as PhieuMuaHangIndexRouteImport } from './routes/PhieuMuaHang/index'
 import { Route as GioHangIndexRouteImport } from './routes/GioHang/index'
 import { Route as DangNhapOTPIndexRouteImport } from './routes/DangNhapOTP/index'
 import { Route as DangNhapIndexRouteImport } from './routes/DangNhap/index'
@@ -47,6 +48,11 @@ const UuDaiIndexRoute = UuDaiIndexRouteImport.update({
 const ThongTinIndexRoute = ThongTinIndexRouteImport.update({
   id: '/ThongTin/',
   path: '/ThongTin/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PhieuMuaHangIndexRoute = PhieuMuaHangIndexRouteImport.update({
+  id: '/PhieuMuaHang/',
+  path: '/PhieuMuaHang/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GioHangIndexRoute = GioHangIndexRouteImport.update({
@@ -141,6 +147,7 @@ export interface FileRoutesByFullPath {
   '/DangNhap': typeof DangNhapIndexRoute
   '/DangNhapOTP': typeof DangNhapOTPIndexRoute
   '/GioHang': typeof GioHangIndexRoute
+  '/PhieuMuaHang': typeof PhieuMuaHangIndexRoute
   '/ThongTin': typeof ThongTinIndexRoute
   '/UuDai': typeof UuDaiIndexRoute
   '/admin': typeof AdminIndexRoute
@@ -162,6 +169,7 @@ export interface FileRoutesByTo {
   '/DangNhap': typeof DangNhapIndexRoute
   '/DangNhapOTP': typeof DangNhapOTPIndexRoute
   '/GioHang': typeof GioHangIndexRoute
+  '/PhieuMuaHang': typeof PhieuMuaHangIndexRoute
   '/ThongTin': typeof ThongTinIndexRoute
   '/UuDai': typeof UuDaiIndexRoute
   '/admin': typeof AdminIndexRoute
@@ -184,6 +192,7 @@ export interface FileRoutesById {
   '/DangNhap/': typeof DangNhapIndexRoute
   '/DangNhapOTP/': typeof DangNhapOTPIndexRoute
   '/GioHang/': typeof GioHangIndexRoute
+  '/PhieuMuaHang/': typeof PhieuMuaHangIndexRoute
   '/ThongTin/': typeof ThongTinIndexRoute
   '/UuDai/': typeof UuDaiIndexRoute
   '/admin/': typeof AdminIndexRoute
@@ -207,6 +216,7 @@ export interface FileRouteTypes {
     | '/DangNhap'
     | '/DangNhapOTP'
     | '/GioHang'
+    | '/PhieuMuaHang'
     | '/ThongTin'
     | '/UuDai'
     | '/admin'
@@ -228,6 +238,7 @@ export interface FileRouteTypes {
     | '/DangNhap'
     | '/DangNhapOTP'
     | '/GioHang'
+    | '/PhieuMuaHang'
     | '/ThongTin'
     | '/UuDai'
     | '/admin'
@@ -249,6 +260,7 @@ export interface FileRouteTypes {
     | '/DangNhap/'
     | '/DangNhapOTP/'
     | '/GioHang/'
+    | '/PhieuMuaHang/'
     | '/ThongTin/'
     | '/UuDai/'
     | '/admin/'
@@ -271,6 +283,7 @@ export interface RootRouteChildren {
   DangNhapIndexRoute: typeof DangNhapIndexRoute
   DangNhapOTPIndexRoute: typeof DangNhapOTPIndexRoute
   GioHangIndexRoute: typeof GioHangIndexRoute
+  PhieuMuaHangIndexRoute: typeof PhieuMuaHangIndexRoute
   ThongTinIndexRoute: typeof ThongTinIndexRoute
   UuDaiIndexRoute: typeof UuDaiIndexRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -304,6 +317,13 @@ declare module '@tanstack/react-router' {
       path: '/ThongTin'
       fullPath: '/ThongTin'
       preLoaderRoute: typeof ThongTinIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/PhieuMuaHang/': {
+      id: '/PhieuMuaHang/'
+      path: '/PhieuMuaHang'
+      fullPath: '/PhieuMuaHang'
+      preLoaderRoute: typeof PhieuMuaHangIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/GioHang/': {
@@ -448,6 +468,7 @@ const rootRouteChildren: RootRouteChildren = {
   DangNhapIndexRoute: DangNhapIndexRoute,
   DangNhapOTPIndexRoute: DangNhapOTPIndexRoute,
   GioHangIndexRoute: GioHangIndexRoute,
+  PhieuMuaHangIndexRoute: PhieuMuaHangIndexRoute,
   ThongTinIndexRoute: ThongTinIndexRoute,
   UuDaiIndexRoute: UuDaiIndexRoute,
   AdminIndexRoute: AdminIndexRoute,

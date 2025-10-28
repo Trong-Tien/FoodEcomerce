@@ -49,7 +49,7 @@ const mapProductToUI = (p: Product) => ({
   oldPrice: p.discount > 0 ? p.unitPrice : undefined,
   img:
     typeof p.images === "string" && p.images.length > 0
-      ? `https://localhost:7004/api/File/image?path=${encodeURIComponent(
+      ? `http://localhost:5292/api/File/image?path=${encodeURIComponent(
         p.images.split(",")[0]
       )}`
       : "/assets/img/no-image.png",

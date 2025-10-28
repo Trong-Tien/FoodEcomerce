@@ -15,7 +15,7 @@
         public int UsageLimit { get; set; }
         public int UsedCount { get; set; }
         public bool IsActive { get; set; }
-        public string ImageUrl { get; set; } = null!;
+        public string? ImageUrl { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 }

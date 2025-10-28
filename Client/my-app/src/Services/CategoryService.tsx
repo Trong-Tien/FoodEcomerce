@@ -1,10 +1,10 @@
 import type { Category } from "@/Type/Category";
 
-const API_BASE = "https://localhost:7004/api";
+const API_BASE = "http://localhost:5292/api";
 
 export const categoryService = {
   async getAll(): Promise<Category[]> {
-    const res = await fetch(`${API_BASE}/Category/GetAll`);
+    const res = await fetch(`${API_BASE}/Category/GetAll?pageNumber=1&pagesize=20`);
     if (!res.ok) throw new Error("Không tải được danh mục");
 
     const data: Category[] = await res.json();
