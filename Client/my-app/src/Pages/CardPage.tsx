@@ -10,6 +10,7 @@ import confetti from "canvas-confetti";
 import { productService } from "@/Services/ProductService";
 import { voucherUserService } from "@/Services/VoucherUserService";
 import type { Voucher } from "@/Type/Voucher";
+import { Result } from "postcss";
 
 /* ========================== Header ========================== */
 function CartHeaderCard() {
@@ -33,21 +34,19 @@ function CartTabs() {
     <div className="flex bg-white rounded-lg border border-gray-200 overflow-hidden">
       <button
         onClick={() => setActive("home")}
-        className={`flex-1 py-3 text-center font-semibold text-sm ${
-          active === "home"
-            ? "text-green-600 border-b-2 border-green-600"
-            : "text-gray-500"
-        }`}
+        className={`flex-1 py-3 text-center font-semibold text-sm ${active === "home"
+          ? "text-green-600 border-b-2 border-green-600"
+          : "text-gray-500"
+          }`}
       >
         Giao hàng tận nơi
       </button>
       <button
         onClick={() => setActive("store")}
-        className={`flex-1 py-3 text-center font-semibold text-sm ${
-          active === "store"
-            ? "text-green-600 border-b-2 border-green-600"
-            : "text-gray-500"
-        }`}
+        className={`flex-1 py-3 text-center font-semibold text-sm ${active === "store"
+          ? "text-green-600 border-b-2 border-green-600"
+          : "text-gray-500"
+          }`}
       >
         Nhận tại cửa hàng
       </button>
@@ -85,11 +84,13 @@ function AddressInfo() {
 function Summary({
   total,
   shipping,
+  shippingDiscount,
   discount,
 }: {
   total: number;
   shipping: number;
   discount: number;
+  shippingDiscount: number;
 }) {
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-4 text-sm space-y-2">
@@ -105,19 +106,23 @@ function Summary({
 
       {discount > 0 && (
         <div className="flex justify-between text-green-600">
-          <span>Giảm giá voucher</span>
+          <span>Giảm giá</span>
           <span>-{discount.toLocaleString("vi-VN")}₫</span>
         </div>
       )}
-
       <div className="flex justify-between">
         <span>Phí giao hàng</span>
         <span>{shipping.toLocaleString("vi-VN")}₫</span>
       </div>
-
+      {shippingDiscount > 0 && (
+        <div className="flex justify-between text-green-600">
+          <span>Giảm giá phí ship</span>
+          <span>-{shippingDiscount.toLocaleString("vi-VN")}₫</span>
+        </div>
+      )}
       <div className="flex justify-between font-bold text-base">
         <span>Tổng đơn hàng</span>
-        <span>{(total - discount + shipping).toLocaleString("vi-VN")}₫</span>
+        <span>{(total).toLocaleString("vi-VN")}₫</span>
       </div>
     </div>
   );
@@ -208,18 +213,18 @@ function CartItemRow({
   );
 }
 
-/* ========================== Voucher Modal (API trả mảng Voucher trực tiếp) ========================== */
 function VoucherModal({
   onClose,
+  dataVoucher,
   onSelect,
 }: {
+  dataVoucher: Voucher[]
   onClose: () => void;
   onSelect: (voucher: Voucher) => void;
 }) {
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
   const [loading, setLoading] = useState(true);
   const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5292";
-
   useEffect(() => {
     let userId: string | null = localStorage.getItem("userId");
     if (!userId) {
@@ -228,7 +233,7 @@ function VoucherModal({
         try {
           const parsed = JSON.parse(userStr);
           userId = parsed?.id || null;
-        } catch {}
+        } catch { }
       }
     }
 
@@ -274,8 +279,8 @@ function VoucherModal({
                         ? v.imageUrl.startsWith("http")
                           ? v.imageUrl
                           : `${API_BASE}/api/File/image?path=${encodeURIComponent(
-                              v.imageUrl.replace(/^\/+/, "")
-                            )}`
+                            v.imageUrl.replace(/^\/+/, "")
+                          )}`
                         : "/assets/img/voucher-default.png"
                     }
                     alt={v.name}
@@ -290,15 +295,16 @@ function VoucherModal({
                   <p className="text-xs text-gray-500 mt-1">
                     {v.discountType === "PERCENT"
                       ? `Giảm ${v.discountValue}% (tối đa ${v.maxDiscountAmount?.toLocaleString(
-                          "vi-VN"
-                        )}₫)`
+                        "vi-VN"
+                      )}₫)`
                       : `Giảm ${v.discountValue.toLocaleString("vi-VN")}₫`}{" "}
                     • HSD{" "}
                     {v.endTime
                       ? new Date(v.endTime).toLocaleDateString("vi-VN")
                       : "N/A"}
                   </p>
-                  <button className="mt-2 bg-green-100 text-green-700 border border-green-400 font-semibold text-sm py-1 rounded-md hover:bg-green-600 hover:text-white transition-all">
+                  <button disabled={!!(Array.isArray(dataVoucher) && dataVoucher.find((d) => d.code === v.code))}
+                    className="mt-2 bg-green-100 text-green-700 border border-green-400 font-semibold text-sm py-1 rounded-md hover:bg-green-600 hover:text-white transition-all">
                     🎁 Áp dụng
                   </button>
                 </div>
@@ -318,15 +324,18 @@ function VoucherModal({
   );
 }
 
-/* ========================== MAIN CART PAGE ========================== */
+
+
 export default function CartPage() {
   const { items, update, remove, total, shipping, clear } = useCart();
   const navigate = useNavigate();
   const { isLoggedIn } = useAuth();
   const [showSuccess, setShowSuccess] = useState(false);
   const [productCache, setProductCache] = useState<Record<string, any>>({});
-  const [voucher, setVoucher] = useState<Voucher | null>(null);
+  const [voucher, setVoucher] = useState<Voucher[]>([]);
   const [showVoucherModal, setShowVoucherModal] = useState(false);
+  const [disCountValue, setDiscountValue] = useState<number>(0);
+  const [shipValue, setShipValue] = useState<number>(0);
 
   useEffect(() => {
     document.title = "Giỏ hàng - FoodEcommerce";
@@ -352,17 +361,42 @@ export default function CartPage() {
     if (items.length > 0) loadProducts();
   }, [items]);
 
-  // ✅ Tính giảm giá có giới hạn
-  const discountAmount = (() => {
-    if (!voucher) return 0;
-    if (voucher.discountType === "PERCENT") {
-      const percentDiscount = (total * voucher.discountValue) / 100;
-      return Math.min(percentDiscount, voucher.maxDiscountAmount || percentDiscount);
-    }
-    return voucher.discountValue;
-  })();
 
-  const finalTotal = Math.max(0, total - discountAmount + shipping);
+  useEffect(() => {
+    if (!voucher || voucher.length === 0) {
+      setDiscountValue(0);
+      return;
+    }
+
+    let totalDiscount = 0;
+    let totalShipDiscount = 0;
+
+    voucher.forEach((v) => {
+      if (total < v.minOrderAmount) return;
+
+      if (v.discountType === "Giảm giá theo %") {
+        const percentDiscount = (total * v.discountValue) / 100;
+        totalDiscount += Math.min(percentDiscount, v.maxDiscountAmount);
+      }
+
+      if (v.discountType === "Giảm giá phí ship") {
+        totalShipDiscount += v.discountValue;
+      }
+    });
+
+
+    setDiscountValue(totalDiscount);
+    setShipValue(shipping < shipValue ? shipping : totalShipDiscount);
+  }, [voucher, total]);
+
+
+
+
+
+  const finalTotal = Math.max(0, total - disCountValue + shipping - shipValue);
+
+
+  // const finalTotal = 0;
 
   const handleOrder = () => {
     toast.success(
@@ -439,20 +473,20 @@ export default function CartPage() {
           </div>
 
           {/* ✅ Hiển thị tổng hợp */}
-          <Summary total={total} shipping={shipping} discount={discountAmount} />
+          <Summary total={finalTotal} shipping={shipping} shippingDiscount={shipValue} discount={disCountValue} />
 
           <ApplyVoucherButton onOpen={() => setShowVoucherModal(true)} />
 
           {voucher && (
             <div className="mt-2 bg-green-50 border border-green-200 text-green-700 rounded-md p-3 text-sm flex justify-between items-center">
-              <span>
+              {/* <span>
                 🎟️ Đã áp dụng <b>{voucher.name}</b>{" "}
                 ({voucher.discountType === "PERCENT"
-                  ? `-${voucher.discountValue}%`
+                  ? `-${discountAmount}%`
                   : `-${voucher.discountValue.toLocaleString("vi-VN")}₫`})
-              </span>
+              </span> */}
               <button
-                onClick={() => setVoucher(null)}
+                onClick={() => setVoucher([])}
                 className="text-xs font-medium hover:underline"
               >
                 Huỷ
@@ -478,14 +512,23 @@ export default function CartPage() {
 
       {showVoucherModal && (
         <VoucherModal
+          dataVoucher={voucher}
           onClose={() => setShowVoucherModal(false)}
           onSelect={(v) => {
-            setVoucher(v);
-            toast.success(`🎉 Đã áp dụng voucher ${v.name}!`);
+            // kiểm tra xem đã có chưa
+            const exists = voucher.some((item) => item.code === v.code);
+            if (!exists) {
+              setVoucher([...voucher, v]); // thêm vào mảng
+              toast.success(`Đã áp dụng voucher ${v.name}!`);
+            } else {
+              toast.error(`⚠️ Voucher ${v.name} đã được áp dụng rồi.`);
+            }
+
             setShowVoucherModal(false);
           }}
         />
       )}
+
 
       {showSuccess && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">

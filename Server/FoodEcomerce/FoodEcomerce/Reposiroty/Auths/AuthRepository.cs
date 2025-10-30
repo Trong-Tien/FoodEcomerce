@@ -51,7 +51,7 @@ namespace FoodEcomerce.Reposiroty.Auths
                 var cookieOptions = new CookieOptions
                 {
              
-                    Expires = DateTimeOffset.UtcNow.AddMinutes(15) 
+                    Expires = DateTimeOffset.UtcNow.AddMinutes(30) 
                 };
 
                 result.RefeshToken = Helpper.Untils.GenerateRefreshToken();
