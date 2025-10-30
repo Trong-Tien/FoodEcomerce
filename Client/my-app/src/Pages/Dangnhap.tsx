@@ -77,8 +77,8 @@ export default function Dangnhap() {
         {/* Form */}
         <form onSubmit={handleSubmit} className="px-6 py-6 space-y-4">
           <Input
-            label="Số điện thoại"
-            placeholder="Ví dụ: 0901234567"
+            label="Email"
+            placeholder="Ví dụ: abc@gmail.com"
             value={form.identity}
             onChange={(e) => handleChange("identity", e.target.value)}
             icon={<FaUser className="text-gray-400" />}

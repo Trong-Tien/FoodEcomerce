@@ -51,7 +51,7 @@ export default function DangkyGmailFlow() {
   };
 
   const handleRegister = async () => {
-    if (!userName || !phone || !password || password !== confirm)
+    if (!password || password !== confirm)
       return Swal.fire("Vui lòng nhập đầy đủ thông tin và mật khẩu hợp lệ!");
 
     try {
@@ -177,18 +177,6 @@ export default function DangkyGmailFlow() {
               <h2 className="text-xl font-semibold text-center mb-4 text-green-700">
                 Thiết lập mật khẩu
               </h2>
-              <Input
-                label="Tên người dùng"
-                icon={<FaUser />}
-                value={userName}
-                onChange={(e) => setUserName(e.target.value)}
-              />
-              <Input
-                label="Số điện thoại"
-                icon={<FaPhone />}
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-              />
               <Input
                 label="Mật khẩu"
                 icon={<FaLock />}
