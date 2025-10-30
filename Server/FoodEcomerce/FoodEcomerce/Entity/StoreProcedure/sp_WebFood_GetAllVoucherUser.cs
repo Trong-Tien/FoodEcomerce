@@ -15,6 +15,7 @@ namespace FoodEcomerce.Entity.StoreProcedure
         public decimal DiscountValue { get; set; }
         public decimal MinOrderAmount { get; set; }
         public decimal MaxDiscountAmount { get; set; }
+        public string? ImageUrl { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndTime { get; set; }
     }

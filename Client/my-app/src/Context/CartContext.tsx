@@ -171,7 +171,7 @@ const clear = async () => {
     0
   );
 
-  const shipping = total >= 300000 ? 0 : 15000;
+  const shipping = total >= 300000 ? 0 : 20000;
 
   /* ============================================================
      🔹 Context Provider

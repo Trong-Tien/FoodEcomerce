@@ -26,6 +26,8 @@ namespace FoodEcomerce.Entity
         public virtual DbSet<VoucherUser> VoucherUser { get; set; }
         public virtual DbSet<ProductReview> ProductReviews { get; set; }    
         public virtual DbSet<ProductReviewImage> ProductReviewImages { get; set; }
+        public virtual DbSet<Orders> Orders { get; set; }
+        public virtual DbSet<OrderDetail> OrderDetail { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

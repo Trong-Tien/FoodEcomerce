@@ -7,6 +7,7 @@ using FoodEcomerce.Reposiroty.CartItems;
 using FoodEcomerce.Reposiroty.Categorys;
 using FoodEcomerce.Reposiroty.MenuRoles;
 using FoodEcomerce.Reposiroty.Menus;
+using FoodEcomerce.Reposiroty.Orderss;
 using FoodEcomerce.Reposiroty.PlaceOfProducts;
 using FoodEcomerce.Reposiroty.Products;
 using FoodEcomerce.Reposiroty.Roles;
@@ -37,6 +38,7 @@ namespace FoodEcomerce.Abstract
         private ICartItemRepository _cartItemRepository;
         private IVoucherRepository _voucherRepository;
         private IVoucherUserRepository _voucherUserRepository;
+        private IOrderRepository _OrderRepository;
 
         public UnitOfWork(FoodDbContex dbContext, IMapper mapper, StoreDbcontext storeDbcontext)
         {
@@ -73,6 +75,9 @@ namespace FoodEcomerce.Abstract
        => _voucherRepository ??= new VoucherRepository(_dbContext, _mapper);
         public IVoucherUserRepository VoucherUserRepository
      => _voucherUserRepository ??= new VoucherUserRepository(_dbContext, _mapper , _storeDbcontext);
+
+        public IOrderRepository OrderRepository
+    => _OrderRepository ??= new OrdersRepository(_dbContext, _mapper);
 
         public bool Save()
         {
