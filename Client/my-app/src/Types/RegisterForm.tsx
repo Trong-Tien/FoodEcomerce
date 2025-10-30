@@ -1,6 +1,6 @@
 // src/Types/RegisterForm.ts
 export type Register = {
-  username: string;
+  userName: string;
   phoneNumber: string;
   email: string;
   otp: string;

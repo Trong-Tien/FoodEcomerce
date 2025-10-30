@@ -138,8 +138,6 @@ export default function VoucherUserPage() {
         </div>
         <Footer />
       </div>
-
-      
     </div>
   );
 }

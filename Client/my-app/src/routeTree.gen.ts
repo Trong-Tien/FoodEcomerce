@@ -15,6 +15,7 @@ import { Route as UuDaiIndexRouteImport } from './routes/UuDai/index'
 import { Route as ThongTinIndexRouteImport } from './routes/ThongTin/index'
 import { Route as PhieuMuaHangIndexRouteImport } from './routes/PhieuMuaHang/index'
 import { Route as GioHangIndexRouteImport } from './routes/GioHang/index'
+import { Route as DangkyGmailFlowIndexRouteImport } from './routes/DangkyGmailFlow/index'
 import { Route as DangNhapOTPIndexRouteImport } from './routes/DangNhapOTP/index'
 import { Route as DangNhapIndexRouteImport } from './routes/DangNhap/index'
 import { Route as DangKyIndexRouteImport } from './routes/DangKy/index'
@@ -58,6 +59,11 @@ const PhieuMuaHangIndexRoute = PhieuMuaHangIndexRouteImport.update({
 const GioHangIndexRoute = GioHangIndexRouteImport.update({
   id: '/GioHang/',
   path: '/GioHang/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DangkyGmailFlowIndexRoute = DangkyGmailFlowIndexRouteImport.update({
+  id: '/DangkyGmailFlow/',
+  path: '/DangkyGmailFlow/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DangNhapOTPIndexRoute = DangNhapOTPIndexRouteImport.update({
@@ -146,6 +152,7 @@ export interface FileRoutesByFullPath {
   '/DangKy': typeof DangKyIndexRoute
   '/DangNhap': typeof DangNhapIndexRoute
   '/DangNhapOTP': typeof DangNhapOTPIndexRoute
+  '/DangkyGmailFlow': typeof DangkyGmailFlowIndexRoute
   '/GioHang': typeof GioHangIndexRoute
   '/PhieuMuaHang': typeof PhieuMuaHangIndexRoute
   '/ThongTin': typeof ThongTinIndexRoute
@@ -168,6 +175,7 @@ export interface FileRoutesByTo {
   '/DangKy': typeof DangKyIndexRoute
   '/DangNhap': typeof DangNhapIndexRoute
   '/DangNhapOTP': typeof DangNhapOTPIndexRoute
+  '/DangkyGmailFlow': typeof DangkyGmailFlowIndexRoute
   '/GioHang': typeof GioHangIndexRoute
   '/PhieuMuaHang': typeof PhieuMuaHangIndexRoute
   '/ThongTin': typeof ThongTinIndexRoute
@@ -191,6 +199,7 @@ export interface FileRoutesById {
   '/DangKy/': typeof DangKyIndexRoute
   '/DangNhap/': typeof DangNhapIndexRoute
   '/DangNhapOTP/': typeof DangNhapOTPIndexRoute
+  '/DangkyGmailFlow/': typeof DangkyGmailFlowIndexRoute
   '/GioHang/': typeof GioHangIndexRoute
   '/PhieuMuaHang/': typeof PhieuMuaHangIndexRoute
   '/ThongTin/': typeof ThongTinIndexRoute
@@ -215,6 +224,7 @@ export interface FileRouteTypes {
     | '/DangKy'
     | '/DangNhap'
     | '/DangNhapOTP'
+    | '/DangkyGmailFlow'
     | '/GioHang'
     | '/PhieuMuaHang'
     | '/ThongTin'
@@ -237,6 +247,7 @@ export interface FileRouteTypes {
     | '/DangKy'
     | '/DangNhap'
     | '/DangNhapOTP'
+    | '/DangkyGmailFlow'
     | '/GioHang'
     | '/PhieuMuaHang'
     | '/ThongTin'
@@ -259,6 +270,7 @@ export interface FileRouteTypes {
     | '/DangKy/'
     | '/DangNhap/'
     | '/DangNhapOTP/'
+    | '/DangkyGmailFlow/'
     | '/GioHang/'
     | '/PhieuMuaHang/'
     | '/ThongTin/'
@@ -282,6 +294,7 @@ export interface RootRouteChildren {
   DangKyIndexRoute: typeof DangKyIndexRoute
   DangNhapIndexRoute: typeof DangNhapIndexRoute
   DangNhapOTPIndexRoute: typeof DangNhapOTPIndexRoute
+  DangkyGmailFlowIndexRoute: typeof DangkyGmailFlowIndexRoute
   GioHangIndexRoute: typeof GioHangIndexRoute
   PhieuMuaHangIndexRoute: typeof PhieuMuaHangIndexRoute
   ThongTinIndexRoute: typeof ThongTinIndexRoute
@@ -331,6 +344,13 @@ declare module '@tanstack/react-router' {
       path: '/GioHang'
       fullPath: '/GioHang'
       preLoaderRoute: typeof GioHangIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/DangkyGmailFlow/': {
+      id: '/DangkyGmailFlow/'
+      path: '/DangkyGmailFlow'
+      fullPath: '/DangkyGmailFlow'
+      preLoaderRoute: typeof DangkyGmailFlowIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/DangNhapOTP/': {
@@ -467,6 +487,7 @@ const rootRouteChildren: RootRouteChildren = {
   DangKyIndexRoute: DangKyIndexRoute,
   DangNhapIndexRoute: DangNhapIndexRoute,
   DangNhapOTPIndexRoute: DangNhapOTPIndexRoute,
+  DangkyGmailFlowIndexRoute: DangkyGmailFlowIndexRoute,
   GioHangIndexRoute: GioHangIndexRoute,
   PhieuMuaHangIndexRoute: PhieuMuaHangIndexRoute,
   ThongTinIndexRoute: ThongTinIndexRoute,
