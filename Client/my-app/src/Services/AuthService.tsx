@@ -42,7 +42,7 @@ export const AuthService = {
   // ==========================
   // 👉 Đăng nhập (có cartId)
   // ==========================
-  async login(payload: { phoneNumber: string; password: string }) {
+  async login(payload: { email: string; password: string }) {
   const res = await fetch(`${API_BASE}/Login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

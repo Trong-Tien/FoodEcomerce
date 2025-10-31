@@ -40,9 +40,9 @@ namespace FoodEcomerce.Reposiroty.Auths
                     CartId = CartItem != null ? CartItem.Id : Guid.Empty,   
                     Status = 200
                 };
-                if (!string.IsNullOrEmpty(result.Email) || !string.IsNullOrEmpty(result.UserName))
+                if (!string.IsNullOrEmpty(result.Email) )
                 {
-                    result.AccessToken = Helpper.Untils.GenerateAccessToken(result.PhoneNumber, result.UserName, result.RoleId);
+                    result.AccessToken = Helpper.Untils.GenerateAccessToken(result.Id, result.UserName, result.RoleId);
                 }
                 else
                 {
@@ -90,7 +90,7 @@ namespace FoodEcomerce.Reposiroty.Auths
                 };
                 if (!string.IsNullOrEmpty(result.Email) || !string.IsNullOrEmpty(result.UserName))
                 {
-                    result.AccessToken = Helpper.Untils.GenerateAccessToken(result.PhoneNumber, result.UserName, result.RoleId);
+                    result.AccessToken = Helpper.Untils.GenerateAccessToken(result.Id, result.UserName, result.RoleId);
                 }
                 else
                 {
@@ -118,6 +118,7 @@ namespace FoodEcomerce.Reposiroty.Auths
                         user.Id = Guid.NewGuid();
                         user.Password = Helpper.Untils.EncrypePassword(modal.Password);
                         user.RoleId = Guid.Parse("e791c54a-15fc-401a-b376-b4f3e088c284");
+                        user.UserName = modal.Email;
                         user.StatusId = 1;
                         user.IsAdmin = false;
                         user.Acvite = true;

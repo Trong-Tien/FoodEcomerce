@@ -1,177 +1,192 @@
-import { useState, useEffect } from "react";
+"use client";
+
+import { useState } from "react";
 import { FaSearch, FaShoppingCart, FaUser } from "react-icons/fa";
 import CategorySidebar from "./CategorySidebar";
 import { useNavigate, useLocation } from "@tanstack/react-router";
 import LocationModal from "../Common/LocationModal";
-import AccountSidebar from "../Common/AccountSidebar"; // ✅ Thêm mới
+import AccountSidebar from "../Common/AccountSidebar";
 import logo from "@/assets/img/logo.jpg";
-import { isAuthenticated, isTokenExpired } from "@/Until/Authcheck";
-import { useCart } from "@/Context/CartContext"; // ✅ Context giỏ hàng
+import { useCart } from "@/Context/CartContext";
+import { useAuth } from "@/Context/AuthContext"; // ✅ thêm
 
 function Header() {
   const [showSidebar, setShowSidebar] = useState(false);
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [locationInput, setLocationInput] = useState<string>("");
-  const [user, setUser] = useState<{ name?: string; email?: string } | null>(null);
-
-  const [openAccount, setOpenAccount] = useState(false); // ✅ Sidebar tài khoản
+  const [openAccount, setOpenAccount] = useState(false);
 
   const location = useLocation();
   const navigate = useNavigate();
   const isHome = location.pathname === "/";
 
-  // ✅ Lấy dữ liệu từ CartContext
   const { totalQuantity, clear } = useCart();
+  const { user, logout, isAuthenticated } = useAuth(); // ✅ dùng context
 
-  // 🔹 Khi Header load, đọc user nếu token còn hạn
-  useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    const storedUser = localStorage.getItem("user");
-
-    if (token && isAuthenticated() && storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch {
-        setUser(null);
-      }
-    } else {
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("user");
-      setUser(null);
-    }
-  }, []);
-
-  // 🔁 Tự động kiểm tra token mỗi 1 phút
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const token = localStorage.getItem("access_token");
-      if (token && isTokenExpired(token)) {
-        handleLogout(); // tự logout khi token hết hạn
-      }
-    }, 60 * 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // ✅ Đăng xuất & xóa giỏ hàng
   const handleLogout = () => {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("user");
-    clear(); // ✅ xóa giỏ hàng khi đăng xuất
-    setUser(null);
-    setOpenAccount(false); // ✅ Đóng sidebar
+    logout();
+    clear();
+    setOpenAccount(false);
     navigate({ to: "/Dangnhap" });
   };
 
+  // 🧩 Hover xử lý mở/đóng danh mục
+  let hoverTimeout: NodeJS.Timeout;
+  const handleMouseEnter = () => {
+    clearTimeout(hoverTimeout);
+    if (!isHome) setShowSidebar(true);
+  };
+  const handleMouseLeave = () => {
+    hoverTimeout = setTimeout(() => setShowSidebar(false), 150);
+  };
+
   return (
-    <header className="background_header_mobile m-auto w-full fixed inset-x-0 top-0 z-[11] pt-3 bg-gradient-to-r from-[#2E7D32] via-[#4CAF50] to-[#CDDC39]">
-      <div className="mx-auto flex max-w-screen-xl items-start justify-between transition-all duration-400 ease-in-out">
-        {/* Logo + Danh mục */}
-        <div className="flex flex-col justify-between relative">
-          <div
-            className="icon__logo ml-[22px] mt-[6px] cursor-pointer"
-            onClick={() => navigate({ to: "/" })}
-          >
-            <img src={logo} alt="Logo" className="h-[60px] w-auto" />
-          </div>
-
-          <div
-            onMouseEnter={() => !isHome && setShowSidebar(true)}
-            onMouseLeave={() => !isHome && setShowSidebar(false)}
-            className="relative mt-[10px]"
-          >
-            <button className="flex w-[320px] items-center rounded-t-md bg-[#4CAF50] px-[20px] py-1 text-[16px] text-white cursor-default">
-              <span className="relative inline-block mr-2 w-5 h-5">
-                <img
-                  alt="menu"
-                  src="https://cdnv2.tgdd.vn/bhx/product-fe/cart/home/_next/public/static/icons/menu_icon.svg"
-                  className="w-full h-auto"
-                />
-              </span>
-              DANH MỤC SẢN PHẨM
-            </button>
-
-            {!isHome && showSidebar && (
-              <div className="absolute top-full left-0 w-64 bg-white shadow-lg border border-gray-200 z-50">
-                <CategorySidebar />
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Search box + Cart */}
-        <div className="flex items-center px-15">
-          <div className="h-[40px] mt-3 relative flex rounded-md bg-white w-[615px] ml-auto border border-[#4CAF50]">
-            <div className="relative w-[44px] text-[#4CAF50] flex items-center justify-center">
-              <FaSearch className="text-[#4CAF50]" />
-            </div>
-            <input
-              type="text"
-              placeholder="Thịt cá đặt trước giảm đến 37%"
-              className="rounded-r-md w-full relative bg-white flex items-center pr-[64px] text-sm text-gray-700 focus:outline-none"
-            />
-            <a
-              href="/GioHang"
-              className="absolute right-[12px] top-1/2 -translate-y-1/2 flex items-center justify-center text-[#4CAF50] h-[32px] w-[32px] rounded-full relative"
-            >
-              <FaShoppingCart size={20} className="text-[#4CAF50]" />
-              {totalQuantity > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[11px] font-bold px-[5px] py-[1px] rounded-full leading-none">
-                  {totalQuantity}
-                </span>
-              )}
-            </a>
-          </div>
-        </div>
-
-        {/* User + Địa chỉ */}
-        <div className="flex flex-col items-end">
-          {/* Nút chọn vị trí */}
-          <div
-            id="btn_choose_location"
-            onClick={() => setShowLocationModal(true)}
-            className="relative mt-3 mr-[16px] flex w-[272px] cursor-pointer items-center justify-start
-               bg-white border border-[#4CAF50] rounded-md px-3 py-1.5 min-h-[36px]
-               hover:shadow-sm transition"
-          >
-            {locationInput ? (
-              <span className="text-sm text-gray-700 truncate">{locationInput}</span>
-            ) : (
-              <div className="flex items-center gap-2">
-                <img
-                  alt="Select Location"
-                  src="https://cdnv2.tgdd.vn/bhx/product-fe/cart/home/_next/public/static/images/unselect-location.svg"
-                  className="h-5 w-5 object-contain"
-                />
-                <span className="text-sm text-gray-600">Chọn vị trí nhận hàng</span>
-              </div>
-            )}
-          </div>
-
-          {/* Hiển thị user */}
-          <div className="flex">
-            {user ? (
-              <button
-                onClick={() => setOpenAccount(true)}
-                className="mt-2 mr-[16px] flex items-center gap-2 bg-white px-3 py-1.5 rounded-md shadow-sm hover:shadow-md transition"
+    <header className="fixed inset-x-0 top-0 z-50 w-full">
+      <div className="bg-gradient-to-r from-emerald-600 via-emerald-500 to-green-500 shadow-lg">
+        <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8">
+          {/* ===== Header container ===== */}
+          <div className="flex items-center justify-between gap-4 py-4">
+            {/* ===== Logo ===== */}
+            <div className="flex-shrink-0">
+              <div
+                className="cursor-pointer transition-transform duration-300 hover:scale-105"
+                onClick={() => navigate({ to: "/" })}
               >
-                <FaUser className="text-[#4CAF50]" />
-                <span className="text-sm font-semibold text-gray-700">
-                  {user.name || "Người dùng"}
+                <img
+                  src={logo || "/placeholder.svg"}
+                  alt="Logo"
+                  className="h-14 w-auto object-contain"
+                />
+              </div>
+            </div>
+
+            {/* ===== Danh mục sản phẩm ===== */}
+            <div className="hidden sm:flex flex-shrink-0 relative">
+              <div
+                className="relative"
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+              >
+                <button className="flex items-center gap-2 rounded-lg bg-white/15 backdrop-blur-sm px-4 py-2 text-white font-medium transition-all duration-300 hover:bg-white/25 hover:shadow-md">
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 6h16M4 12h16M4 18h16"
+                    />
+                  </svg>
+                  <span className="text-sm">DANH MỤC</span>
+                </button>
+
+                {!isHome && showSidebar && (
+                  <>
+                    <div
+                      className="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-40 animate-in fade-in"
+                      onClick={() => setShowSidebar(false)}
+                    ></div>
+
+                    <div
+                      className="absolute top-full left-0 mt-2 w-64 bg-white shadow-2xl rounded-lg border border-gray-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2"
+                      onMouseEnter={() => setShowSidebar(true)}
+                      onMouseLeave={handleMouseLeave}
+                    >
+                      <CategorySidebar />
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* ===== Thanh tìm kiếm ===== */}
+            <div className="flex-1 max-w-2xl mx-4">
+              <div className="relative group">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/70 group-focus-within:text-white transition-colors">
+                  <FaSearch size={16} />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Tìm sản phẩm..."
+                  className="w-full pl-12 pr-4 py-3 rounded-full bg-white/95 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white focus:bg-white shadow-md transition-all duration-300"
+                />
+              </div>
+            </div>
+
+            {/* ===== Các nút bên phải ===== */}
+            <div className="flex items-center gap-3 sm:gap-4">
+              {/* Giỏ hàng */}
+              <a
+                href="/GioHang"
+                className="relative p-2.5 rounded-full bg-white/15 backdrop-blur-sm text-white transition-all duration-300 hover:bg-white/25 hover:shadow-md"
+              >
+                <FaShoppingCart size={20} />
+                {totalQuantity > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shadow-lg">
+                    {totalQuantity > 99 ? "99+" : totalQuantity}
+                  </span>
+                )}
+              </a>
+
+              {/* Nút chọn vị trí */}
+              <button
+                onClick={() => setShowLocationModal(true)}
+                className="hidden md:flex items-center gap-2 px-3 py-2 rounded-lg bg-white/15 backdrop-blur-sm text-white text-sm font-medium transition-all duration-300 hover:bg-white/25 hover:shadow-md"
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+                <span className="truncate text-xs">
+                  {locationInput || "Chọn vị trí"}
                 </span>
               </button>
-            ) : (
-              <a
-                className="mt-2 mr-[16px] flex w-fit cursor-pointer items-center rounded-md bg-[#4CAF50] px-2 py-1 text-sm text-white"
-                href="/Dangnhap"
-              >
-                <FaUser className="mr-2" /> Đăng nhập
-              </a>
-            )}
+
+              {/* ===== Tài khoản người dùng ===== */}
+              {isAuthenticated && user ? (
+                <button
+                  onClick={() => setOpenAccount(true)}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/15 backdrop-blur-sm text-white font-medium transition-all duration-300 hover:bg-white/25 hover:shadow-md"
+                >
+                  <FaUser size={16} />
+                  <span className="hidden sm:inline text-sm truncate">
+                    {user.userName || user.email}
+                  </span>
+                </button>
+              ) : (
+                <a
+                  href="/Dangnhap"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-emerald-600 font-semibold transition-all duration-300 hover:shadow-lg hover:scale-105"
+                >
+                  <FaUser size={16} />
+                  <span className="hidden sm:inline text-sm">Đăng nhập</span>
+                </a>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* ✅ Sidebar tài khoản giống Bách Hóa Xanh */}
+      {/* ===== Modals & Sidebar ===== */}
       <AccountSidebar
         open={openAccount}
         onClose={() => setOpenAccount(false)}
@@ -179,12 +194,15 @@ function Header() {
         onLogout={handleLogout}
       />
 
-      {/* Modal nhập vị trí */}
       {showLocationModal && (
         <LocationModal
           onClose={() => setShowLocationModal(false)}
           onConfirm={(address) => {
-            const parts = [address.addressDetail, address.ward, address.province].filter(Boolean);
+            const parts = [
+              address.addressDetail,
+              address.ward,
+              address.province,
+            ].filter(Boolean);
             setLocationInput(parts.join(", "));
             setShowLocationModal(false);
           }}

@@ -26,7 +26,7 @@ namespace FoodEcomerce.Helpper
                    : null));
             CreateMap<VoucherModal, Voucher>().
                   ForMember(dest => dest.ImageUrl, opt => opt.
-                  MapFrom(src => src.ImageUrl != null ? Helpper.Untils.UploadFileImage(src.ImageUrl, "Vouchers")
+                  MapFrom(src => src.ImageUrl != null ? Helpper.Untils.UploadFileImage(src.ImageUrl, "sh")
                   : null));
             CreateMap<Category, CategoryDTO>().ReverseMap();
             CreateMap<RegisterModal, User>();
