@@ -28,7 +28,7 @@ namespace FoodEcomerce.Entity
         public virtual DbSet<ProductReviewImage> ProductReviewImages { get; set; }
         public virtual DbSet<Orders> Orders { get; set; }
         public virtual DbSet<OrderDetail> OrderDetail { get; set; }
-
+        public virtual DbSet<OrderStatus> OrderStatuses { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -286,6 +286,11 @@ namespace FoodEcomerce.Entity
                   .HasForeignKey(x => x.VoucherId)
                   .HasConstraintName("FK_Orders_Voucher")
                   .OnDelete(DeleteBehavior.ClientSetNull);
+                entity.HasOne(x => x.StatusOrders)
+               .WithMany(x => x.Orders)
+               .HasForeignKey(x => x.OrderStatusId)
+               .HasConstraintName("FK_Order_OrderStatus")
+               .OnDelete(DeleteBehavior.ClientSetNull);
             });
             modelBuilder.Entity<OrderDetail>(entity =>
             {
@@ -392,6 +397,18 @@ namespace FoodEcomerce.Entity
                   .HasForeignKey(x => x.ProductReviewId)
                   .HasConstraintName("FK_ProductReview_ProductReviewImage")
                   .OnDelete(DeleteBehavior.ClientSetNull);
+            });
+
+            modelBuilder.Entity<OrderStatus>(entity =>
+            {
+                entity.HasKey(x => x.Id).HasName("PK_OrderStatus");
+                entity.ToTable("OrderStatus");
+                entity.Property(x => x.Id).ValueGeneratedOnAdd();
+                entity.Property(x => x.StatusCode).HasMaxLength(50);
+                entity.Property(x => x.StatusName).HasMaxLength(300);
+                entity.Property(x => x.Description).HasMaxLength(300);
+                entity.Property(x => x.SortOrder).HasColumnType("int");
+                entity.Property(x => x.IsActive).HasColumnType("bit");
             });
         }
     }

@@ -7,10 +7,10 @@ namespace FoodEcomerce.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class OrdersController : ControllerBase
+    public class PaymentMethodController : ControllerBase
     {
         private readonly UnitOfWork _unitOfWork;
-        public OrdersController(UnitOfWork unitOfWork)
+        public PaymentMethodController(UnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
@@ -20,7 +20,7 @@ namespace FoodEcomerce.Controllers
         {
             try
             {
-                var result = await _unitOfWork.OrderRepository.GetAll(pageNumber, pageSize);
+                var result = await _unitOfWork.PaymendMethodRepository.GetAll(pageNumber, pageSize);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -33,7 +33,7 @@ namespace FoodEcomerce.Controllers
         {
             try
             {
-                var result = await _unitOfWork.OrderRepository.GetById(id);
+                var result = await _unitOfWork.PaymendMethodRepository.GetById(id);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -41,14 +41,14 @@ namespace FoodEcomerce.Controllers
                 return BadRequest(ex.Message);
             }
         }
-       
+
 
         [HttpPost("Create")]
-        public async Task<IActionResult> Create(OrderModal modal)
+        public async Task<IActionResult> Create(PayMentMethodModal modal)
         {
             try
             {
-                var result = await _unitOfWork.OrderRepository.CreateWithQuery(modal);
+                var result = await _unitOfWork.PaymendMethodRepository.Create(modal);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -57,11 +57,11 @@ namespace FoodEcomerce.Controllers
             }
         }
         [HttpPut("Update")]
-        public async Task<IActionResult> Update(Guid orderId , int type)
+        public async Task<IActionResult> Update(PayMentMethodModal modal)
         {
             try
             {
-                var result = await _unitOfWork.OrderRepository.UpdateWithQuery(orderId , type);
+                var result = await _unitOfWork.PaymendMethodRepository.Update(modal);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -74,7 +74,7 @@ namespace FoodEcomerce.Controllers
         {
             try
             {
-                var result = await _unitOfWork.OrderRepository.Delete(id);
+                var result = await _unitOfWork.PaymendMethodRepository.Delete(id);
                 return Ok(result);
             }
             catch (Exception ex)
