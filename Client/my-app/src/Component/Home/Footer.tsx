@@ -1,143 +1,152 @@
-// src/components/common/Footer.tsx
-import React from "react";
-import { FaFacebookF, FaInstagram, FaYoutube, FaTiktok } from "react-icons/fa";
+"use client"
 
-const Footer: React.FC = () => {
-  const brands = [
-    "MWG",
-    "thegioididong",
-    "Điện máy XANH",
-    "topzone",
-    "NHÀ THUỐC AN KHANG",
-    "AVA Kids",
-    "erablue",
-  ];
+import type React from "react"
+import { Mail, Phone, Leaf, Instagram, Facebook, Twitter, Linkedin } from "lucide-react"
 
+export const Footer: React.FC = () => {
   return (
-    <footer className="bg-[#007e42] text-gray-800 text-sm">
-      {/* Top bar */}
-      <div className="max-w-7xl mx-auto px-6 py-5 flex flex-col md:flex-row justify-between items-center gap-3 md:gap-8 font-medium leading-relaxed">
-        <div className="flex flex-row flex-wrap md:flex-nowrap gap-6 items-center text-white whitespace-nowrap overflow-hidden">
-          <span>
-            Bán hàng 7:00 - 21:30 📞 <b>1900 1908</b>
-          </span>
-          <span>
-            Khiếu nại 7:30 - 21:00 📞 <b>1800 1067</b>
-          </span>
+    <footer className="bg-white text-slate-900">
+      {/* Main content section */}
+      <div className="max-w-7xl mx-auto px-6 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+          {/* Brand section */}
+          <div className="lg:col-span-1 space-y-4">
+            <div className="flex items-center gap-2 mb-6">
+              <div className="bg-emerald-500 p-2 rounded-lg">
+                <Leaf className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-slate-900">Organic</h2>
+                <p className="text-xs text-emerald-600">Store</p>
+              </div>
+            </div>
+            <p className="text-sm text-slate-600 leading-relaxed">
+              Mang đến những sản phẩm hữu cơ nguyên chất, an toàn cho sức khỏe gia đình bạn.
+            </p>
+            <div className="flex gap-3 pt-4">
+              {[
+                { icon: Facebook, href: "#" },
+                { icon: Instagram, href: "#" },
+                { icon: Twitter, href: "#" },
+                { icon: Linkedin, href: "#" },
+              ].map(({ icon: Icon, href }) => (
+                <a
+                  key={href}
+                  href={href}
+                  className="bg-slate-100 hover:bg-emerald-500 p-2.5 rounded-full transition-colors duration-300 text-slate-700 hover:text-white"
+                >
+                  <Icon className="w-4 h-4" />
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Quick links */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold uppercase tracking-widest text-slate-900">Khám phá</h3>
+            <ul className="space-y-3">
+              {["Sản phẩm mới", "Bán chạy nhất", "Flash sale", "Khuyến mãi"].map((item) => (
+                <li key={item}>
+                  <a href="#" className="text-sm text-slate-600 hover:text-emerald-600 transition-colors">
+                    {item}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Support */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold uppercase tracking-widest text-slate-900">Hỗ trợ</h3>
+            <ul className="space-y-3">
+              {["Chính sách bảo hành", "Vận chuyển & trả hàng", "Hướng dẫn mua sắm", "Câu hỏi thường gặp"].map(
+                (item) => (
+                  <li key={item}>
+                    <a href="#" className="text-sm text-slate-600 hover:text-emerald-600 transition-colors">
+                      {item}
+                    </a>
+                  </li>
+                ),
+              )}
+            </ul>
+          </div>
+
+          {/* Contact */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold uppercase tracking-widest text-slate-900">Liên hệ</h3>
+            <div className="space-y-4">
+              <div className="flex gap-3">
+                <Phone className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-xs text-slate-500">Hotline</p>
+                  <p className="text-sm font-medium text-slate-900">1900-1234</p>
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <Mail className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-xs text-slate-500">Email</p>
+                  <p className="text-sm font-medium text-slate-900">support@organic.vn</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="flex flex-row flex-wrap md:flex-nowrap gap-6 items-center text-white whitespace-nowrap overflow-hidden">
-          <span className="font-semibold">Cam kết:</span>
-          <span>✔ 15.000 sản phẩm</span>
+
+        <div className="bg-gradient-to-r from-emerald-50 to-white border border-emerald-200 rounded-xl p-8 mb-12">
+          <div className="max-w-2xl mx-auto text-center">
+            <h3 className="text-lg font-semibold mb-2 text-slate-900">Nhận ưu đãi độc quyền</h3>
+            <p className="text-sm text-slate-600 mb-6">Đăng ký nhận thông báo về sản phẩm mới và khuyến mãi đặc biệt</p>
+            <form className="flex gap-2" onSubmit={(e) => e.preventDefault()}>
+              <input
+                type="email"
+                placeholder="Nhập email của bạn"
+                className="flex-1 px-4 py-3 bg-white border border-slate-200 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-colors"
+              />
+              <button className="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-lg transition-colors duration-300">
+                Đăng ký
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <div className="border-t border-slate-200 mb-8"></div>
+
+        {/* Bottom info */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {[
+            { label: "Giao hàng miễn phí", desc: "Từ 299k trở lên" },
+            { label: "Hỗ trợ 24/7", desc: "Luôn sẵn sàng giúp bạn" },
+            { label: "Chất lượng 100%", desc: "Hữu cơ xác nhận" },
+          ].map(({ label, desc }) => (
+            <div key={label} className="text-center">
+              <p className="text-sm font-semibold text-emerald-600 mb-1">{label}</p>
+              <p className="text-xs text-slate-600">{desc}</p>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Middle links & social */}
-      <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6 bg-white shadow-sm leading-relaxed">
-        {/* Link columns */}
-        <div className="space-y-2 flex flex-col">
-          <p className="font-semibold text-green-700">Công ty</p>
-          <p className="hover:text-green-600 cursor-pointer transition truncate">
-            Giới thiệu công ty
-          </p>
-          <p className="hover:text-green-600 cursor-pointer transition truncate">
-            Q.trình kiểm soát chất lượng
-          </p>
-          <p className="hover:text-green-600 cursor-pointer transition truncate">
-            Tích điểm QTV/App BHX
-          </p>
-          <p className="hover:text-green-600 cursor-pointer transition truncate">
-            Cần thuê mặt bằng
-          </p>
-          <p className="hover:text-green-600 cursor-pointer transition truncate">
-            Đăng ký chào hàng
-          </p>
-        </div>
-        <div className="space-y-2 flex flex-col">
-          <p className="font-semibold text-green-700">Hỗ trợ</p>
-          <p className="hover:text-green-600 cursor-pointer transition truncate">
-            Mua Phiếu mua hàng
-          </p>
-          <p className="hover:text-green-600 cursor-pointer transition truncate">
-            Hóa đơn điện tử
-          </p>
-          <p className="hover:text-green-600 cursor-pointer transition truncate">
-            Hướng dẫn mua hàng
-          </p>
-          <p className="hover:text-green-600 cursor-pointer transition truncate">
-            Chính sách đổi trả
-          </p>
-          <p className="hover:text-green-600 cursor-pointer transition truncate">
-            Tuyển 6555 việc
-          </p>
-        </div>
-        <div className="space-y-2 flex flex-col">
-          <p className="font-semibold text-green-700">Khách hàng</p>
-          <p className="hover:text-green-600 cursor-pointer transition truncate">
-            Mua sim, thẻ cào
-          </p>
-          <p className="hover:text-green-600 cursor-pointer transition truncate">
-            Chính sách khách hàng
-          </p>
-          <p className="hover:text-green-600 cursor-pointer transition truncate">
-            Chính sách giao hàng
-          </p>
-          <p className="hover:text-green-600 cursor-pointer transition truncate">
-            Hỏi đáp
-          </p>
-          <p className="hover:text-green-600 cursor-pointer transition truncate">
-            Quy chế Web
-          </p>
-        </div>
-
-        {/* Social & App */}
-        <div className="space-y-3 flex flex-col">
-          <p className="font-semibold text-green-700">Kết nối</p>
-          <div className="flex gap-3">
-            <FaFacebookF className="text-blue-600 hover:text-blue-400 transition cursor-pointer" />
-            <FaYoutube className="text-red-600 hover:text-red-400 transition cursor-pointer" />
-            <FaTiktok className="text-black hover:text-gray-600 transition cursor-pointer" />
-            <FaInstagram className="text-pink-500 hover:text-pink-300 transition cursor-pointer" />
-          </div>
-          <p className="font-semibold text-green-700 mt-2">Tải app</p>
-          <div className="flex gap-2 mt-1">
-            <img
-              src="/google-play-badge.png"
-              alt="Google Play"
-              className="h-9 cursor-pointer hover:scale-105 transition"
-            />
-            <img
-              src="/app-store-badge.png"
-              alt="App Store"
-              className="h-9 cursor-pointer hover:scale-105 transition"
-            />
+      <div className="border-t border-slate-200 bg-slate-50">
+        <div className="max-w-7xl mx-auto px-6 py-6">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-600">
+            <p>© 2025 Organic Store. Tất cả quyền được bảo lưu.</p>
+            <div className="flex gap-6">
+              <a href="#" className="hover:text-emerald-600 transition-colors">
+                Điều khoản sử dụng
+              </a>
+              <a href="#" className="hover:text-emerald-600 transition-colors">
+                Chính sách riêng tư
+              </a>
+              <a href="#" className="hover:text-emerald-600 transition-colors">
+                Cookies
+              </a>
+            </div>
           </div>
         </div>
-
-        {/* Certifications */}
-        <div className="col-span-2 flex flex-col gap-3 justify-center items-start md:items-end">
-          <img
-            src="https://webmedia.com.vn/images/2021/09/logo-da-thong-bao-bo-cong-thuong-mau-xanh.png"
-            alt="Bộ Công Thương"
-            className="h-12"
-          />
-          <img src="/dmca.png" alt="DMCA Protected" className="h-12" />
-          <img src="/nca.png" alt="NCA" className="h-12" />
-        </div>
-      </div>
-
-      {/* Brands */}
-      <div className="max-w-7xl mx-auto px-6 py-5 flex flex-wrap gap-3 justify-center bg-green-50 mt-4">
-        {brands.map((brand, idx) => (
-          <div
-            key={idx}
-            className="bg-white px-3 py-1 rounded shadow text-green-900 font-semibold cursor-pointer hover:shadow-md transition text-sm"
-          >
-            {brand}
-          </div>
-        ))}
       </div>
     </footer>
-  );
-};
+  )
+}
 
-export default Footer;
+export default Footer

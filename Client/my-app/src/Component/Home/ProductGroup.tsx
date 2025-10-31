@@ -1,22 +1,26 @@
-import { useState } from "react";
-import { Flame } from "lucide-react";
-import ProductCard from "../Common/ProductCard";
-import type { Product } from "@/Type/Product";
+"use client"
+
+import type React from "react"
+import { useState } from "react"
+import { Flame, ChevronLeft, ChevronRight } from "lucide-react"
+import ProductCard from "../Common/ProductCard"
+import type { Product } from "@/Type/Product"
 
 interface ProductGroupProps {
-  title: string;
-  products: Product[];
-  loading?: boolean;
-  badge?: string;
-  bgColor?: string;
-  maxItems?: number;
-  topBanners?: string[];
-  bottomBanners?: string[];
-  titleStyle?: "minimal" | "ecommerce";
-  titleAlign?: "left" | "center";
-  titleVariant?: "default" | "boxed" | "minimal";
-  showTitle?: boolean;
-  showMore?: boolean;
+  title: string
+  products: Product[]
+  loading?: boolean
+  badge?: string
+  bgColor?: string
+  bgVariant?: "neutral" | "emerald-light" | "cream" | "sage" | "mint"
+  maxItems?: number
+  topBanners?: string[]
+  bottomBanners?: string[]
+  titleStyle?: "minimal" | "ecommerce"
+  titleAlign?: "left" | "center"
+  titleVariant?: "default" | "boxed" | "minimal"
+  showTitle?: boolean
+  showMore?: boolean
 }
 
 const ProductGroup: React.FC<ProductGroupProps> = ({
@@ -25,6 +29,7 @@ const ProductGroup: React.FC<ProductGroupProps> = ({
   loading,
   badge,
   bgColor = "bg-white",
+  bgVariant = "neutral",
   maxItems = 10,
   topBanners = [],
   bottomBanners = [],
@@ -34,203 +39,179 @@ const ProductGroup: React.FC<ProductGroupProps> = ({
   showTitle = true,
   showMore = true,
 }) => {
-  const [startIndex, setStartIndex] = useState(0);
-  const [topBannerIndex, setTopBannerIndex] = useState(0);
-  const [bottomBannerIndex, setBottomBannerIndex] = useState(0);
+  const bgVariantMap: Record<string, string> = {
+    neutral: "bg-white",
+    "emerald-light": "bg-gradient-to-br from-emerald-50 via-white to-emerald-50",
+    cream: "bg-gradient-to-br from-amber-50 via-white to-orange-50",
+    sage: "bg-gradient-to-br from-slate-50 via-white to-green-50",
+    mint: "bg-gradient-to-br from-teal-50 via-white to-cyan-50",
+  }
 
-  // ✅ Chuẩn hóa ảnh và giá — KHÔNG thêm localhost/api lần nữa
-  const mappedProducts = products.map((p) => ({
-    ...p,
-    price: p.unitPrice * (1 - p.discount / 100),
-    oldPrice: p.discount > 0 ? p.unitPrice : undefined,
-    img:
-      typeof p.images === "string" && p.images.length > 0
-        ? p.images.split(",")[0] // đã được map sẵn trong ProductService
-        : "/assets/img/no-image.png",
-  }));
+  const finalBgColor = bgVariant ? bgVariantMap[bgVariant] : bgColor
 
-  // ✅ Điều khiển cuộn sản phẩm
-  const handlePrev = () =>
-    setStartIndex((prevIndex) => Math.max(0, prevIndex - maxItems));
-  const handleNext = () =>
-    setStartIndex((prevIndex) => {
-      const newIndex = prevIndex + maxItems;
-      const maxStart = Math.max(0, mappedProducts.length - maxItems);
-      return newIndex > maxStart ? maxStart : newIndex;
-    });
+  const [startIndex, setStartIndex] = useState(0)
+  const [topBannerIndex, setTopBannerIndex] = useState(0)
+  const [bottomBannerIndex, setBottomBannerIndex] = useState(0)
 
-  const visibleProducts = mappedProducts.slice(
-    startIndex,
-    startIndex + maxItems
-  );
-  const canGoPrev = startIndex > 0;
-  const canGoNext = startIndex < Math.max(0, mappedProducts.length - maxItems);
+  const handlePrev = () => setStartIndex((prev) => Math.max(prev - maxItems, 0))
+  const handleNext = () => setStartIndex((prev) => Math.min(prev + maxItems, products.length - maxItems))
+  const prevTop = () => setTopBannerIndex((prev) => (prev - 1 + topBanners.length) % topBanners.length)
+  const nextTop = () => setTopBannerIndex((prev) => (prev + 1) % topBanners.length)
+  const prevBottom = () => setBottomBannerIndex((prev) => (prev - 1 + bottomBanners.length) % bottomBanners.length)
+  const nextBottom = () => setBottomBannerIndex((prev) => (prev + 1) % bottomBanners.length)
 
-  // ✅ Điều khiển banner
-  const prevTop = () =>
-    setTopBannerIndex(
-      (topBannerIndex - 1 + topBanners.length) % topBanners.length
-    );
-  const nextTop = () =>
-    setTopBannerIndex((topBannerIndex + 1) % topBanners.length);
-  const prevBottom = () =>
-    setBottomBannerIndex(
-      (bottomBannerIndex - 1 + bottomBanners.length) % bottomBanners.length
-    );
-  const nextBottom = () =>
-    setBottomBannerIndex((bottomBannerIndex + 1) % bottomBanners.length);
+  const visibleProducts = products.slice(startIndex, startIndex + maxItems)
+  const canGoPrev = startIndex > 0
+  const canGoNext = startIndex + maxItems < products.length
 
-  // ✅ Render tiêu đề nhóm sản phẩm
-  const renderTitle = () => {
-    const titleElement = (
-      <h2 className="text-xl sm:text-2xl font-bold text-gray-900">{title}</h2>
-    );
-
-    if (titleVariant === "boxed") {
-      return (
-        <div className="relative mb-8">
-          <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-            <div className="bg-gradient-to-r from-yellow-200 to-pink-200 px-4 py-1 shadow-md rounded-b-xl">
-              <h2 className="text-lg sm:text-xl font-bold text-gray-900">
-                {title}
-              </h2>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    if (titleStyle === "minimal") {
-      return (
-        <div
-          className={`flex items-center gap-3 mb-6 group relative ${
-            titleAlign === "center" ? "justify-center" : ""
-          }`}
-        >
-          <div className="w-2 h-6 bg-green-500 rounded-md"></div>
-          <h2 className="text-xl sm:text-2xl font-bold tracking-wide text-gray-800 relative">
-            {title}
-            <span className="absolute left-0 -bottom-1 h-[2px] w-0 bg-green-500 transition-all duration-500 group-hover:w-full origin-left"></span>
-          </h2>
-          {badge && (
-            <span className="bg-red-500 text-white text-xs sm:text-sm px-3 py-1 rounded-full shadow">
-              {badge}
-            </span>
-          )}
-        </div>
-      );
-    }
-
-    // ✅ ecommerce style
-    return (
-      <div
-        className={`flex items-center justify-between mb-6 ${
-          titleAlign === "center" ? "justify-center" : ""
-        }`}
-      >
-        <div className="flex items-center gap-2 group">
-          <Flame className="text-red-500 w-5 h-5 group-hover:animate-pulse" />
-          {titleElement}
-          {badge && (
-            <span className="bg-red-500 text-white text-xs sm:text-sm px-3 py-1 rounded-full shadow">
-              {badge}
-            </span>
-          )}
-        </div>
-      </div>
-    );
-  };
-
-  // ✅ Render banner (top/bottom)
+  // ===== Banner render =====
   const renderBanner = (
     banners: string[],
     index: number,
     onPrev: () => void,
     onNext: () => void
   ) => {
-    if (banners.length === 0) return null;
-
+    if (banners.length === 0) return null
     return (
-      <div className="-mx-1 sm:-mx-2 lg:-mx-3 relative">
+      <div className="relative group overflow-hidden rounded-lg mb-4">
         <img
-          src={banners[index]}
+          src={banners[index] || "/placeholder.svg"}
           alt={`${title} banner`}
-          className="w-full h-auto object-cover"
+          className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
         />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         {banners.length > 1 && (
           <>
             <button
               onClick={onPrev}
-              className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full z-10 bg-black/30 text-white hover:bg-black/50 transition"
+              className="absolute left-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full z-10 bg-white/20 backdrop-blur text-white hover:bg-white/40 transition-all duration-300 opacity-0 group-hover:opacity-100 hover:scale-110"
             >
-              &#10094;
+              <ChevronLeft className="w-5 h-5" />
             </button>
             <button
               onClick={onNext}
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full z-10 bg-black/30 text-white hover:bg-black/50 transition"
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full z-10 bg-white/20 backdrop-blur text-white hover:bg-white/40 transition-all duration-300 opacity-0 group-hover:opacity-100 hover:scale-110"
             >
-              &#10095;
+              <ChevronRight className="w-5 h-5" />
             </button>
           </>
         )}
+      </div>
+    )
+  }
 
-        {banners.length > 1 && (
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
-            {banners.map((_, i) => (
-              <div
-                key={i}
-                className={`w-2.5 h-2.5 rounded-full transition-all ${
-                  i === index ? "bg-green-500 scale-110" : "bg-white/60"
-                }`}
-              />
-            ))}
+  // ===== Title render =====
+  const renderTitle = () => {
+    const titleElement = (
+      <h2 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+        {title}
+      </h2>
+    )
+
+    if (titleVariant === "boxed") {
+      return (
+        <div className="relative mb-8">
+          <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+            <div className="bg-gradient-to-r from-emerald-400 to-emerald-300 px-6 py-2 shadow-lg rounded-xl">
+              <h2 className="text-lg sm:text-xl font-bold text-white">{title}</h2>
+            </div>
           </div>
+        </div>
+      )
+    }
+
+    if (titleStyle === "minimal") {
+      return (
+        <div
+          className={`flex items-center gap-3 mb-5 group relative ${
+            titleAlign === "center" ? "justify-center" : ""
+          }`}
+        >
+          <div className="w-1.5 h-7 bg-gradient-to-b from-emerald-500 to-emerald-600 rounded-full shadow-md"></div>
+          <div className="relative">
+            {titleElement}
+            <span className="absolute left-0 -bottom-1.5 h-0.5 w-0 bg-gradient-to-r from-emerald-500 to-emerald-400 transition-all duration-500 group-hover:w-full origin-left"></span>
+          </div>
+          {badge && (
+            <span className="bg-gradient-to-r from-red-500 to-red-600 text-white text-xs sm:text-sm px-3 py-1 rounded-full shadow-md font-medium">
+              {badge}
+            </span>
+          )}
+        </div>
+      )
+    }
+
+    return (
+      <div
+        className={`flex items-center gap-3 mb-5 ${
+          titleAlign === "center" ? "justify-center" : ""
+        }`}
+      >
+        <Flame className="text-red-500 w-6 h-6 drop-shadow animate-pulse" />
+        {titleElement}
+        {badge && (
+          <span className="bg-gradient-to-r from-red-500 to-red-600 text-white text-xs sm:text-sm px-3 py-1 rounded-full shadow-md font-medium">
+            {badge}
+          </span>
         )}
       </div>
-    );
-  };
+    )
+  }
 
-  // ✅ Render chính
+  // ===== Render main section =====
   return (
     <section
-      className={`${bgColor} relative shadow-2xl px-1 sm:px-2 lg:px-3 pt-0 mb-[20px] border border-gray-200`}
+      className={`${finalBgColor} relative shadow rounded-xl px-3 sm:px-4 lg:px-5 pt-5 pb-5 mb-4 border border-gray-100/40 overflow-hidden transition-all duration-300`}
     >
-      {renderBanner(topBanners, topBannerIndex, prevTop, nextTop)}
+      <div
+        className={`absolute top-0 right-0 w-40 h-40 rounded-full -mr-20 -mt-20 pointer-events-none opacity-40 ${
+          bgVariant === "cream"
+            ? "bg-amber-200"
+            : bgVariant === "sage"
+            ? "bg-green-200"
+            : bgVariant === "mint"
+            ? "bg-teal-200"
+            : "bg-emerald-50"
+        }`}
+      />
 
+      {renderBanner(topBanners, topBannerIndex, prevTop, nextTop)}
       {showTitle && renderTitle()}
 
       {loading ? (
-        <p className="text-gray-400 italic text-center py-4">
-          Đang tải sản phẩm...
-        </p>
+        <div className="flex justify-center py-8">
+          <div className="inline-flex gap-2">
+            <div className="w-3 h-3 rounded-full bg-emerald-500 animate-bounce"></div>
+            <div className="w-3 h-3 rounded-full bg-emerald-500 animate-bounce delay-100"></div>
+            <div className="w-3 h-3 rounded-full bg-emerald-500 animate-bounce delay-200"></div>
+          </div>
+        </div>
       ) : (
-        <div className="relative mt-4">
+        <div className="relative mt-4 z-10">
           {canGoPrev && (
             <button
               onClick={handlePrev}
-              className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full z-10 bg-black/30 text-white hover:bg-black/50 transition"
+              className="absolute -left-4 top-1/2 -translate-y-1/2 p-2.5 rounded-full z-20 bg-white shadow-lg text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 transition-all duration-300 hover:scale-110"
             >
-              &#10094;
+              <ChevronLeft className="w-5 h-5" />
             </button>
           )}
-
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-1 relative z-0">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3 relative z-0 px-3">
             {visibleProducts.map((p) => (
               <div
                 key={p.id}
-                className="w-full h-full transform hover:scale-105 transition-transform duration-300"
+                className="w-full h-full transform transition-all duration-300 hover:scale-105"
               >
                 <ProductCard p={p} />
               </div>
             ))}
           </div>
-
           {canGoNext && (
             <button
               onClick={handleNext}
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full z-10 bg-black/30 text-white hover:bg-black/50 transition"
+              className="absolute -right-4 top-1/2 -translate-y-1/2 p-2.5 rounded-full z-20 bg-white shadow-lg text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 transition-all duration-300 hover:scale-110"
             >
-              &#10095;
+              <ChevronRight className="w-5 h-5" />
             </button>
           )}
         </div>
@@ -240,7 +221,7 @@ const ProductGroup: React.FC<ProductGroupProps> = ({
         <div className="flex justify-center mt-4">
           <a
             href={`/category/${title}`}
-            className="text-green-600 font-medium hover:underline transition"
+            className="text-sm text-emerald-600 hover:text-emerald-700 font-medium transition"
           >
             Xem thêm sản phẩm →
           </a>
@@ -249,7 +230,7 @@ const ProductGroup: React.FC<ProductGroupProps> = ({
 
       {renderBanner(bottomBanners, bottomBannerIndex, prevBottom, nextBottom)}
     </section>
-  );
-};
+  )
+}
 
-export default ProductGroup;
+export default ProductGroup

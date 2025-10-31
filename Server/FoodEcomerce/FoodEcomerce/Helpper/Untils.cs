@@ -137,7 +137,7 @@ namespace FoodEcomerce.Helpper
             return hashedEnteredPassword.Equals(storedHash, StringComparison.OrdinalIgnoreCase);
         }
 
-        public static string GenerateAccessToken(string userId, string username, Guid role)
+        public static string GenerateAccessToken(Guid userId, string username, Guid role)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(AppSettingsProvider.Get("JWT:IssuerSigningKey") ?? "");

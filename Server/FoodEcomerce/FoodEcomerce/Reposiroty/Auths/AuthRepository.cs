@@ -18,13 +18,13 @@ namespace FoodEcomerce.Reposiroty.Auths
         }
         public async Task<LoginDTO> Login(LoginModal modal)
         {
-            if (modal.PhoneNumber == null || modal.Password == null)
+            if (modal.Email == null || modal.Password == null)
             {
                 return new LoginDTO();
             }
             LoginDTO result = new LoginDTO();
             var paswordHash = Helpper.Untils.EncrypePassword(modal.Password);
-            var db = await _context.Users.FirstOrDefaultAsync(x => x.PhoneNumber == modal.PhoneNumber && x.Password == paswordHash);
+            var db = await _context.Users.FirstOrDefaultAsync(x => x.Email == modal.Email && x.Password == paswordHash);
            
             if (db != null)
             {
@@ -40,9 +40,9 @@ namespace FoodEcomerce.Reposiroty.Auths
                     CartId = CartItem != null ? CartItem.Id : Guid.Empty,   
                     Status = 200
                 };
-                if (!string.IsNullOrEmpty(result.Email) || !string.IsNullOrEmpty(result.UserName))
+                if (!string.IsNullOrEmpty(result.Email) )
                 {
-                    result.AccessToken = Helpper.Untils.GenerateAccessToken(result.PhoneNumber, result.UserName, result.RoleId);
+                    result.AccessToken = Helpper.Untils.GenerateAccessToken(result.Id, result.UserName, result.RoleId);
                 }
                 else
                 {
@@ -90,7 +90,7 @@ namespace FoodEcomerce.Reposiroty.Auths
                 };
                 if (!string.IsNullOrEmpty(result.Email) || !string.IsNullOrEmpty(result.UserName))
                 {
-                    result.AccessToken = Helpper.Untils.GenerateAccessToken(result.PhoneNumber, result.UserName, result.RoleId);
+                    result.AccessToken = Helpper.Untils.GenerateAccessToken(result.Id, result.UserName, result.RoleId);
                 }
                 else
                 {
@@ -105,7 +105,7 @@ namespace FoodEcomerce.Reposiroty.Auths
 
         public async Task<ResultModal> Register(RegisterModal modal)
         {
-            var dbUser = await _context.Users.FirstOrDefaultAsync(x => x.PhoneNumber == modal.PhoneNumber);
+            var dbUser = await _context.Users.FirstOrDefaultAsync(x => x.Email == modal.Email);
             // veriy OTP 
             var otpValue = await _context.OTPs.FirstOrDefaultAsync(x => x.Code == modal.OTP && x.Email == modal.Email);
             if (otpValue != null)
@@ -118,10 +118,11 @@ namespace FoodEcomerce.Reposiroty.Auths
                         user.Id = Guid.NewGuid();
                         user.Password = Helpper.Untils.EncrypePassword(modal.Password);
                         user.RoleId = Guid.Parse("e791c54a-15fc-401a-b376-b4f3e088c284");
+                        user.UserName = modal.Email;
                         user.StatusId = 1;
                         user.IsAdmin = false;
                         user.Acvite = true;
-                        user.CreateUser = modal.UserName;
+                        user.CreateUser = modal.Email;
                         _context.Users.Add(user);
                         _context.OTPs.Remove(otpValue);
 
@@ -133,8 +134,8 @@ namespace FoodEcomerce.Reposiroty.Auths
 
                         await _context.SaveChangesAsync();
 
-                        return new ResultModal() { Status = 200, Message = "Đăng ký thành công", Success = false };
-                    }
+                        return new ResultModal() { Status = 200, Message = "Đăng ký thành công", Success = true };
+                    }else return new ResultModal() { Status = 202, Message = "Tài khoản đã tồn tại trong hệ thống", Success = false };
                 }
                 else
                 {
