@@ -24,18 +24,19 @@ namespace FoodEcomerce.Reposiroty.Orderss
         public async Task<ResultModal> CreateWithQuery(OrderModal modal)
         {
             var ordersData = _context.Orders.FirstOrDefault(r=> r.Id == modal.Id);
-            if (ordersData != null)
+            if (ordersData == null)
             {
               var item =  _mapper.Map<Orders>(modal);
               item.Id = Guid.NewGuid();
-              item.OrderStatusId = 1;
+              item.StatusId = 1;
+               item.OrderDate = DateTime.Now;  
               _context.Orders.Add(item);
               List<OrderDetail> ordersDetail = new List<OrderDetail>();
                 if (modal.OrdersDetails != null) {
                     foreach (var item1 in modal.OrdersDetails)
                     {
                         var dataDetail = _mapper.Map<OrderDetail>(item1);
-                        dataDetail.OrderId = Guid.NewGuid();
+                        dataDetail.OrderId = item.Id;
 
                         ordersDetail.Add(dataDetail);
                     }
@@ -49,7 +50,7 @@ namespace FoodEcomerce.Reposiroty.Orderss
                 var email = new MimeMessage();
                 email.From.Add(new MailboxAddress("YourApp", "vodangphat2002@gmail.com"));
                 email.To.Add(new MailboxAddress("", itemUser.Email));
-                email.Subject = "Your OTP Code";
+                email.Subject = "Đơn đặt hàng";
 
                 var builder = new BodyBuilder();
 
@@ -109,7 +110,7 @@ namespace FoodEcomerce.Reposiroty.Orderss
                             <body>
                               <div class='container'>
                                 <h2>Xin chào {itemUser.UserName ?? "Quý khách"},</h2>
-                                <p>Cảm ơn bạn đã đặt hàng tại <strong>YourApp</strong>! 🎉</p>
+                                <p>Cảm ơn bạn đã đặt hàng tại trang web của chúng tôi</p>
 
                                 <p>Đơn hàng của bạn đã được tiếp nhận và đang được xử lý.</p>
 

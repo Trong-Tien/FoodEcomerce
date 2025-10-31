@@ -43,7 +43,7 @@ const theme = createTheme({
 const login = async (data: Login) => {
 
   // call API Login
-  const response = await fetch(`http://localhost:5292/api/Auth/LoginWithWebUser`, {
+  const response = await fetch(`https://localhost:7004/api/Auth/LoginWithWebUser`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),

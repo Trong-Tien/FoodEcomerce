@@ -8,6 +8,6 @@
         public string? Description { get; set; }
         public int  SortOrder { get; set; }
         public  bool IsActive { get; set; }
-        public ICollection<Orders> OrderDetails { get; set; } = new List<Orders>();
+        public ICollection<Orders> Orders { get; set; } = new List<Orders>();
     }
 }

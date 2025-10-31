@@ -11,8 +11,7 @@
         // Foreign Key
         public Guid UserId { get; set; }
         public int PaymentMenthodId { get; set; }
-        public int StatusOrdersId { get; set; }
-        public int VoucherId { get; set; } 
+        public int? VoucherId { get; set; } 
         public List<OrdersDetailModal>? OrdersDetails { get; set; }
     }
 }

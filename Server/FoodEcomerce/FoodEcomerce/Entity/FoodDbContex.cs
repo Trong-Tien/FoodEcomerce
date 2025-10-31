@@ -265,6 +265,7 @@ namespace FoodEcomerce.Entity
                 entity.Property(x => x.ShippingAddress).HasMaxLength(300);
                 entity.Property(x => x.ShippingFee).HasColumnType("decimal");
                 entity.Property(x => x.TotalPrice).HasColumnType("decimal");
+                entity.Property(x => x.OrderStatusId).HasColumnType("int");
                 entity.Property(x => x.Note).HasMaxLength(50);
                 entity.HasOne(x => x.User)
                    .WithMany(x => x.Orders)
@@ -276,19 +277,14 @@ namespace FoodEcomerce.Entity
                  .HasForeignKey(x => x.PaymentMenthodId)
                  .HasConstraintName("FK_Orders_PaymentMethod")
                  .OnDelete(DeleteBehavior.ClientSetNull);
-                entity.HasOne(x => x.StatusOrders)
-                   .WithMany(x => x.Orders)
-                   .HasForeignKey(x => x.StatusOrdersId)
-                   .HasConstraintName("FK_Orders_StatusOrders")
-                   .OnDelete(DeleteBehavior.ClientSetNull);
                 entity.HasOne(x => x.Voucher)
                   .WithMany(x => x.Orders)
                   .HasForeignKey(x => x.VoucherId)
                   .HasConstraintName("FK_Orders_Voucher")
                   .OnDelete(DeleteBehavior.ClientSetNull);
-                entity.HasOne(x => x.StatusOrders)
+                entity.HasOne(x => x.OrderStatus)
                .WithMany(x => x.Orders)
-               .HasForeignKey(x => x.OrderStatusId)
+               .HasForeignKey(x => x.StatusId)
                .HasConstraintName("FK_Order_OrderStatus")
                .OnDelete(DeleteBehavior.ClientSetNull);
             });

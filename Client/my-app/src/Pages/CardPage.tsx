@@ -11,7 +11,22 @@ import confetti from "canvas-confetti"
 import { productService } from "@/Services/ProductService"
 import { voucherUserService } from "@/Services/VoucherUserService"
 import type { Voucher } from "@/Type/Voucher"
+import { useGetPaymentMethod } from "@/Hooks/PaymentMethod"
+import type { PaymentMethod } from "@/Type/Paymentmethod"
+import type { AddOrder } from "@/Type/AddOrder"
+import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+import iconUrl from "leaflet/dist/images/marker-icon.png";
+import iconShadow from "leaflet/dist/images/marker-shadow.png";
+import { se } from "date-fns/locale"
+import { useCreateOrders } from "@/Hooks/Orders"
+import type { ResponseType } from "@/Type/ResponseType"
+const DefaultIcon = L.icon({ iconUrl, shadowUrl: iconShadow });
+L.Marker.prototype.options.icon = DefaultIcon;
 
+let userId: string | null = localStorage.getItem("userId")
+let address: string = ""
 /* ========================== Header ========================== */
 function CartHeaderCard() {
   return (
@@ -20,6 +35,7 @@ function CartHeaderCard() {
         <ArrowLeft className="w-5 h-5 text-slate-700" />
       </button>
       <h2 className="mx-auto text-xl font-bold text-slate-900">Giỏ hàng của bạn</h2>
+
     </div>
   )
 }
@@ -36,24 +52,52 @@ function CartTabs() {
 }
 
 /* ========================== Address ========================== */
-function AddressInfo() {
+type props = {
+  setAddressCurrent: React.Dispatch<React.SetStateAction<string>>;
+}
+const AddressInfo: React.FC<props> = ({ setAddressCurrent }) => {
+  const [position, setPosition] = useState<[number, number] | null>(null);
+  const [addresslocal, setAddress] = useState<string>("");
+  const LocationMarker = () => {
+    useMapEvents({
+      click: async (e) => {
+        const { lat, lng } = e.latlng;
+        setPosition([lat, lng]);
+
+        // Gọi API Nominatim để lấy địa chỉ
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=vi`
+        );
+        const data = await res.json();
+        setAddress(data.display_name || "Không tìm thấy địa chỉ");
+
+      },
+    });
+    setAddressCurrent(addresslocal);
+    return position === null ? null : <Marker position={position}></Marker>;
+  }
   return (
     <div className="mx-4 mb-4 p-4 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl border border-emerald-200 space-y-3">
-      <div className="flex justify-between items-start">
-        <div className="flex-1">
-          <p className="font-semibold text-slate-900">
-            📍 Giao đến: <span className="text-emerald-700">Anh Thịnh (0947xxxxxx)</span>
-          </p>
-          <p className="text-sm text-slate-600 mt-1">87/1, Xã Long Phú, TP. Cần Thơ</p>
-        </div>
-        <button className="text-emerald-600 text-xs font-semibold hover:underline">Đổi</button>
-      </div>
-      <div className="border-t border-emerald-200 pt-3 flex justify-between items-start">
-        <div className="flex-1">
-          <p className="text-sm font-semibold text-slate-700">🏪 Từ: BHX Long Phú</p>
-          <p className="text-xs text-slate-500 mt-1">Thửa đất số 137, tờ bản đồ số 41, ấp 4, Long Phú, Cần Thơ</p>
-        </div>
-        <button className="text-emerald-600 text-xs font-semibold hover:underline">Đổi</button>
+      <div className="flex flex-col gap-3">
+        <MapContainer
+          center={[10.762622, 106.660172]}
+          zoom={13}
+          scrollWheelZoom={true}
+          className="h-96 w-full rounded-xl border border-gray-300 shadow-sm"
+        >
+          <TileLayer
+            attribution='&copy; OpenStreetMap contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+          <LocationMarker />
+        </MapContainer>
+
+        {position && (
+          <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-sm">
+            <p><b>Địa chỉ:</b> {addresslocal}</p>
+            <p><b>Tọa độ:</b> {position[0].toFixed(6)}, {position[1].toFixed(6)}</p>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -219,17 +263,16 @@ function VoucherModal({
 }) {
   const [vouchers, setVouchers] = useState<Voucher[]>([])
   const [loading, setLoading] = useState(true)
-  const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5292"
+  const API_BASE = import.meta.env.VITE_API_URL || "https://localhost:7004"
 
   useEffect(() => {
-    let userId: string | null = localStorage.getItem("userId")
     if (!userId) {
       const userStr = localStorage.getItem("user")
       if (userStr) {
         try {
           const parsed = JSON.parse(userStr)
           userId = parsed?.id || null
-        } catch {}
+        } catch { }
       }
     }
 
@@ -321,8 +364,8 @@ function VoucherModal({
                                 ? v.imageUrl.startsWith("http")
                                   ? v.imageUrl
                                   : `${API_BASE}/api/File/image?path=${encodeURIComponent(
-                                      v.imageUrl.replace(/^\/+/, "")
-                                    )}`
+                                    v.imageUrl.replace(/^\/+/, "")
+                                  )}`
                                 : "/assets/img/no-image.png"
                             }
                             alt={v.name}
@@ -360,11 +403,10 @@ function VoucherModal({
                     {/* Button */}
                     <button
                       disabled={isUsed}
-                      className={`mt-4 py-2 w-full rounded-lg font-semibold text-sm transition-all ${
-                        isUsed
-                          ? "bg-white/30 text-white cursor-not-allowed"
-                          : "bg-white text-emerald-600 hover:scale-105 hover:shadow-lg"
-                      }`}
+                      className={`mt-4 py-2 w-full rounded-lg font-semibold text-sm transition-all ${isUsed
+                        ? "bg-white/30 text-white cursor-not-allowed"
+                        : "bg-white text-emerald-600 hover:scale-105 hover:shadow-lg"
+                        }`}
                     >
                       {isUsed ? "ĐÃ ÁP DỤNG" : "ÁP DỤNG"}
                     </button>
@@ -384,6 +426,10 @@ function VoucherModal({
 export default function CartPage() {
   const { items, update, remove, total, shipping, clear } = useCart()
   const navigate = useNavigate()
+  const { data: data } = useGetPaymentMethod(1, 10)
+  const createOrders = useCreateOrders()
+  const dataPaymend: PaymentMethod[] = data?.items ?? []
+  const [selected, setSelected] = useState<number>(0);
   const { isLoggedIn } = useAuth()
   const [showSuccess, setShowSuccess] = useState(false)
   const [productCache, setProductCache] = useState<Record<string, any>>({})
@@ -391,6 +437,8 @@ export default function CartPage() {
   const [showVoucherModal, setShowVoucherModal] = useState(false)
   const [disCountValue, setDiscountValue] = useState<number>(0)
   const [shipValue, setShipValue] = useState<number>(0)
+  const [note, setNote] = useState<string>("")
+  const [addressCurrent, setAddressCurrent] = useState<string>("");
 
   useEffect(() => {
     document.title = "Giỏ hàng - FoodEcommerce"
@@ -441,16 +489,51 @@ export default function CartPage() {
 
   const finalTotal = Math.max(0, total - disCountValue + shipping - shipValue)
 
-  const handleOrder = () => {
-    toast.success(`🎉 Đặt hàng thành công! Tổng thanh toán ${finalTotal.toLocaleString("vi-VN")}₫`)
-    clear()
-    confetti({ particleCount: 200, spread: 90, origin: { y: 0.6 } })
-    setShowSuccess(true)
-    setTimeout(() => {
-      setShowSuccess(false)
-      navigate({ to: "/" })
-    }, 3000)
+  const handleOrder = async () => {
+    const tempData: AddOrder = {
+      userId: userId !== null ? userId : null,
+      voucherId: voucher.find(r => r.discountType != "Giảm giá phí ship")?.id ?? null,
+      paymentMenthodId: selected,
+      note: note,
+      totalPrice: finalTotal,
+      shippingFee: shipping - shipValue,
+      shippingAddress: addressCurrent,
+      OrdersDetails: items.map((item) => ({
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+        totalPrice: item.totalPrice,
+        productId: item.productId,
+        unitCaculateId: item.unitCaculateId ?? "",
+      })),
+    }
+    console.log(tempData)
+    if (selected === 0) {
+      toast.error(`Vui lòng chọn phương thức thanh toán`)
+    } else if (addressCurrent === "") {
+      toast.error(`Vui lòng chọn địa chỉ`)
+    } else {
+      const response: ResponseType = await createOrders.mutateAsync(tempData)
+      if (response.status == 200) {
+        toast.success(`${response.message}`)
+      }
+      else {
+        toast.error(`${response.message}`)
+      }
+    }
+    // toast.success(`🎉 Đặt hàng thành công! Tổng thanh toán ${finalTotal.toLocaleString("vi-VN")}₫`)
+    // clear()
+    // confetti({ particleCount: 200, spread: 90, origin: { y: 0.6 } })
+    // setShowSuccess(true)
+    // setTimeout(() => {
+    //   setShowSuccess(false)
+    //   navigate({ to: "/" })
+    // }, 3000)
   }
+
+
+
+
+
 
   if (!isLoggedIn) {
     return (
@@ -488,7 +571,7 @@ export default function CartPage() {
       <div className="flex-1 max-w-2xl mx-auto w-full pt-32 pb-6">
         <CartHeaderCard />
         <CartTabs />
-        <AddressInfo />
+        <AddressInfo setAddressCurrent={setAddressCurrent} />
 
         {/* ✅ Danh sách sản phẩm */}
         <div className="mx-4 mb-4 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
@@ -525,6 +608,53 @@ export default function CartPage() {
             </button>
           </div>
         )}
+        <div className="mx-4 mb-6">
+          <h3 className="text-base font-semibold mb-3 text-gray-700">
+            💳 Phương thức thanh toán
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {dataPaymend.map((method) => (
+              <button
+                key={method.id}
+                onClick={() => setSelected(method.id)}
+                className={`p-4 text-left rounded-xl border flex items-start gap-3 transition-all duration-200 ${selected === method.id
+                  ? "border-emerald-500 bg-emerald-50 shadow-sm"
+                  : "border-gray-200 hover:border-emerald-300"
+                  }`}
+              >
+
+                <div>
+                  <p className="font-medium text-gray-800">{method.name}</p>
+                  <p className="text-sm text-gray-500">{method.description}</p>
+                </div>
+              </button>
+            ))}
+          </div>
+
+          {selected && (
+            <div className="mt-4 p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-lg text-sm">
+              Đã chọn: <b>{dataPaymend.find((m) => m.id === selected)?.name}</b>
+            </div>
+          )}
+        </div>
+
+        {/* ORDER NOTE */}
+        <div className="mt-6">
+          <label
+            htmlFor="order-note"
+            className="block text-sm font-semibold text-gray-700 mb-2"
+          >
+            📝 Ghi chú cho đơn hàng
+          </label>
+          <textarea
+            id="order-note"
+            rows={3}
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder="Ví dụ: Giao buổi sáng, gọi trước khi đến..."
+            className="w-full rounded-xl border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 transition-all"
+          />
+        </div>
 
         {/* ✅ CTA Button */}
         <div className="mx-4 sticky bottom-6">

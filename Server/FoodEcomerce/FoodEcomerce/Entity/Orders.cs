@@ -10,10 +10,11 @@
         public string? Note { get; set; }
         // Foreign Key
         public Guid UserId { get; set; }
-        public int PaymentMenthodId { get; set; }
-        public int StatusOrdersId { get; set; }
-        public int VoucherId { get; set; }
         public int OrderStatusId { get; set; }
+        public int PaymentMenthodId { get; set; }
+        public int? StatusOrdersId { get; set; }
+        public int StatusId { get; set; }
+        public int? VoucherId { get; set; }
         public User? User { get; set; }
         public PaymentMenthod? PaymentMenthod { get; set; }
         public StatusOrders? StatusOrders { get; set; }  

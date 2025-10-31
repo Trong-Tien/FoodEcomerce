@@ -8,7 +8,7 @@ import type { Voucher } from "@/Type/Voucher"
 import { Ticket, Gift, ArrowRight, Sparkles } from "lucide-react"
 
 export default function VoucherPage() {
-  const API_BASE = "http://localhost:5292"
+  const API_BASE = "https://localhost:7004"
   const [vouchers, setVouchers] = useState<Voucher[]>([])
   const [loading, setLoading] = useState(true)
   const [claimedIds, setClaimedIds] = useState<number[]>([])
