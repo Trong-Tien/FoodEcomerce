@@ -3,7 +3,7 @@ import type { Menu } from "@/Type/Menu";
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: http://localhost:5292/api/Menu",
+  baseURL: "http://localhost:5292/api/Menu",
 });
 
 export const getAll = async (pageNumber: number, pageSize: number) => {

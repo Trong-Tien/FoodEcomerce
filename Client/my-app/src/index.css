@@ -1,6 +1,25 @@
+/* ------------------ Tailwind Base ------------------ */
 @import "tailwindcss";
 @tailwind utilities;
 
+/* ------------------ Custom Animations ------------------ */
+
+/* 1️⃣ Fade In chung cho modal, toast, popup... */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* 2️⃣ Slide In (giữ nguyên của bạn) */
 @keyframes slideIn {
   from {
     transform: translateX(100%);
@@ -9,8 +28,81 @@
     transform: translateX(0);
   }
 }
-
 .animate-slideIn {
   animation: slideIn 0.3s ease-out forwards;
 }
-    
+
+/* 3️⃣ Zoom In (hiệu ứng phóng to khi hiện modal thành công) */
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.zoom-in {
+  animation: zoomIn 0.5s ease-out forwards;
+}
+
+/* 4️⃣ Slide từ dưới lên (cho SuccessModal) */
+@keyframes slideInFromBottom {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.slide-in-from-bottom-4 {
+  animation: slideInFromBottom 0.6s ease-out forwards;
+}
+
+/* 5️⃣ Checkmark Bounce */
+@keyframes checkmark-bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+.animate-checkmark-bounce {
+  animation: checkmark-bounce 1.2s ease-in-out infinite;
+}
+
+/* 6️⃣ Pulse Ring (hiệu ứng vòng sáng nhịp quanh icon) */
+@keyframes pulse-ring {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.1); }
+}
+.animate-pulse-ring {
+  animation: pulse-ring 2s ease-in-out infinite;
+}
+
+/* 7️⃣ Text Fade In */
+@keyframes text-fade-in {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.animate-text-fade-in {
+  animation: text-fade-in 0.6s ease-out forwards;
+}
+
+/* 8️⃣ Float Up (emoji bay lên) */
+@keyframes float-up {
+  0% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-50px); }
+}
+.animate-float-up {
+  animation: float-up 2s ease-out forwards;
+}
+
+/* 9️⃣ Hide scrollbar (giữ nguyên của bạn) */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+.hide-scrollbar {
+  -ms-overflow-style: none; /* IE, Edge */
+  scrollbar-width: none; /* Firefox */
+}

@@ -173,13 +173,25 @@ function Header() {
                   </span>
                 </button>
               ) : (
-                <a
-                  href="/Dangnhap"
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-emerald-600 font-semibold transition-all duration-300 hover:shadow-lg hover:scale-105"
-                >
-                  <FaUser size={16} />
-                  <span className="hidden sm:inline text-sm">Đăng nhập</span>
-                </a>
+                <div className="flex items-center gap-2">
+                  {/* 🔹 Nút Đăng ký */}
+                  <a
+                    href="/DangKyGmailFlow"
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-emerald-600 font-semibold transition-all duration-300 hover:shadow-lg hover:scale-105"
+                  >
+                    <FaUser size={16} />
+                    <span className="hidden sm:inline text-sm">Đăng ký</span>
+                  </a>
+
+                  {/* 🔹 Nút Đăng nhập */}
+                  <a
+                    href="/Dangnhap"
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-emerald-600 font-semibold transition-all duration-300 hover:shadow-lg hover:scale-105"
+                  >
+                    <FaUser size={16} />
+                    <span className="hidden sm:inline text-sm">Đăng nhập</span>
+                  </a>
+                </div>
               )}
             </div>
           </div>

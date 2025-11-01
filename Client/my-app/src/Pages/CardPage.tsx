@@ -27,6 +27,7 @@ L.Marker.prototype.options.icon = DefaultIcon
 
 let userId: string | null = localStorage.getItem("userId")
 const address = ""
+
 /* ========================== Header ========================== */
 function CartHeaderCard() {
   return (
@@ -54,58 +55,110 @@ function CartTabs() {
 type props = {
   setAddressCurrent: React.Dispatch<React.SetStateAction<string>>
 }
-const AddressInfo: React.FC<props> = ({ setAddressCurrent }) => {
-  const [position, setPosition] = useState<[number, number] | null>(null)
-  const [addresslocal, setAddress] = useState<string>("")
 
+const AddressInfo: React.FC<props> = ({ setAddressCurrent }) => {
+  const [position, setPosition] = useState<[number, number] | null>([10.762622, 106.660172])
+  const [addresslocal, setAddressLocal] = useState<string>("")
+  const [searchInput, setSearchInput] = useState<string>("")
+
+  // 📍 Hàm xử lý khi click lên bản đồ
   const LocationMarker = () => {
     useMapEvents({
       click: async (e) => {
         const { lat, lng } = e.latlng
         setPosition([lat, lng])
 
-        // Gọi API Nominatim để lấy địa chỉ
         const res = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=vi`,
+          `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=vi`
         )
         const data = await res.json()
-        setAddress(data.display_name || "Không tìm thấy địa chỉ")
+        const name = data.display_name || "Không tìm thấy địa chỉ"
+        setAddressLocal(name)
+        setAddressCurrent(name)
       },
     })
-    setAddressCurrent(addresslocal)
-    return position === null ? null : <Marker position={position}></Marker>
+    return position ? <Marker position={position}></Marker> : null
+  }
+
+  // 🔎 Hàm tìm kiếm địa chỉ người dùng nhập
+  const handleSearch = async () => {
+    if (!searchInput.trim()) return
+
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
+        searchInput
+      )}&format=json&addressdetails=1&accept-language=vi&limit=1`
+    )
+    const data = await res.json()
+
+    if (data && data.length > 0) {
+      const { lat, lon, display_name } = data[0]
+      setPosition([parseFloat(lat), parseFloat(lon)])
+      setAddressLocal(display_name)
+      setAddressCurrent(display_name)
+    } else {
+      toast.error("❌ Không tìm thấy địa chỉ, vui lòng thử lại.")
+    }
+  }
+
+  // 🎯 Hàm tự động di chuyển bản đồ khi tìm thấy vị trí
+  const RecenterMap = ({ position }: { position: [number, number] | null }) => {
+    const map = useMapEvents({})
+    useEffect(() => {
+      if (position) map.setView(position, 15)
+    }, [position])
+    return null
   }
 
   return (
     <div className="mx-4 mb-4 p-4 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl border border-emerald-200 space-y-3">
-      <div className="flex flex-col gap-3">
-        <MapContainer
-          center={[10.762622, 106.660172]}
-          zoom={13}
-          scrollWheelZoom={true}
-          className="h-96 w-full rounded-xl border border-gray-300 shadow-sm"
+      {/* Ô nhập địa chỉ */}
+      <div className="flex items-center gap-2">
+        <input
+          type="text"
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          placeholder="Nhập địa chỉ để tìm trên bản đồ..."
+          className="flex-1 px-3 py-2 rounded-lg border border-slate-300 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200 outline-none text-sm"
+        />
+        <button
+          onClick={handleSearch}
+          className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm rounded-lg font-semibold"
         >
-          <TileLayer
-            attribution="&copy; OpenStreetMap contributors"
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-          <LocationMarker />
-        </MapContainer>
-
-        {position && (
-          <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-sm">
-            <p>
-              <b>Địa chỉ:</b> {addresslocal}
-            </p>
-            <p>
-              <b>Tọa độ:</b> {position[0].toFixed(6)}, {position[1].toFixed(6)}
-            </p>
-          </div>
-        )}
+          Tìm
+        </button>
       </div>
+
+      {/* Bản đồ */}
+      <MapContainer
+        center={position || [10.762622, 106.660172]}
+        zoom={13}
+        scrollWheelZoom={true}
+        className="h-96 w-full rounded-xl border border-gray-300 shadow-sm"
+      >
+        <TileLayer
+          attribution="&copy; OpenStreetMap contributors"
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        <LocationMarker />
+        <RecenterMap position={position} />
+      </MapContainer>
+
+      {/* Hiển thị địa chỉ & tọa độ */}
+      {position && (
+        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-sm">
+          <p>
+            <b>Địa chỉ:</b> {addresslocal || "Chưa xác định"}
+          </p>
+          <p>
+            <b>Tọa độ:</b> {position[0].toFixed(6)}, {position[1].toFixed(6)}
+          </p>
+        </div>
+      )}
     </div>
   )
 }
+
 
 /* ========================== Summary ========================== */
 function Summary({
@@ -254,7 +307,7 @@ function CartItemRow({
   )
 }
 
-/* ========================== Voucher Modal (đồng bộ giao diện VoucherPage) ========================== */
+/* ========================== Voucher Modal ========================== */
 function VoucherModal({
   onClose,
   dataVoucher,
@@ -412,6 +465,162 @@ function VoucherModal({
   )
 }
 
+/* ========================== Success Modal with Advanced Animations ========================== */
+function SuccessModal({ finalTotal, itemCount }: { finalTotal: number; itemCount: number }) {
+  const [displayTotal, setDisplayTotal] = useState(0)
+  const [progress, setProgress] = useState(100)
+  const navigate = useNavigate()
+
+    useEffect(() => {
+      let counter = 0
+      const interval = setInterval(() => {
+        counter += finalTotal / 30
+        if (counter >= finalTotal) {
+          setDisplayTotal(finalTotal)
+          clearInterval(interval)
+        } else {
+          setDisplayTotal(Math.floor(counter))
+        }
+      }, 30)
+
+      return () => clearInterval(interval)
+    }, [finalTotal])
+
+    useEffect(() => {
+      const interval = setInterval(() => {
+        setProgress((prev) => {
+          if (prev <= 0) {
+            clearInterval(interval)
+            navigate({ to: "/" })
+            return 0
+          }
+          return prev - 3.33
+        })
+      }, 100)
+
+      return () => clearInterval(interval)
+    }, [navigate])
+
+  useEffect(() => {
+    import("canvas-confetti").then((confetti) => {
+      confetti.default({
+        particleCount: 200,
+        spread: 90,
+        origin: { y: 0.6 },
+      })
+    })
+  }, [])
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 backdrop-blur-sm">
+      <style>{`
+        @keyframes checkmark-bounce {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.2); }
+        }
+        @keyframes checkmark-rotate {
+          0% { transform: rotate(-45deg) scale(0); }
+          50% { transform: rotate(0deg) scale(1.1); }
+          100% { transform: rotate(0deg) scale(1); }
+        }
+        @keyframes pulse-ring {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.5; transform: scale(1.1); }
+        }
+        @keyframes text-fade-in {
+          0% { opacity: 0; transform: translateY(10px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes float-up {
+          0% { opacity: 1; transform: translateY(0); }
+          100% { opacity: 0; transform: translateY(-50px); }
+        }
+        .animate-checkmark-bounce {
+          animation: checkmark-bounce 2s ease-in-out;
+        }
+        .animate-checkmark-rotate {
+          animation: checkmark-rotate 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        .animate-pulse-ring {
+          animation: pulse-ring 2s ease-in-out infinite;
+        }
+        .animate-text-fade-in {
+          animation: text-fade-in 0.6s ease-out forwards;
+        }
+        .animate-float-up {
+          animation: float-up 2s ease-out forwards;
+        }
+      `}</style>
+
+      <div className="bg-white rounded-3xl shadow-2xl p-8 text-center max-w-sm w-full mx-4 transform transition-all animate-text-fade-in">
+        {/* Checkmark Circle */}
+        <div className="relative mb-6 inline-block">
+          <div className="absolute inset-0 bg-emerald-100 rounded-full animate-pulse-ring"></div>
+          <div className="relative w-24 h-24 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center shadow-lg">
+            <svg
+              className="w-12 h-12 text-white animate-checkmark-rotate"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+        </div>
+
+        {/* Title */}
+        <h2
+          className="text-3xl font-bold text-slate-900 mb-2"
+          style={{ animation: "text-fade-in 0.6s ease-out 0.2s both" }}
+        >
+          Đặt hàng thành công!
+        </h2>
+
+        {/* Subtitle */}
+        <p className="text-slate-600 mb-4" style={{ animation: "text-fade-in 0.6s ease-out 0.3s both" }}>
+          Cảm ơn bạn đã mua sắm tại Bách Hóa Xanh 💚
+        </p>
+
+        {/* Order Total with Counter */}
+        <div
+          className="mb-6 p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl border border-emerald-200"
+          style={{ animation: "text-fade-in 0.6s ease-out 0.4s both" }}
+        >
+          <p className="text-sm text-slate-600 mb-1">Tổng đơn hàng</p>
+          <p className="text-3xl font-bold text-emerald-600 font-mono">{displayTotal.toLocaleString("vi-VN")}₫</p>
+          <p className="text-xs text-slate-500 mt-2">{itemCount} sản phẩm</p>
+        </div>
+
+        {/* Progress Bar with Redirect Timer */}
+        <div className="mb-6" style={{ animation: "text-fade-in 0.6s ease-out 0.5s both" }}>
+          <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden mb-2">
+            <div
+              className="bg-gradient-to-r from-emerald-500 to-emerald-600 h-full transition-all duration-100"
+              style={{ width: `${progress}%` }}
+            ></div>
+          </div>
+          <p className="text-xs text-slate-500">Chuyển hướng về trang chủ trong giây lát...</p>
+        </div>
+
+        {/* Floating Celebration Emojis */}
+        <div className="flex justify-center gap-6 mb-6">
+          {["🎉", "🎊", "🛍️"].map((emoji, idx) => (
+            <span key={idx} className="text-2xl animate-float-up" style={{ animationDelay: `${idx * 0.2}s` }}>
+              {emoji}
+            </span>
+          ))}
+        </div>
+
+        {/* Order Info */}
+        <div className="text-xs text-slate-500 space-y-1" style={{ animation: "text-fade-in 0.6s ease-out 0.6s both" }}>
+          <p>Bạn sẽ nhận được email xác nhận đơn hàng</p>
+          <p>Theo dõi trạng thái đơn hàng tại "Đơn của tôi"</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 /* ========================== Main Component ========================== */
 export default function CartPage() {
   const { items, update, remove, total, shipping, clear } = useCart()
@@ -429,7 +638,7 @@ export default function CartPage() {
   const [shipValue, setShipValue] = useState<number>(0)
   const [note, setNote] = useState<string>("")
   const [addressCurrent, setAddressCurrent] = useState<string>("")
-
+  console.log(voucher)
   useEffect(() => {
     document.title = "Giỏ hàng - FoodEcommerce"
   }, [])
@@ -496,27 +705,35 @@ export default function CartPage() {
         unitCaculateId: item.unitCaculateId ?? "",
       })),
     }
-    console.log(tempData)
+
     if (selected === 0) {
-      toast.error(`Vui lòng chọn phương thức thanh toán`)
-    } else if (addressCurrent === "") {
-      toast.error(`Vui lòng chọn địa chỉ`)
-    } else {
+      toast.error("Vui lòng chọn phương thức thanh toán")
+      return
+    }
+    if (addressCurrent === "") {
+      toast.error("Vui lòng chọn địa chỉ giao hàng")
+      return
+    }
+
+    try {
       const response: ResponseType = await createOrders.mutateAsync(tempData)
-      if (response.status == 200) {
+      if (response.status === 200) {
         toast.success(`${response.message}`)
+        clear()
+        setShowSuccess(true)
+
+        // ✅ Auto redirect after 3 seconds
+        setTimeout(() => {
+          setShowSuccess(false)
+          navigate({ to: "/" })
+        }, 3000)
       } else {
         toast.error(`${response.message}`)
       }
+    } catch (error) {
+      console.error("❌ Lỗi khi đặt hàng:", error)
+      toast.error("Đặt hàng thất bại, vui lòng thử lại.")
     }
-    // toast.success(`🎉 Đặt hàng thành công! Tổng thanh toán ${finalTotal.toLocaleString("vi-VN")}₫`)
-    // clear()
-    // confetti({ particleCount: 200, spread: 90, origin: { y: 0.6 } })
-    // setShowSuccess(true)
-    // setTimeout(() => {
-    //   setShowSuccess(false)
-    //   navigate({ to: "/" })
-    // }, 3000)
   }
 
   if (!isLoggedIn) {
@@ -708,16 +925,8 @@ export default function CartPage() {
         />
       )}
 
-      {showSuccess && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-2xl p-8 text-center max-w-sm">
-            <div className="text-emerald-600 text-6xl mb-4">✅</div>
-            <h2 className="text-2xl font-bold text-slate-900 mb-2">Đặt hàng thành công!</h2>
-            <p className="text-slate-600 mb-1">Cảm ơn bạn đã mua sắm tại Bách Hóa Xanh 💚</p>
-            <p className="text-sm text-slate-500">Hệ thống đang chuyển bạn về trang chủ...</p>
-          </div>
-        </div>
-      )}
+      {/* ✅ Upgraded Success Modal with Premium Animations */}
+      {showSuccess && <SuccessModal finalTotal={finalTotal} itemCount={items.length} />}
     </div>
   )
 }

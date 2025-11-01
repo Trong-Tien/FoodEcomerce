@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import Header from "@/Component/Home/Header";
 import CategorySidebar from "@/Component/Home/CategorySidebar";
 import Carousel from "@/Component/Home/Carousel";
-import QuickMenu from "@/Component/Home/QuickMenu";
+import CategoryHorizontal from "@/Component/Home/CategoryHorizontal"; // ✅ Thay QuickMenu bằng CategoryHorizontal
 import ProductGroup from "@/Component/Home/ProductGroup";
 import BlogGroup from "@/Component/Home/BlogGroup";
 import BrandOfferGroup from "@/Component/Home/BrandOffGroup";
 import Footer from "@/Component/Home/Footer";
+
 import { productService } from "@/Services/ProductService";
 import blogService from "@/Services/BlogService";
 import brandService from "@/Services/BrandService";
@@ -15,33 +16,6 @@ import type { Blog } from "@/Types/blog";
 import type { Brand } from "@/Types/brand";
 import type { Product } from "@/Type/Product";
 
-import {
-  FaHotjar,
-  FaDrumstickBite,
-  FaLeaf,
-  FaWineBottle,
-  FaCheese,
-  FaBacon,
-  FaIceCream,
-  FaFish,
-  FaPepperHot,
-} from "react-icons/fa";
-
-// Quick menu
-const QUICK_MENU = [
-  { name: "Khuyến mãi", icon: <FaHotjar /> },
-  { name: "Thịt, cá", icon: <FaDrumstickBite /> },
-  { name: "Rau, củ, quả", icon: <FaLeaf /> },
-  { name: "Đồ uống", icon: <FaWineBottle /> },
-  { name: "Sữa, trứng", icon: <FaCheese /> },
-  { name: "Gạo, bột, đồ khô", icon: <FaBacon /> },
-  { name: "Kem, sữa chua", icon: <FaIceCream /> },
-  { name: "Hải sản đông lạnh", icon: <FaFish /> },
-  { name: "Gia vị", icon: <FaPepperHot /> },
-];
-
-
-
 /// ✅ Chuẩn hóa đường dẫn ảnh sản phẩm (dùng API File/image)
 const mapProductToUI = (p: Product) => ({
   ...p,
@@ -49,12 +23,11 @@ const mapProductToUI = (p: Product) => ({
   oldPrice: p.discount > 0 ? p.unitPrice : undefined,
   img:
     typeof p.images === "string" && p.images.length > 0
-      ? `https://localhost:7004/api/File/image?path=${encodeURIComponent(
-        p.images.split(",")[0]
-      )}`
+      ? `"http://localhost:5292/api/File/image?path=${encodeURIComponent(
+          p.images.split(",")[0]
+        )}`
       : "/assets/img/no-image.png",
 });
-
 
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -65,18 +38,17 @@ export default function Home() {
   const [banhProducts, setBanhProducts] = useState<Product[]>([]);
   const [suaProducts, setSuaProducts] = useState<Product[]>([]);
 
-
   useEffect(() => {
     setLoading(true);
     Promise.all([
       productService.getAll(),
-      productService.getByCategory("4693d14a-b0fa-4a71-8693-bd3ea4322cd3"),
-      productService.getByCategory("7de26305-0653-4d4f-b40b-40284cceee84"),
-      productService.getByCategory("10926cc4-5cf1-4207-b132-9197ddd7937f"),
+      productService.getByCategory("4693d14a-b0fa-4a71-8693-bd3ea4322cd3"), // Rau củ
+      productService.getByCategory("7de26305-0653-4d4f-b40b-40284cceee84"), // Bánh
+      productService.getByCategory("10926cc4-5cf1-4207-b132-9197ddd7937f"), // Sữa
       blogService.getBlogs(),
       brandService.getBrands(),
     ])
-      .then(([allProducts, rauData,banhData,suaData, blogData, brandData]) => {
+      .then(([allProducts, rauData, banhData, suaData, blogData, brandData]) => {
         setProducts(allProducts);
         setRauProducts(rauData);
         setBanhProducts(banhData);
@@ -84,13 +56,10 @@ export default function Home() {
         setBlogs(blogData);
         setBrands(brandData);
       })
-      .catch((err) => console.error("Lỗi khi fetch data:", err))
+      .catch((err) => console.error("❌ Lỗi khi fetch data:", err))
       .finally(() => setLoading(false));
   }, []);
 
-  // Fetch dữ liệu song song
-
-  // ✅ Map toàn bộ sản phẩm sang format UI
   const mappedProducts = products.map(mapProductToUI);
 
   return (
@@ -109,7 +78,10 @@ export default function Home() {
 
         {/* Nội dung chính */}
         <main className="col-span-12 lg:col-span-9 space-y-5">
-          <QuickMenu items={QUICK_MENU} />
+          {/* ✅ Menu ngang động */}
+          <CategoryHorizontal />
+
+          {/* 🔁 Carousel */}
           <Carousel />
 
           {/* 🔥 Sản phẩm khuyến mãi */}
@@ -123,14 +95,14 @@ export default function Home() {
             bgColor="bg-gradient-to-b from-orange-100 to-orange-500"
           />
 
-          {/* 🆕 Sản phẩm mới (ví dụ: chưa giảm giá) */}
+          {/* 🆕 Sản phẩm mới (ví dụ: rau) */}
           <ProductGroup
             topBanners={[
               "https://cdnv2.tgdd.vn/bhx-static/bhx/8010/untitled-2-1-compressifyio_202508151512054563.png",
             ]}
             title="Sản phẩm mới"
             badge="NEW"
-             products={rauProducts.map(mapProductToUI)}
+            products={rauProducts.map(mapProductToUI)}
             loading={loading}
             maxItems={5}
             bgColor="bg-gradient-to-b from-yellow-50 to-yellow-400"
@@ -153,12 +125,11 @@ export default function Home() {
             maxItems={5}
           />
 
-
-          {/* 👶 Mẹ và bé (lọc tên chứa “sữa”) */}
+          {/* 🍼 Sữa */}
           <ProductGroup
-            title="Sữa"
+            title="Sữa"
             titleVariant="boxed"
-            badge="Sua"
+            badge="SỮA"
             products={suaProducts.map(mapProductToUI)}
             loading={loading}
             maxItems={5}
@@ -175,6 +146,7 @@ export default function Home() {
           {/* 📰 Blog */}
           <BlogGroup title="Góc Blog & Mẹo Vặt" blogs={blogs} showTitle={false} />
 
+          {/* Footer */}
           <Footer />
         </main>
       </div>

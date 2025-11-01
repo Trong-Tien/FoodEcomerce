@@ -132,6 +132,48 @@ export default function Dangnhap() {
             {loading ? "Đang xử lý..." : "Đăng nhập"}
           </button>
 
+          {/* Divider */}
+          <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-slate-700/50"></div>
+            </div>
+            <div className="relative flex justify-center">
+              <span className="px-3 bg-slate-800/50 text-slate-500 text-xs font-semibold uppercase tracking-wider">
+                Hoặc tiếp tục bằng
+              </span>
+            </div>
+          </div>
+
+          {/* Nút đăng nhập bằng MXH */}
+          <div className="grid grid-cols-2 gap-4">
+            <button
+              type="button"
+              className="bg-slate-700/30 hover:bg-slate-700/50 border border-slate-600/50 hover:border-slate-500/50 rounded-xl py-3 transition duration-300 flex items-center justify-center gap-2 group"
+            >
+              <img
+                src="https://cdn-icons-png.flaticon.com/512/733/733547.png"
+                className="w-5 h-5"
+                alt="Facebook"
+              />
+              <span className="text-sm font-medium text-slate-300 group-hover:text-white transition">
+                Facebook
+              </span>
+            </button>
+            <button
+              type="button"
+              className="bg-slate-700/30 hover:bg-slate-700/50 border border-slate-600/50 hover:border-slate-500/50 rounded-xl py-3 transition duration-300 flex items-center justify-center gap-2 group"
+            >
+              <img
+                src="https://cdn-icons-png.flaticon.com/512/300/300221.png"
+                className="w-5 h-5"
+                alt="Google"
+              />
+              <span className="text-sm font-medium text-slate-300 group-hover:text-white transition">
+                Google
+              </span>
+            </button>
+          </div>
+
           {/* Liên kết phụ */}
           <div className="text-center space-y-2 mt-3">
             <Link
@@ -144,7 +186,7 @@ export default function Dangnhap() {
             <p className="text-sm text-slate-400">
               Chưa có tài khoản?{" "}
               <Link
-                to="/DangKy"
+                to="/DangKyGmailFlow"
                 className="text-emerald-400 font-semibold hover:text-emerald-300 transition"
               >
                 Đăng ký ngay
