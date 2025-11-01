@@ -307,6 +307,8 @@ namespace FoodEcomerce.Migrations
 
                     b.HasIndex("UserId");
 
+
+
                     b.ToTable("Orders", (string)null);
                 });
 

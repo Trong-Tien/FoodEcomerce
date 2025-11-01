@@ -1,6 +1,6 @@
 import type { User } from "@/Type/User";
 
-const API_BASE = "http://localhost:5292/api/User";
+const API_BASE = http://localhost:5292/api/User";
 
 export const UserService = {
   // ✅ Lấy thông tin user theo ID

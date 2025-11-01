@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { useCart } from "@/Context/CartContext"
 import { useNavigate } from "@tanstack/react-router"
 import { useState, useEffect } from "react"
@@ -7,11 +9,24 @@ import Header from "@/Component/Home/Header"
 import { ArrowLeft, Trash2, Plus, Minus, Tag } from "lucide-react"
 import { useAuth } from "@/Hooks/useAuth"
 import toast from "react-hot-toast"
-import confetti from "canvas-confetti"
 import { productService } from "@/Services/ProductService"
 import { voucherUserService } from "@/Services/VoucherUserService"
 import type { Voucher } from "@/Type/Voucher"
+import { useGetPaymentMethod } from "@/Hooks/PaymentMethod"
+import type { PaymentMethod } from "@/Type/Paymentmethod"
+import type { AddOrder } from "@/Type/AddOrder"
+import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet"
+import "leaflet/dist/leaflet.css"
+import L from "leaflet"
+import iconUrl from "leaflet/dist/images/marker-icon.png"
+import iconShadow from "leaflet/dist/images/marker-shadow.png"
+import { useCreateOrders } from "@/Hooks/Orders"
+import type { ResponseType } from "@/Type/ResponseType"
+const DefaultIcon = L.icon({ iconUrl, shadowUrl: iconShadow })
+L.Marker.prototype.options.icon = DefaultIcon
 
+let userId: string | null = localStorage.getItem("userId")
+const address = ""
 /* ========================== Header ========================== */
 function CartHeaderCard() {
   return (
@@ -36,24 +51,57 @@ function CartTabs() {
 }
 
 /* ========================== Address ========================== */
-function AddressInfo() {
+type props = {
+  setAddressCurrent: React.Dispatch<React.SetStateAction<string>>
+}
+const AddressInfo: React.FC<props> = ({ setAddressCurrent }) => {
+  const [position, setPosition] = useState<[number, number] | null>(null)
+  const [addresslocal, setAddress] = useState<string>("")
+
+  const LocationMarker = () => {
+    useMapEvents({
+      click: async (e) => {
+        const { lat, lng } = e.latlng
+        setPosition([lat, lng])
+
+        // Gọi API Nominatim để lấy địa chỉ
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=vi`,
+        )
+        const data = await res.json()
+        setAddress(data.display_name || "Không tìm thấy địa chỉ")
+      },
+    })
+    setAddressCurrent(addresslocal)
+    return position === null ? null : <Marker position={position}></Marker>
+  }
+
   return (
     <div className="mx-4 mb-4 p-4 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl border border-emerald-200 space-y-3">
-      <div className="flex justify-between items-start">
-        <div className="flex-1">
-          <p className="font-semibold text-slate-900">
-            📍 Giao đến: <span className="text-emerald-700">Anh Thịnh (0947xxxxxx)</span>
-          </p>
-          <p className="text-sm text-slate-600 mt-1">87/1, Xã Long Phú, TP. Cần Thơ</p>
-        </div>
-        <button className="text-emerald-600 text-xs font-semibold hover:underline">Đổi</button>
-      </div>
-      <div className="border-t border-emerald-200 pt-3 flex justify-between items-start">
-        <div className="flex-1">
-          <p className="text-sm font-semibold text-slate-700">🏪 Từ: BHX Long Phú</p>
-          <p className="text-xs text-slate-500 mt-1">Thửa đất số 137, tờ bản đồ số 41, ấp 4, Long Phú, Cần Thơ</p>
-        </div>
-        <button className="text-emerald-600 text-xs font-semibold hover:underline">Đổi</button>
+      <div className="flex flex-col gap-3">
+        <MapContainer
+          center={[10.762622, 106.660172]}
+          zoom={13}
+          scrollWheelZoom={true}
+          className="h-96 w-full rounded-xl border border-gray-300 shadow-sm"
+        >
+          <TileLayer
+            attribution="&copy; OpenStreetMap contributors"
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+          <LocationMarker />
+        </MapContainer>
+
+        {position && (
+          <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-sm">
+            <p>
+              <b>Địa chỉ:</b> {addresslocal}
+            </p>
+            <p>
+              <b>Tọa độ:</b> {position[0].toFixed(6)}, {position[1].toFixed(6)}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -128,7 +176,6 @@ function ApplyVoucherButton({ onOpen }: { onOpen: () => void }) {
       className="block mb-4 w-[calc(100%-2rem)] mx-auto p-4 flex items-center justify-between 
            bg-gradient-to-r from-emerald-50 to-emerald-100 border border-emerald-200 
            rounded-xl hover:shadow-md transition-all"
-
     >
       <div className="flex items-center gap-3">
         <Tag className="w-5 h-5 text-emerald-600" />
@@ -222,7 +269,6 @@ function VoucherModal({
   const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5292"
 
   useEffect(() => {
-    let userId: string | null = localStorage.getItem("userId")
     if (!userId) {
       const userStr = localStorage.getItem("user")
       if (userStr) {
@@ -262,10 +308,7 @@ function VoucherModal({
             <span className="text-2xl">🎟️</span>
             <h2 className="text-xl font-bold text-slate-900">Chọn mã giảm giá</h2>
           </div>
-          <button
-            onClick={onClose}
-            className="text-sm font-semibold text-slate-500 hover:text-slate-800 transition"
-          >
+          <button onClick={onClose} className="text-sm font-semibold text-slate-500 hover:text-slate-800 transition">
             ✕ Đóng
           </button>
         </div>
@@ -284,16 +327,13 @@ function VoucherModal({
               <Tag className="w-10 h-10 text-slate-400" />
             </div>
             <p className="text-slate-600 text-lg font-medium">Bạn chưa có mã giảm giá nào.</p>
-            <p className="text-slate-500 text-sm mt-1">
-              Hãy nhận voucher tại trang Ưu Đãi để sử dụng 💚
-            </p>
+            <p className="text-slate-500 text-sm mt-1">Hãy nhận voucher tại trang Ưu Đãi để sử dụng 💚</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {vouchers.map((v, idx) => {
               const colorIdx = idx % cardGradients.length
-              const isUsed =
-                Array.isArray(dataVoucher) && dataVoucher.some((d) => d.code === v.code)
+              const isUsed = Array.isArray(dataVoucher) && dataVoucher.some((d) => d.code === v.code)
 
               return (
                 <div
@@ -302,9 +342,7 @@ function VoucherModal({
                   onClick={() => !isUsed && onSelect(v)}
                 >
                   {/* Gradient background */}
-                  <div
-                    className={`absolute inset-0 bg-gradient-to-br ${cardGradients[colorIdx]} opacity-90`}
-                  />
+                  <div className={`absolute inset-0 bg-gradient-to-br ${cardGradients[colorIdx]} opacity-90`} />
 
                   {/* Overlay pattern */}
                   <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_20%_50%,white_0%,transparent_50%)]" />
@@ -321,7 +359,7 @@ function VoucherModal({
                                 ? v.imageUrl.startsWith("http")
                                   ? v.imageUrl
                                   : `${API_BASE}/api/File/image?path=${encodeURIComponent(
-                                      v.imageUrl.replace(/^\/+/, "")
+                                      v.imageUrl.replace(/^\/+/, ""),
                                     )}`
                                 : "/assets/img/no-image.png"
                             }
@@ -331,9 +369,7 @@ function VoucherModal({
                         </div>
                         <div className="bg-white rounded-xl p-2 text-center shadow-md">
                           <div className="text-lg font-bold bg-gradient-to-br from-emerald-500 to-teal-600 bg-clip-text text-transparent">
-                            {v.discountType === "PERCENT"
-                              ? `${v.discountValue}%`
-                              : "GIẢM"}
+                            {v.discountType === "PERCENT" ? `${v.discountValue}%` : "GIẢM"}
                           </div>
                           {v.discountType !== "PERCENT" && (
                             <div className="text-xs font-semibold text-slate-600 mt-1">
@@ -350,10 +386,7 @@ function VoucherModal({
                           : `Giảm ${v.discountValue.toLocaleString("vi-VN")}₫`}
                       </p>
                       <p className="text-xs text-white/80 mt-1">
-                        HSD:{" "}
-                        {v.endTime
-                          ? new Date(v.endTime).toLocaleDateString("vi-VN")
-                          : "Không giới hạn"}
+                        HSD: {v.endTime ? new Date(v.endTime).toLocaleDateString("vi-VN") : "Không giới hạn"}
                       </p>
                     </div>
 
@@ -379,11 +412,14 @@ function VoucherModal({
   )
 }
 
-
 /* ========================== Main Component ========================== */
 export default function CartPage() {
   const { items, update, remove, total, shipping, clear } = useCart()
   const navigate = useNavigate()
+  const { data } = useGetPaymentMethod(1, 10)
+  const createOrders = useCreateOrders()
+  const dataPaymend: PaymentMethod[] = data?.items ?? []
+  const [selected, setSelected] = useState<number>(0)
   const { isLoggedIn } = useAuth()
   const [showSuccess, setShowSuccess] = useState(false)
   const [productCache, setProductCache] = useState<Record<string, any>>({})
@@ -391,6 +427,8 @@ export default function CartPage() {
   const [showVoucherModal, setShowVoucherModal] = useState(false)
   const [disCountValue, setDiscountValue] = useState<number>(0)
   const [shipValue, setShipValue] = useState<number>(0)
+  const [note, setNote] = useState<string>("")
+  const [addressCurrent, setAddressCurrent] = useState<string>("")
 
   useEffect(() => {
     document.title = "Giỏ hàng - FoodEcommerce"
@@ -441,15 +479,44 @@ export default function CartPage() {
 
   const finalTotal = Math.max(0, total - disCountValue + shipping - shipValue)
 
-  const handleOrder = () => {
-    toast.success(`🎉 Đặt hàng thành công! Tổng thanh toán ${finalTotal.toLocaleString("vi-VN")}₫`)
-    clear()
-    confetti({ particleCount: 200, spread: 90, origin: { y: 0.6 } })
-    setShowSuccess(true)
-    setTimeout(() => {
-      setShowSuccess(false)
-      navigate({ to: "/" })
-    }, 3000)
+  const handleOrder = async () => {
+    const tempData: AddOrder = {
+      userId: userId !== null ? userId : null,
+      voucherId: voucher.find((r) => r.discountType != "Giảm giá phí ship")?.id ?? null,
+      paymentMenthodId: selected,
+      note: note,
+      totalPrice: finalTotal,
+      shippingFee: shipping - shipValue,
+      shippingAddress: addressCurrent,
+      OrdersDetails: items.map((item) => ({
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+        totalPrice: item.totalPrice,
+        productId: item.productId,
+        unitCaculateId: item.unitCaculateId ?? "",
+      })),
+    }
+    console.log(tempData)
+    if (selected === 0) {
+      toast.error(`Vui lòng chọn phương thức thanh toán`)
+    } else if (addressCurrent === "") {
+      toast.error(`Vui lòng chọn địa chỉ`)
+    } else {
+      const response: ResponseType = await createOrders.mutateAsync(tempData)
+      if (response.status == 200) {
+        toast.success(`${response.message}`)
+      } else {
+        toast.error(`${response.message}`)
+      }
+    }
+    // toast.success(`🎉 Đặt hàng thành công! Tổng thanh toán ${finalTotal.toLocaleString("vi-VN")}₫`)
+    // clear()
+    // confetti({ particleCount: 200, spread: 90, origin: { y: 0.6 } })
+    // setShowSuccess(true)
+    // setTimeout(() => {
+    //   setShowSuccess(false)
+    //   navigate({ to: "/" })
+    // }, 3000)
   }
 
   if (!isLoggedIn) {
@@ -488,7 +555,7 @@ export default function CartPage() {
       <div className="flex-1 max-w-2xl mx-auto w-full pt-32 pb-6">
         <CartHeaderCard />
         <CartTabs />
-        <AddressInfo />
+        <AddressInfo setAddressCurrent={setAddressCurrent} />
 
         {/* ✅ Danh sách sản phẩm */}
         <div className="mx-4 mb-4 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
@@ -525,6 +592,88 @@ export default function CartPage() {
             </button>
           </div>
         )}
+
+        <div className="mx-4 mb-6">
+          <h3 className="text-base font-semibold mb-3 text-slate-900">💳 Phương thức thanh toán</h3>
+          <div className="space-y-2">
+            {dataPaymend.map((method) => {
+              const getPaymentIcon = (name: string) => {
+                const lowerName = name.toLowerCase()
+                if (lowerName.includes("card") || lowerName.includes("visa") || lowerName.includes("credit"))
+                  return "💳"
+                if (lowerName.includes("wallet") || lowerName.includes("ví")) return "👛"
+                if (lowerName.includes("phone") || lowerName.includes("mobile")) return "📱"
+                if (lowerName.includes("bank")) return "🏦"
+                return "💰"
+              }
+
+              return (
+                <button
+                  key={method.id}
+                  onClick={() => setSelected(method.id)}
+                  className={`w-full p-4 rounded-xl border-2 transition-all duration-200 ${
+                    selected === method.id
+                      ? "border-emerald-500 bg-gradient-to-r from-emerald-50 to-teal-50 shadow-md"
+                      : "border-slate-200 bg-white hover:border-emerald-300 hover:shadow-sm"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="text-2xl">{getPaymentIcon(method.name)}</div>
+                    <div className="flex-1 text-left">
+                      <p className="font-semibold text-slate-900">{method.name}</p>
+                      <p className="text-sm text-slate-500">{method.description}</p>
+                    </div>
+                    {selected === method.id && (
+                      <div className="flex items-center justify-center w-6 h-6 rounded-full bg-emerald-500 text-white">
+                        <span className="text-sm font-bold">✓</span>
+                      </div>
+                    )}
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+
+          {selected && (
+            <div className="mt-4 p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-lg text-sm font-medium animate-fade-in">
+              ✓ Đã chọn: <b>{dataPaymend.find((m) => m.id === selected)?.name}</b>
+            </div>
+          )}
+        </div>
+
+        <div className="mx-4 mb-6">
+          <label htmlFor="order-note" className="block text-sm font-semibold text-slate-900 mb-2">
+            📝 Ghi chú cho đơn hàng
+          </label>
+          <div className="relative">
+            <textarea
+              id="order-note"
+              rows={3}
+              value={note}
+              onChange={(e) => {
+                if (e.target.value.length <= 300) {
+                  setNote(e.target.value)
+                }
+              }}
+              placeholder="Ví dụ: Giao buổi sáng, gọi trước khi đến..."
+              className={`w-full rounded-xl border-2 p-3 text-sm transition-all duration-200 resize-none ${
+                note.length > 250
+                  ? "border-amber-300 focus:ring-2 focus:ring-amber-200"
+                  : "border-slate-200 focus:ring-2 focus:ring-emerald-200 focus:border-emerald-500"
+              } focus:outline-none bg-white`}
+            />
+            <div className="mt-2 flex items-center justify-between">
+              <p className="text-xs text-slate-500">Gợi ý: Cho biết giờ giao, yêu cầu đặc biệt...</p>
+              <span
+                className={`text-xs font-semibold ${
+                  note.length > 250 ? "text-amber-600" : note.length > 0 ? "text-emerald-600" : "text-slate-400"
+                }`}
+              >
+                {note.length}/300
+              </span>
+            </div>
+          </div>
+        </div>
 
         {/* ✅ CTA Button */}
         <div className="mx-4 sticky bottom-6">

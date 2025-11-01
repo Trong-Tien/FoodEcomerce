@@ -24,19 +24,26 @@ namespace FoodEcomerce.Reposiroty.Orderss
         public async Task<ResultModal> CreateWithQuery(OrderModal modal)
         {
             var ordersData = _context.Orders.FirstOrDefault(r=> r.Id == modal.Id);
-            if (ordersData != null)
+            if (ordersData == null)
             {
               var item =  _mapper.Map<Orders>(modal);
-              item.Id = Guid.NewGuid();   
+              item.Id = Guid.NewGuid();
+              item.StatusId = 1;
+              item.OrderDate = DateTime.Now;
+              item.PaymentMenthodId = modal.PaymentMenthodId;
               _context.Orders.Add(item);
-              List<OrderDetail> ordersDetail = new List<OrderDetail>(); 
-                foreach (var item1 in modal.OrdersDetails)
-                {
-                    var dataDetail = _mapper.Map<OrderDetail>(item1);
-                    dataDetail.OrderId = Guid.NewGuid();
-                    ordersDetail.Add(dataDetail);
+              List<OrderDetail> ordersDetail = new List<OrderDetail>();
+                if (modal.OrdersDetails != null) {
+                    foreach (var item1 in modal.OrdersDetails)
+                    {
+                        var dataDetail = _mapper.Map<OrderDetail>(item1);
+                        dataDetail.OrderId = item.Id;
+
+                        ordersDetail.Add(dataDetail);
+                    }
+                    _context.OrderDetail.AddRange(ordersDetail);
                 }
-               _context.OrderDetail.AddRange(ordersDetail);
+               
                 await _context.SaveChangesAsync();
 
                 var itemUser = await _context.Users.FirstOrDefaultAsync(r=> r.Id == modal.UserId);
@@ -44,7 +51,7 @@ namespace FoodEcomerce.Reposiroty.Orderss
                 var email = new MimeMessage();
                 email.From.Add(new MailboxAddress("YourApp", "vodangphat2002@gmail.com"));
                 email.To.Add(new MailboxAddress("", itemUser.Email));
-                email.Subject = "Your OTP Code";
+                email.Subject = "Đơn đặt hàng";
 
                 var builder = new BodyBuilder();
 
@@ -104,7 +111,7 @@ namespace FoodEcomerce.Reposiroty.Orderss
                             <body>
                               <div class='container'>
                                 <h2>Xin chào {itemUser.UserName ?? "Quý khách"},</h2>
-                                <p>Cảm ơn bạn đã đặt hàng tại <strong>YourApp</strong>! 🎉</p>
+                                <p>Cảm ơn bạn đã đặt hàng tại trang web của chúng tôi</p>
 
                                 <p>Đơn hàng của bạn đã được tiếp nhận và đang được xử lý.</p>
 
@@ -117,7 +124,7 @@ namespace FoodEcomerce.Reposiroty.Orderss
 
                           
                                 <div class='footer'>
-                                  <p>Cảm ơn bạn đã mua sắm tại <strong>YourApp</strong> ❤️</p>
+                                  <p>Cảm ơn bạn đã mua sắm tại <strong>Organic Store</strong> ❤️</p>
                                   <p>Đây là email tự động, vui lòng không trả lời.</p>
                                 </div>
                               </div>
@@ -139,6 +146,27 @@ namespace FoodEcomerce.Reposiroty.Orderss
                 return new ResultModal() { Status = 200 , Message="Đặt hàng thành công" , Success = true }; 
             }
             return new ResultModal() { Status = 202, Message = "Đơn hàng đã tồn tại", Success = true };
+        }
+
+        public async Task<ResultModal> UpdateWithQuery(Guid orderId, int type)
+        {
+            var orderData = _context.Orders.FirstOrDefault(r=> r.Id == orderId);
+            string orderMessage = ""; 
+            if(orderData != null)
+            {
+                if (type == 1) { orderData.StatusOrdersId = 3; orderMessage = "Đơn hàng đã được xác nhận thành công"; }
+                else if (type == 2) { orderData.StatusOrdersId = 5; orderMessage = "Đơn hàng đã được chuyển sang trạng thái đang giao hàng "; }
+                else if (type == 3) { orderData.StatusOrdersId = 6; orderMessage = "Chúc mừng ! đơn hàng đã được giao thành công"; }
+                else if (type == 4) { orderData.StatusOrdersId = 7; orderMessage = "Đơn hàng đã được hủy thành công";  }
+
+                _context.Orders.Update(orderData);   
+
+                await _context.SaveChangesAsync();
+
+                return new ResultModal() { Status = 200, Message = orderMessage, Success = true };
+
+            }
+            else return new ResultModal() { Status = 202, Message = "Không tìm thấy đơn hàng", Success = false };
         }
     }
 }
