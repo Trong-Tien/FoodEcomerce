@@ -11,5 +11,10 @@ namespace FoodEcomerce.Reposiroty.Auths
         Task<LoginDTO> LoginWithWebUser(LoginWithWebUserModal modal);
         Task<ResultModal> LoginWithMail(string token);
         Task<ResultModal> ResetPassword(ResetPasswordModal modal);
+
+
+
+        Task<LoginDTO> LoginWithGoogle(GoogleLoginModal modal);
+        Task<LoginDTO> LoginWithFacebook(FacebookLoginModal modal);
     }
 }

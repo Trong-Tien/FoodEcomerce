@@ -2,7 +2,9 @@
 using FoodEcomerce.DTO;
 using FoodEcomerce.Entity;
 using FoodEcomerce.Modal;
+using Google.Apis.Auth;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace FoodEcomerce.Reposiroty.Auths
 {
@@ -25,7 +27,7 @@ namespace FoodEcomerce.Reposiroty.Auths
             LoginDTO result = new LoginDTO();
             var paswordHash = Helpper.Untils.EncrypePassword(modal.Password);
             var db = await _context.Users.FirstOrDefaultAsync(x => x.Email == modal.Email && x.Password == paswordHash);
-           
+
             if (db != null)
             {
                 var CartItem = await _context.Carts.FirstOrDefaultAsync(c => c.UserId == db.Id);
@@ -37,10 +39,10 @@ namespace FoodEcomerce.Reposiroty.Auths
                     PhoneNumber = db.PhoneNumber,
                     UserName = db.UserName,
                     RoleId = db.RoleId,
-                    CartId = CartItem != null ? CartItem.Id : Guid.Empty,   
+                    CartId = CartItem != null ? CartItem.Id : Guid.Empty,
                     Status = 200
                 };
-                if (!string.IsNullOrEmpty(result.Email) )
+                if (!string.IsNullOrEmpty(result.Email))
                 {
                     result.AccessToken = Helpper.Untils.GenerateAccessToken(result.Id, result.UserName, result.RoleId);
                 }
@@ -50,8 +52,8 @@ namespace FoodEcomerce.Reposiroty.Auths
                 }
                 var cookieOptions = new CookieOptions
                 {
-             
-                    Expires = DateTimeOffset.UtcNow.AddMinutes(30) 
+
+                    Expires = DateTimeOffset.UtcNow.AddMinutes(30)
                 };
 
                 result.RefeshToken = Helpper.Untils.GenerateRefreshToken();
@@ -126,29 +128,148 @@ namespace FoodEcomerce.Reposiroty.Auths
                         _context.Users.Add(user);
                         _context.OTPs.Remove(otpValue);
 
-                        Cart cart = new Cart(); 
+                        Cart cart = new Cart();
                         cart.Id = Guid.NewGuid();
                         cart.UserId = user.Id;
                         cart.CreateAt = DateTime.UtcNow;
-                        _context.Carts.Add(cart);   
+                        _context.Carts.Add(cart);
 
                         await _context.SaveChangesAsync();
 
                         return new ResultModal() { Status = 200, Message = "Đăng ký thành công", Success = true };
-                    }else return new ResultModal() { Status = 202, Message = "Tài khoản đã tồn tại trong hệ thống", Success = false };
+                    }
+                    else return new ResultModal() { Status = 202, Message = "Tài khoản đã tồn tại trong hệ thống", Success = false };
                 }
                 else
                 {
                     _context.OTPs.Remove(otpValue);
                     await _context.SaveChangesAsync();
                     return new ResultModal() { Status = 400, Message = "OTP đã hết hạn , vui lòng gửi lại OTP để đăng ký", Success = false };
-                };
+                }
+                ;
 
             }
             return new ResultModal() { Status = 400, Message = "OTP không hợp lệ", Success = false };
 
 
         }
+
+        // ======================= LOGIN VỚI GOOGLE =======================
+        public async Task<LoginDTO> LoginWithGoogle(GoogleLoginModal modal)
+        {
+            var payload = await GoogleJsonWebSignature.ValidateAsync(modal.Token);
+            var email = payload.Email;
+
+            // ✅ Kiểm tra user tồn tại chưa
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == email);
+            if (user == null)
+            {
+                user = new User
+                {
+                    Id = Guid.NewGuid(),
+                    Email = email,
+                    UserName = payload.Name ?? email,
+                    RoleId = Guid.Parse("e791c54a-15fc-401a-b376-b4f3e088c284"), // Role mặc định là User
+                    Password = "",
+                    StatusId = 1,
+                    IsAdmin = false,
+                    Acvite = true,
+                    CreateUser = email
+                };
+
+                _context.Users.Add(user);
+
+                // ✅ Tạo giỏ hàng mặc định
+                var cart = new Cart
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = user.Id,
+                    CreateAt = DateTime.UtcNow
+                };
+                _context.Carts.Add(cart);
+
+                await _context.SaveChangesAsync();
+            }
+
+            // ✅ Trả về thông tin login
+            return new LoginDTO
+            {
+                Id = user.Id,
+                Email = user.Email,
+                UserName = user.UserName,
+                RoleId = user.RoleId,
+                AccessToken = Helpper.Untils.GenerateAccessToken(user.Id, user.UserName, user.RoleId),
+                RefeshToken = Helpper.Untils.GenerateRefreshToken(),
+                Expires = DateTime.UtcNow.AddMinutes(15),
+                Status = 200
+            };
+        }
+
+
+        // ======================= LOGIN VỚI FACEBOOK =======================
+        public async Task<LoginDTO> LoginWithFacebook(FacebookLoginModal modal)
+        {
+            using var http = new HttpClient();
+            var response = await http.GetAsync($"https://graph.facebook.com/me?fields=id,name,email&access_token={modal.AccessToken}");
+            var json = await response.Content.ReadAsStringAsync();
+            var data = JsonConvert.DeserializeObject<FacebookUser>(json);
+
+            if (data == null || string.IsNullOrEmpty(data.Email))
+                throw new Exception("Không thể xác minh tài khoản Facebook.");
+
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == data.Email);
+            if (user == null)
+            {
+                user = new User
+                {
+                    Id = Guid.NewGuid(),
+                    Email = data.Email,
+                    UserName = data.Name ?? data.Email,
+                    RoleId = Guid.Parse("e791c54a-15fc-401a-b376-b4f3e088c284"),
+                    Password = "",
+                    StatusId = 1,
+                    IsAdmin = false,
+                    Acvite = true,
+                    CreateUser = data.Email
+                };
+
+                _context.Users.Add(user);
+
+                // ✅ Tạo giỏ hàng mặc định
+                var cart = new Cart
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = user.Id,
+                    CreateAt = DateTime.UtcNow
+                };
+                _context.Carts.Add(cart);
+
+                await _context.SaveChangesAsync();
+            }
+
+            // ✅ Trả về thông tin login
+            return new LoginDTO
+            {
+                Id = user.Id,
+                Email = user.Email,
+                UserName = user.UserName,
+                RoleId = user.RoleId,
+                AccessToken = Helpper.Untils.GenerateAccessToken(user.Id, user.UserName, user.RoleId),
+                RefeshToken = Helpper.Untils.GenerateRefreshToken(),
+                Expires = DateTime.UtcNow.AddMinutes(15),
+                Status = 200
+            };
+        }
+
+
+        // ✅ Class phụ cho Facebook
+        private class FacebookUser
+        {
+            public string Id { get; set; } = string.Empty;
+            public string Name { get; set; } = string.Empty;
+            public string Email { get; set; } = string.Empty;
+        }
+
 
 
         public Task<ResultModal> ResetPassword(ResetPasswordModal modal)

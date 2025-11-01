@@ -1,6 +1,7 @@
 ﻿namespace FoodEcomerce.Modal
 {
-    public class Class
+    public class GoogleLoginModal
     {
+        public string Token { get; set; } = string.Empty;
     }
 }

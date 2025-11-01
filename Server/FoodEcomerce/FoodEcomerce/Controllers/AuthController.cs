@@ -98,5 +98,35 @@ namespace FoodEcomerce.Controllers
             });
         }
 
+
+    // ====================== LOGIN WITH GOOGLE ======================
+        [HttpPost("LoginWithGoogle")]
+        public async Task<IActionResult> LoginWithGoogle(GoogleLoginModal modal)
+        {
+            try
+            {
+                var result = await unitOfWork.AuthRepository.LoginWithGoogle(modal);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        // ====================== LOGIN WITH FACEBOOK ======================
+        [HttpPost("LoginWithFacebook")]
+        public async Task<IActionResult> LoginWithFacebook(FacebookLoginModal modal)
+        {
+            try
+            {
+                var result = await unitOfWork.AuthRepository.LoginWithFacebook(modal);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }
