@@ -7,6 +7,8 @@ import { AuthService } from "@/Services/AuthService"
 import { useAuth } from "@/Context/AuthContext"
 import toast from "react-hot-toast"
 import logo from "@/assets/img/logo.jpg"
+import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
+import { loginWithGoogle } from "@/Hooks/Auth"
 
 interface LoginForm {
   email: string
@@ -16,6 +18,7 @@ interface LoginForm {
 export default function Dangnhap() {
   const navigate = useNavigate()
   const { login: setAuth } = useAuth()
+  const loginGoogle = loginWithGoogle()
   const [form, setForm] = useState<LoginForm>({ email: "", password: "" })
   const [loading, setLoading] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
@@ -53,6 +56,37 @@ export default function Dangnhap() {
       setLoading(false)
     }
   }
+
+  const handleGoogleLoginSuccess = async (credentialResponse: CredentialResponse) => {
+    const token = credentialResponse.credential;
+
+    if (!token) {
+      toast.error("Không có credential từ Google");
+      return;
+    }
+
+    try {
+      const response = await loginGoogle.mutateAsync({ token });
+
+      if (response.status === 200 && response.accessToken) {
+        toast.success("Đăng nhập thành công!");
+        localStorage.setItem("userId" , response.id)
+        setAuth(response, response.accessToken);
+        setTimeout(() => {
+          navigate({ to: "/" });
+        }, 1500);
+      } else {
+        toast.error("Đã có lỗi xảy ra khi đăng nhập Google");
+      }
+    } catch (error: any) {
+      console.error("Lỗi đăng nhập Google:", error);
+      toast.error("Không thể đăng nhập Google!");
+    }
+  };
+
+  const handleGoogleLoginError = () => {
+    toast.error("Đã có lỗi xảy ra")
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-6 relative overflow-hidden">
@@ -123,11 +157,10 @@ export default function Dangnhap() {
           <button
             type="submit"
             disabled={loading}
-            className={`w-full py-3 rounded-xl font-semibold text-slate-900 transition duration-300 flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 ${
-              loading
-                ? "bg-gradient-to-r from-emerald-400/40 to-teal-400/40 cursor-not-allowed"
-                : "bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-500 hover:to-teal-500"
-            }`}
+            className={`w-full py-3 rounded-xl font-semibold text-slate-900 transition duration-300 flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 ${loading
+              ? "bg-gradient-to-r from-emerald-400/40 to-teal-400/40 cursor-not-allowed"
+              : "bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-500 hover:to-teal-500"
+              }`}
           >
             {loading ? "Đang xử lý..." : "Đăng nhập"}
           </button>
@@ -150,6 +183,34 @@ export default function Dangnhap() {
                 Đăng ký ngay
               </Link>
             </p>
+          </div>
+
+          <div className="mt-4 space-y-3">
+            <p className="text-center text-slate-400 text-sm">Hoặc đăng nhập bằng</p>
+            <div className="flex flex-col gap-3">
+              <div className="flex justify-center">
+                <GoogleLogin
+                  onSuccess={handleGoogleLoginSuccess}
+                  onError={handleGoogleLoginError}
+                  theme="outline"
+                  size="large"
+                  shape="pill"
+                  text="signin_with"
+                  locale="vi"
+                />
+              </div>
+              {/* <button
+                type="button"
+                className="w-full py-2 flex items-center justify-center gap-2 rounded-xl border border-slate-600 bg-[#1877f2] hover:bg-[#166fe5] transition shadow-sm"
+              >
+                <img
+                  src="https://www.svgrepo.com/show/475647/facebook-color.svg"
+                  alt="Facebook"
+                  className="w-5 h-5 bg-white rounded-full"
+                />
+                <span className="text-white font-medium">Facebook</span>
+              </button> */}
+            </div>
           </div>
 
           {/* Footer nhỏ */}

@@ -1,6 +1,6 @@
 import type { User } from "@/Type/User";
 
-const API_BASE = http://localhost:5292/api/User";
+const API_BASE = "https://localhost:7004/api/User";
 
 export const UserService = {
   // ✅ Lấy thông tin user theo ID
@@ -33,7 +33,7 @@ export const UserService = {
       address: user.address ?? "",
       acvite: user.active ?? true, // 👈 chính tả sai của backend
       isAdmin: false,
-      statusId: user.status?.id ?? 0,
+      statusId: user.statusId ?? 0,
       roleId: user.role?.id ?? "e791c54a-15fc-401a-b376-b4f3e088c284",
     };
 

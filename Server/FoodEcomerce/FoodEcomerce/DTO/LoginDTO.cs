@@ -12,6 +12,7 @@
         public string? AccessToken { get; set; } 
         public string? RefeshToken { get; set; } 
         public int Status { get; set; }
+        public int Message { get; set; }
         public DateTime Expires { get; set; }
     }
 }

@@ -32,6 +32,7 @@
     </PackageReference>
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.11" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+    <PackageReference Include="VNPAY.NET" Version="8.5.0" />
   </ItemGroup>
 
   <ItemGroup>
