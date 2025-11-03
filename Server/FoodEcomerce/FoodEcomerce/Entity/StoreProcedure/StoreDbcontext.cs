@@ -13,6 +13,7 @@ namespace FoodEcomerce.Entity.StoreProcedure
         public virtual DbSet<sp_WebFood_GetAllProductImage> sp_WebFood_GetAllProductImage { get; set; }
         public virtual DbSet<sp_WebFood_GetAllProductCategory> sp_WebFood_GetAllProductCategory { get; set; }
         public virtual DbSet<sp_WebFood_GetAllVoucherUser> sp_WebFood_GetAllVoucherUser { get; set; }
+        public virtual DbSet<sp_WebFood_GetAllOrders> sp_WebFood_GetAllOrders { get; set; }
 
     }
 }

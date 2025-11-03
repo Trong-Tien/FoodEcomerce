@@ -79,7 +79,7 @@ namespace FoodEcomerce.Abstract
           => _voucherUserRepository ??= new VoucherUserRepository(_dbContext, _mapper , _storeDbcontext);
 
         public IOrderRepository OrderRepository
-           => _OrderRepository ??= new OrdersRepository(_dbContext, _mapper);
+           => _OrderRepository ??= new OrdersRepository(_dbContext, _mapper , _storeDbcontext);
         public IPaymendMethodRepository PaymendMethodRepository
      => _PaymendMethodRepository ??= new PaymendMethodRepository(_dbContext, _mapper);
 

@@ -1,5 +1,6 @@
 ﻿using FoodEcomerce.DTO;
 using FoodEcomerce.Entity;
+using FoodEcomerce.Entity.StoreProcedure;
 using FoodEcomerce.Modal;
 
 namespace FoodEcomerce.Reposiroty.Orderss
@@ -8,5 +9,6 @@ namespace FoodEcomerce.Reposiroty.Orderss
     {
         Task<ResultModal> CreateWithQuery(OrderModal modal);    
         Task<ResultModal> UpdateWithQuery(Guid orderId , int type);    
+        Task<List<sp_WebFood_GetAllOrders>> GetAllWithQuery(Guid? userId , int statusId , int pageNumber , int pageSize);  
     }
 }
