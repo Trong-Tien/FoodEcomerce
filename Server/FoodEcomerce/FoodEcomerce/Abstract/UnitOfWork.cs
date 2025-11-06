@@ -8,6 +8,7 @@ using FoodEcomerce.Reposiroty.Categorys;
 using FoodEcomerce.Reposiroty.MenuRoles;
 using FoodEcomerce.Reposiroty.Menus;
 using FoodEcomerce.Reposiroty.Orderss;
+using FoodEcomerce.Reposiroty.OrderStatuss;
 using FoodEcomerce.Reposiroty.PaymentMethods;
 using FoodEcomerce.Reposiroty.PlaceOfProducts;
 using FoodEcomerce.Reposiroty.Products;
@@ -41,6 +42,7 @@ namespace FoodEcomerce.Abstract
         private IVoucherUserRepository _voucherUserRepository;
         private IOrderRepository _OrderRepository;
         private IPaymendMethodRepository _PaymendMethodRepository;
+        private IOrderStatusRepository _orderStatusRepository;
 
         public UnitOfWork(FoodDbContex dbContext, IMapper mapper, StoreDbcontext storeDbcontext)
         {
@@ -81,7 +83,9 @@ namespace FoodEcomerce.Abstract
         public IOrderRepository OrderRepository
            => _OrderRepository ??= new OrdersRepository(_dbContext, _mapper , _storeDbcontext);
         public IPaymendMethodRepository PaymendMethodRepository
-     => _PaymendMethodRepository ??= new PaymendMethodRepository(_dbContext, _mapper);
+        => _PaymendMethodRepository ??= new PaymendMethodRepository(_dbContext, _mapper);
+        public IOrderStatusRepository OrderStatusRepository
+         => _orderStatusRepository ??= new OrderStatusRepository(_dbContext, _mapper);
 
         public bool Save()
         {

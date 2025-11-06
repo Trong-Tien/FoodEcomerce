@@ -1,6 +1,11 @@
-﻿namespace FoodEcomerce.Reposiroty.ProductReviews
+﻿using FoodEcomerce.DTO;
+using FoodEcomerce.Entity;
+using FoodEcomerce.Modal;
+
+namespace FoodEcomerce.Reposiroty.ProductReviews
 {
-    public interface IProductReviewRepository
+    public interface IProductReviewRepository : IBaseRepository<ProductReview , ProductReviewModal , ProductReviewDTO , Guid>
     {
+        Task<ResultModal> CreateWithQuery(ProductReviewModal modal);
     }
 }

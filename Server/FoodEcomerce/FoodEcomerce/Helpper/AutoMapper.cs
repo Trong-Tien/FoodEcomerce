@@ -52,6 +52,8 @@ namespace FoodEcomerce.Helpper
             CreateMap<Voucher, VoucherDTO>().ReverseMap();
             CreateMap<PaymentMenthod, PayMendMethodDTO>().ReverseMap();
             CreateMap<PaymentMenthod, PayMentMethodModal>().ReverseMap();
+            CreateMap<OrderStatus, OrderStatusModal>().ReverseMap();
+            CreateMap<OrderStatus, OrderStatusDTO>().ReverseMap();
 
 
 

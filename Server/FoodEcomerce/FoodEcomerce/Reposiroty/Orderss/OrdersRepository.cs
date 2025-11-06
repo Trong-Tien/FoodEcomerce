@@ -142,10 +142,6 @@ namespace FoodEcomerce.Reposiroty.Orderss
                 await smtp.AuthenticateAsync("vodangphat2002@gmail.com", "phnhagyuliyrokqx"); 
                 await smtp.SendAsync(email);
                 await smtp.DisconnectAsync(true);
-
-
-
-
                 return new ResultModal() { Status = 200 , Message="Đặt hàng thành công" , Success = true }; 
             }
             return new ResultModal() { Status = 202, Message = "Đơn hàng đã tồn tại", Success = true };
