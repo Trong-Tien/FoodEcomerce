@@ -99,7 +99,6 @@ namespace FoodEcomerce.Controllers
         }
 
 
-    // ====================== LOGIN WITH GOOGLE ======================
         [HttpPost("LoginWithGoogle")]
         public async Task<IActionResult> LoginWithGoogle(GoogleLoginModal modal)
         {
@@ -113,8 +112,6 @@ namespace FoodEcomerce.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
-
-        // ====================== LOGIN WITH FACEBOOK ======================
         [HttpPost("LoginWithFacebook")]
         public async Task<IActionResult> LoginWithFacebook(FacebookLoginModal modal)
         {

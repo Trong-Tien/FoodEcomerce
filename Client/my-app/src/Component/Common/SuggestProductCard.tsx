@@ -14,7 +14,7 @@ export default function SuggestProductCard({ product }: { product: Product }) {
   // ✅ Ảnh sản phẩm đầu tiên (nếu có)
   const imageUrl =
     product.images && product.images.length > 0
-      ? `"http://localhost:5292/${product.images[0]}`
+      ? `http://localhost:5292/${product.images[0]}`
       : "/assets/img/no-image.png";
 
   return (

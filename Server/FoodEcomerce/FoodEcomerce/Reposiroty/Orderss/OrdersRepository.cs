@@ -8,6 +8,7 @@ using System.Net.Mail;
 using static System.Net.WebRequestMethods;
 using MailKit.Net.Smtp;
 using SmtpClient = MailKit.Net.Smtp.SmtpClient;
+using FoodEcomerce.Entity.StoreProcedure;
 
 namespace FoodEcomerce.Reposiroty.Orderss
 {
@@ -15,10 +16,12 @@ namespace FoodEcomerce.Reposiroty.Orderss
     {
         private readonly FoodDbContex _context;
         private readonly IMapper _mapper;
-        public OrdersRepository(FoodDbContex dbContext, IMapper mapper) : base(dbContext, mapper)
+        private readonly StoreDbcontext _storeContext;
+        public OrdersRepository(FoodDbContex dbContext, IMapper mapper , StoreDbcontext spdContext) : base(dbContext, mapper)
         {
             _context = dbContext;
             _mapper = mapper;   
+            _storeContext = spdContext;
         }
 
         public async Task<ResultModal> CreateWithQuery(OrderModal modal)
@@ -146,6 +149,11 @@ namespace FoodEcomerce.Reposiroty.Orderss
                 return new ResultModal() { Status = 200 , Message="Đặt hàng thành công" , Success = true }; 
             }
             return new ResultModal() { Status = 202, Message = "Đơn hàng đã tồn tại", Success = true };
+        }
+
+        public async Task<List<sp_WebFood_GetAllOrders>> GetAllWithQuery(Guid? userId, int statusId, int pageNumber, int pageSize)
+        {
+            return await  _storeContext.sp_WebFood_GetAllOrders.FromSqlInterpolated($"Execute sp_WebFood_GetAllOrders @NguoiDungId={userId} , @Status={statusId} , @PageNumber={pageNumber}, @PageSize={pageSize}").ToListAsync();  
         }
 
         public async Task<ResultModal> UpdateWithQuery(Guid orderId, int type)

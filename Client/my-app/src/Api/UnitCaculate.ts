@@ -4,7 +4,11 @@ import type { UnitCacaulate } from "@/Type/UnitCaculate";
 import axios from "axios";
 
 const api = axios.create({
+<<<<<<< HEAD
   baseURL: "http://localhost:5292/api/UnitCaculate",
+=======
+  baseURL: "http://localhost:5292/api/UnitCaculate",
+>>>>>>> 15de3b67f25597396e005d5e96777554070b92a4
 });
 
 export const getAll = async (pageNumber: number, pageSize: number) => {

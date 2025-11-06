@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Azure.Core;
 using FoodEcomerce.DTO;
 using FoodEcomerce.Entity;
 using FoodEcomerce.Modal;
@@ -154,55 +155,74 @@ namespace FoodEcomerce.Reposiroty.Auths
 
         }
 
-        // ======================= LOGIN VỚI GOOGLE =======================
         public async Task<LoginDTO> LoginWithGoogle(GoogleLoginModal modal)
         {
             var payload = await GoogleJsonWebSignature.ValidateAsync(modal.Token);
-            var email = payload.Email;
+            
+            LoginDTO result = new LoginDTO();
 
-            // ✅ Kiểm tra user tồn tại chưa
-            var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == email);
-            if (user == null)
+            try
             {
-                user = new User
+                var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == payload.Email);
+                if (user == null)
                 {
-                    Id = Guid.NewGuid(),
-                    Email = email,
-                    UserName = payload.Name ?? email,
-                    RoleId = Guid.Parse("e791c54a-15fc-401a-b376-b4f3e088c284"), // Role mặc định là User
-                    Password = "",
-                    StatusId = 1,
-                    IsAdmin = false,
-                    Acvite = true,
-                    CreateUser = email
-                };
+                    User data = new User();
+                    data.Id = Guid.NewGuid();
+                    data.Email = payload.Email;
+                    data.UserName = payload.FamilyName;
+                    data.Password = null;
+                    data.RoleId = Guid.Parse("e791c54a-15fc-401a-b376-b4f3e088c284");
+                    data.UserName = payload.Email;
+                    data.StatusId = 1;
+                    data.IsAdmin = false;
+                    data.Acvite = true;
+                    data.CreateUser = payload.FamilyName;
 
-                _context.Users.Add(user);
+                    _context.Users.Add(data);
 
-                // ✅ Tạo giỏ hàng mặc định
-                var cart = new Cart
+                    var cart = new Cart
+                    {
+                        Id = Guid.NewGuid(),
+                        UserId = data.Id,
+                        CreateAt = DateTime.UtcNow
+                    };
+                    _context.Carts.Add(cart);
+
+                    await _context.SaveChangesAsync();
+
+                    result.Id = data.Id;
+                    result.Email = data.Email;
+                    result.UserName = data.UserName;
+                    result.RoleId = data.RoleId;
+                    result.AccessToken = Helpper.Untils.GenerateAccessToken(data.Id, data.UserName, data.RoleId);
+                    result.RefeshToken = Helpper.Untils.GenerateRefreshToken();
+                    result.Expires = DateTime.UtcNow.AddMinutes(30);
+                    result.Status = 200;
+                    result.CartId = cart.Id;
+
+                }
+                else
                 {
-                    Id = Guid.NewGuid(),
-                    UserId = user.Id,
-                    CreateAt = DateTime.UtcNow
-                };
-                _context.Carts.Add(cart);
+                    var cartData = _context.Carts.FirstOrDefault(c => c.UserId == user.Id);
+                    result.Id = user.Id;
+                    result.Email = user.Email;
+                    result.UserName = user.UserName;
+                    result.RoleId = user.RoleId;
+                    result.AccessToken = Helpper.Untils.GenerateAccessToken(user.Id, user.UserName, user.RoleId);
+                    result.RefeshToken = Helpper.Untils.GenerateRefreshToken();
+                    result.Expires = DateTime.UtcNow.AddMinutes(30);
+                    result.Status = 200;
+                    result.CartId = cartData != null ? cartData.Id : Guid.Empty;
+                }
 
-                await _context.SaveChangesAsync();
+                return result;
             }
+            catch (Exception ex) {
+                result.Status = 500;
+                return result;
+            }
+      
 
-            // ✅ Trả về thông tin login
-            return new LoginDTO
-            {
-                Id = user.Id,
-                Email = user.Email,
-                UserName = user.UserName,
-                RoleId = user.RoleId,
-                AccessToken = Helpper.Untils.GenerateAccessToken(user.Id, user.UserName, user.RoleId),
-                RefeshToken = Helpper.Untils.GenerateRefreshToken(),
-                Expires = DateTime.UtcNow.AddMinutes(15),
-                Status = 200
-            };
         }
 
 

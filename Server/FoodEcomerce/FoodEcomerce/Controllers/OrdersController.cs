@@ -1,5 +1,7 @@
 ﻿using FoodEcomerce.Abstract;
+using FoodEcomerce.Entity.StoreProcedure;
 using FoodEcomerce.Modal;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,17 +12,28 @@ namespace FoodEcomerce.Controllers
     public class OrdersController : ControllerBase
     {
         private readonly UnitOfWork _unitOfWork;
-        public OrdersController(UnitOfWork unitOfWork)
+        private readonly CurrentUserService _currentUserService;
+        public OrdersController(UnitOfWork unitOfWork , CurrentUserService currentUserService)
         {
             _unitOfWork = unitOfWork;
+            _currentUserService = currentUserService;
         }
 
         [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAll(int pageNumber, int pageSize)
+        [Authorize]
+        public async Task<IActionResult> GetAll(int type,int pageNumber, int pageSize)
         {
             try
             {
-                var result = await _unitOfWork.OrderRepository.GetAll(pageNumber, pageSize);
+                List<sp_WebFood_GetAllOrders> result = new List<sp_WebFood_GetAllOrders> ();
+                Guid? role = _currentUserService.GetRoleId();
+                var userId = _currentUserService.GetUserId();
+                if(role == Guid.Parse("d9c31537-7661-443e-9e18-418b57074ab8") || role == Guid.Parse("5D8A5421-5277-4098-9587-F211D652332B"))
+                {
+                    result = await _unitOfWork.OrderRepository.GetAllWithQuery(null, -1, pageNumber, pageSize);
+                }
+                else result = await _unitOfWork.OrderRepository.GetAllWithQuery(userId, -1, pageNumber, pageSize);
+
                 return Ok(result);
             }
             catch (Exception ex)
@@ -29,7 +42,7 @@ namespace FoodEcomerce.Controllers
             }
         }
         [HttpGet("GetById")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetById(Guid id)
         {
             try
             {

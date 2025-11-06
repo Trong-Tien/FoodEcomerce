@@ -152,7 +152,7 @@ export default function ProfilePage() {
                   </label>
                   <input
                     disabled
-                    value={user.status?.name || "Không xác định"}
+                    value={user.statusId?.name || "Không xác định"}
                     className="w-full border rounded-xl px-4 py-2 mt-1 bg-gray-100 text-gray-600 cursor-not-allowed"
                   />
                 </div>

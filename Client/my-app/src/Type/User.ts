@@ -9,6 +9,6 @@ export type User ={
     password : string,
     address : string ,
     active : boolean,
-    status : Status
+    statusId : Status
     role : LoaiTaiKhoan
 }

@@ -29,11 +29,11 @@ export const UserService = {
       userName: user.userName,
       phoneNumber: user.phoneNumber,
       email: user.email,
-      password: user.password ?? "123456", // tránh null
+      password: user.password ?? "123456", 
       address: user.address ?? "",
-      acvite: user.active ?? true, // 👈 chính tả sai của backend
+      acvite: user.active ?? true, 
       isAdmin: false,
-      statusId: user.status?.id ?? 0,
+      statusId: user.statusId ?? 0,
       roleId: user.role?.id ?? "e791c54a-15fc-401a-b376-b4f3e088c284",
     };
 
