@@ -38,6 +38,7 @@
   <ItemGroup>
     <Folder Include="wwwroot\UploadFiles\Images\Banner\" />
     <Folder Include="wwwroot\UploadFiles\Images\Categorys\" />
+    <Folder Include="wwwroot\UploadFiles\Images\Comment\" />
     <Folder Include="wwwroot\UploadFiles\Images\Vouchers\" />
     <Folder Include="wwwroot\UploadFiles\Images\Products\" />
     <Folder Include="wwwroot\UploadFiles\Categorys\" />
