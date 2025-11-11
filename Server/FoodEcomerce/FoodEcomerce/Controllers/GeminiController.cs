@@ -1,5 +1,8 @@
 ﻿using FoodEcomerce.DTO;
+using FoodEcomerce.Entity.StoreProcedure;
+using FoodEcomerce.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.FileSystemGlobbing;
 using Newtonsoft.Json;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -10,54 +13,23 @@ namespace FoodEcomerce.Controllers
     [ApiController]
     public class GeminiController : ControllerBase
     {
-        private readonly HttpClient _httpClient;
+        private readonly GeminiAiServices _geminiAiServices;
+      
 
-
-        public GeminiController(HttpClient httpClient)
+        public GeminiController(GeminiAiServices geminiAiServices)
         {
-            _httpClient = httpClient;
+
+            _geminiAiServices = geminiAiServices;
         }
 
         [HttpPost("GeminiAI")]
         public async Task<IActionResult> AskGeminiAsync( string prompt)
         {
-            var url = $"https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=AIzaSyBge15V7sjnKSQE_fjoU82xfVpI5ClvkuM";
+         
             try
             {
-                var requestBody = new
-                {
-                    contents = new[]
-                    {
-                    new
-                    {
-                        parts = new[]
-                        {
-                            new { text = prompt }
-                        }
-                    }
-                }
-                };
-
-                var json = JsonConvert.SerializeObject(requestBody);
-                var response = await _httpClient.PostAsync(
-                    url,
-                    new StringContent(json, Encoding.UTF8, "application/json")
-                );
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    var err = await response.Content.ReadAsStringAsync();
-                    return StatusCode((int)response.StatusCode, err);
-                }
-
-                var jsonResponse = await response.Content.ReadAsStringAsync();
-                var result = JsonConvert.DeserializeObject<GeminiResponseDTO>(jsonResponse);
-
-                string text  = result.Candidates[0].Content.Parts[0].Text;
-
-                string test = FormatGeminiResponse(text);
-
-                return Ok(test);
+                var result = await _geminiAiServices.GetDataFromAI(prompt);
+                return Ok(result);
             }
             catch (Exception ex)
             {

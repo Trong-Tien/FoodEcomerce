@@ -1,6 +1,7 @@
 ﻿using FoodEcomerce.Abstract;
 using FoodEcomerce.Entity;
 using FoodEcomerce.Entity.StoreProcedure;
+using FoodEcomerce.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -23,6 +24,7 @@ builder.Services.AddDbContext<StoreDbcontext>(options =>
         options.UseSqlServer(settings["DefaultConnection"]));
 
 builder.Services.AddScoped<UnitOfWork>();
+builder.Services.AddScoped<GeminiAiServices>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<CurrentUserService>();
 builder.Services.AddAutoMapper(typeof(Program));
