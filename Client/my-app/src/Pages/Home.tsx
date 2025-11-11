@@ -7,6 +7,7 @@ import ProductGroup from "@/Component/Home/ProductGroup";
 import BlogGroup from "@/Component/Home/BlogGroup";
 import BrandOfferGroup from "@/Component/Home/BrandOffGroup";
 import Footer from "@/Component/Home/Footer";
+import AIChatFloating from "@/Component/Home/AIChatFloating";
 
 import { productService } from "@/Services/ProductService";
 import blogService from "@/Services/BlogService";
@@ -148,6 +149,7 @@ export default function Home() {
 
           {/* Footer */}
           <Footer />
+          <AIChatFloating />
         </main>
       </div>
     </div>

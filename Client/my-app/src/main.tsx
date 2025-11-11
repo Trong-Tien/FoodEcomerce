@@ -8,6 +8,8 @@ import { CartProvider } from "@/Context/CartContext";
 import { AuthProvider } from "@/Context/AuthContext"; // ✅ thêm dòng này
 import { Toaster } from "react-hot-toast";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+
+
 const router = createRouter({ routeTree });
 const queryClient = new QueryClient();
 
@@ -17,7 +19,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <CartProvider>
-            <RouterProvider router={router} />
+            <RouterProvider router={router} />  
             <Toaster position="top-right" />
           </CartProvider>
         </AuthProvider>
