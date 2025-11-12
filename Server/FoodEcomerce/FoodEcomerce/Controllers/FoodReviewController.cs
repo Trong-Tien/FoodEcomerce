@@ -44,7 +44,7 @@ namespace FoodEcomerce.Controllers
 
 
         [HttpPost("Create")]
-        public async Task<IActionResult> Create(ProductReviewModal modal)
+        public async Task<IActionResult> Create([FromForm]ProductReviewModal modal)
         {
             try
             {

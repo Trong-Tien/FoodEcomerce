@@ -1,9 +1,13 @@
+import type { GeminiResponse } from "@/Type/GeminiResponse";
+
 // services/geminiService.ts
 const API_BASE = "http://localhost:5292/api/Gemini";
 
+
+
 export const geminiService = {
   async ask(prompt: string) {
-    const res = await fetch(`${API_BASE}/GeminiAI?prompt=${encodeURIComponent(prompt)}`, {
+    const res  = await fetch(`${API_BASE}/GeminiAI?prompt=${encodeURIComponent(prompt)}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -17,6 +21,7 @@ export const geminiService = {
       throw new Error(err);
     }
 
-    return res.text(); // vì backend trả Ok(string)
+    const data: GeminiResponse = await res.json();
+    return data; 
   },
 };

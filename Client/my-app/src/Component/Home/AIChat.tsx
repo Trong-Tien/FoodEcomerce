@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { geminiService } from "@/Services/aiService"
 import { Send, Sparkles } from "lucide-react"
+import type { Product } from "@/Type/Product"
 
 export type ChatMessage = {
   sender: "user" | "ai"
@@ -17,7 +18,9 @@ type GeminiChatProps = {
 export default function GeminiChat({ chatHistory, setChatHistory }: GeminiChatProps) {
   const [prompt, setPrompt] = useState("")
   const [loading, setLoading] = useState(false)
+  const [productSuggest , setProductSuggest] = useState<Product[]>([])
 
+  
   const suggestedProducts = [
     { id: 1, name: "Bánh mì đặc ruột", price: 25000, description: "Bánh mì thơm ngon truyền thống", icon: "🥖" },
     { id: 2, name: "Trà sữa trân châu", price: 40000, description: "Trà sữa tươi mát với trân châu", icon: "🧋" },
@@ -32,7 +35,8 @@ export default function GeminiChat({ chatHistory, setChatHistory }: GeminiChatPr
 
     try {
       const res = await geminiService.ask(prompt)
-      setChatHistory(prev => [...prev, { sender: "ai", text: res }])
+      setChatHistory(prev => [...prev, { sender: "ai", text: res?.recipeResponse?.recipe }])
+      setProductSuggest(res.product)
       setPrompt("")
     } catch (err: any) {
       setChatHistory(prev => [...prev, { sender: "ai", text: `Lỗi: ${err.message}` }])
@@ -104,19 +108,19 @@ export default function GeminiChat({ chatHistory, setChatHistory }: GeminiChatPr
       <div className="bg-white rounded-2xl shadow-lg p-4 border border-slate-200 mt-4">
         <h3 className="text-xl font-bold text-slate-900 mb-3">Sản phẩm nổi bật</h3>
         <div className="flex flex-col gap-3">
-          {suggestedProducts.map(product => (
+          {productSuggest.length > 0 &&  productSuggest.map(product => (
             <div
               key={product.id}
               className="p-3 border-2 border-slate-200 rounded-xl hover:border-emerald-600 hover:shadow-md transition-all cursor-pointer flex justify-between items-center"
             >
               <div className="flex items-center gap-3">
-                <span className="text-2xl">{product.icon}</span>
+                <span className="text-2xl"></span>
                 <div>
                   <p className="font-semibold text-slate-900">{product.name}</p>
-                  <p className="text-sm text-slate-600">{product.description}</p>
+                  {/* <p className="text-sm text-slate-600">{product.description}</p> */}
                 </div>
               </div>
-              <span className="text-emerald-600 font-bold">{product.price.toLocaleString()}₫</span>
+              <span className="text-emerald-600 font-bold">{product.unitPrice.toLocaleString()}₫</span>
             </div>
           ))}
         </div>

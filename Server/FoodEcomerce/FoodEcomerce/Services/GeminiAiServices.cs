@@ -20,7 +20,7 @@ namespace FoodEcomerce.Services
         public async Task<ResultGeminiDTO> GetDataFromAI(string prompt)
         {
             ResultGeminiDTO result = new ResultGeminiDTO();
-            var url = $"https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash-lite:generateContent?key={APIKeys.GemniApiKey}";
+            var url = $"https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key={APIKeys.GemniApiKey}";
             var geminiPrompt = $@"
                                     Bạn là trợ lý nấu ăn.
                                     Hãy trả về công thức nấu ăn phù hợp với yêu cầu sau: {prompt}.
@@ -73,12 +73,13 @@ namespace FoodEcomerce.Services
                 string text = dataResponse.Candidates[0].Content.Parts[0].Text;
                 text = text.Replace("```json", "").Replace("```", "").Trim();
        
-                result.geminiResponseDTO = JsonConvert.DeserializeObject<RecipeResponseDTO>(text);
+                result.RecipeResponse = JsonConvert.DeserializeObject<RecipeResponseDTO>(text);
 
-                string testIngredient = string.Join(",", result.geminiResponseDTO.Ingredients);
+                string testIngredient = string.Join(",", result.RecipeResponse.Ingredients);
 
                 // lấy danh sách sản phẩm được để xuất từ AI
-                result.productDTO = await _storeDbcontext.sp_WebFood_GetAllProduct.FromSqlInterpolated($"Execute sp_WebFood_GetAllProduct_ByGemini @Ingredients={testIngredient}").ToListAsync();
+                result.Product = await _storeDbcontext.sp_WebFood_GetAllProduct.FromSqlInterpolated($"Execute sp_WebFood_GetAllProduct_ByGemini @Ingredients={testIngredient}").ToListAsync();
+
 
                 return result;  
 

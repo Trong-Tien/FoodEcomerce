@@ -39,7 +39,7 @@ export default function AIChatFloating() {
         <div className="fixed bottom-16 right-6 z-50 w-96 h-[550px] bg-white border border-gray-200 shadow-2xl rounded-xl flex flex-col overflow-hidden transition-all duration-300">
           {/* Header */}
           <div className="flex justify-between items-center p-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold">AI Assistant</h2>
+            <h2 className="text-lg font-semibold">Trợ lý nấu ăn AI</h2>
             <button onClick={() => setOpen(false)} className="p-2 hover:bg-gray-100 rounded-full">
               <X className="w-5 h-5" />
             </button>
