@@ -31,6 +31,7 @@ namespace FoodEcomerce.Reposiroty.Orderss
             {
               var item =  _mapper.Map<Orders>(modal);
               item.Id = Guid.NewGuid();
+              item.OrderCode = $"FO{DateTime.UtcNow.ToString("yyyyMMddHHmmss")}{modal.Id.ToString().Substring(0,2)}";
               item.StatusId = 1;
               item.OrderDate = DateTime.Now;
               item.PaymentMenthodId = modal.PaymentMenthodId;
@@ -147,10 +148,16 @@ namespace FoodEcomerce.Reposiroty.Orderss
             return new ResultModal() { Status = 202, Message = "Đơn hàng đã tồn tại", Success = true };
         }
 
+        public async Task<List<sp_WebFood_GetAllOrdersDetail>> GetAllOrderDetailByOrderId(Guid orderId)
+        {
+            return await _storeContext.sp_WebFood_GetAllOrdersDetail.FromSqlInterpolated($"Execute sp_WebFood_GetAllOrdersDetail @OrderId={orderId}").ToListAsync();
+        }
+
         public async Task<List<sp_WebFood_GetAllOrders>> GetAllWithQuery(Guid? userId, int statusId, int pageNumber, int pageSize)
         {
             return await  _storeContext.sp_WebFood_GetAllOrders.FromSqlInterpolated($"Execute sp_WebFood_GetAllOrders @NguoiDungId={userId} , @Status={statusId} , @PageNumber={pageNumber}, @PageSize={pageSize}").ToListAsync();  
         }
+
 
         public async Task<ResultModal> UpdateWithQuery(Guid orderId, int type)
         {

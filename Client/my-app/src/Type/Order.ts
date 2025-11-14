@@ -1,5 +1,8 @@
-export type Order {
+export type Order ={
   id: string;
+  userName : string,
+  orderCode : string,
+  phoneNumber : string,
   orderDate: string;
   shippingAddress: string;
   totalPrice: number;

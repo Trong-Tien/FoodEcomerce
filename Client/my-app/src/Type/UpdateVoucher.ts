@@ -1,5 +1,5 @@
 export type UpdateVoucher = {
-    id :  number | undefined,
+    id :  number |undefined ,
     name : string,
     description : string,
     discountType : string ,

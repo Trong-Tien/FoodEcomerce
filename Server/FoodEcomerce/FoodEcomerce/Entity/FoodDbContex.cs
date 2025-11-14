@@ -267,6 +267,7 @@ namespace FoodEcomerce.Entity
                 entity.Property(x => x.TotalPrice).HasColumnType("decimal");
                 entity.Property(x => x.OrderStatusId).HasColumnType("int");
                 entity.Property(x => x.Note).HasMaxLength(50);
+                entity.Property(x => x.OrderCode).HasMaxLength(50);
                 entity.HasOne(x => x.User)
                    .WithMany(x => x.Orders)
                    .HasForeignKey(x => x.UserId)

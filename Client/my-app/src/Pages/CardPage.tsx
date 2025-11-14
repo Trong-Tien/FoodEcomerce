@@ -35,7 +35,6 @@ function CartTabs() {
 export default function CartPage() {
   const {
     items,
-    total,
     shipping,
     disCountValue,
     shipValue,
@@ -48,7 +47,6 @@ export default function CartPage() {
     showVoucherModal,
     showSuccess,
     productCache,
-    addressCurrent,
 
     setSelected,
     setNote,

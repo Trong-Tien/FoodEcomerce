@@ -57,7 +57,7 @@ export const useUpdateVoucher = () => {
     return useMutation<ResponseType, Error, UpdateVoucher>({
         mutationFn: async (request: UpdateVoucher) => {
             const formData = new FormData();
-            formData.append("id", request.id.toString());
+            formData.append("id", (request.id ?? "").toString() );
             formData.append("name", request.name);
             formData.append("description", request.description);
             formData.append("discountType", request.discountType);

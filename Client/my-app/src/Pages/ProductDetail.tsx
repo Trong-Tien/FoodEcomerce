@@ -17,7 +17,6 @@ import { ArrowLeft, Heart, ShoppingCart, Truck, Shield, ChevronLeft, ChevronRigh
 
 const DetailProduct: React.FC = () => {
   const { id } = ProductRoute.useParams()
-  const [showSidebar, setShowSidebar] = useState(false)
   const [product, setProduct] = useState<Product | null>(null)
   const [related, setRelated] = useState<Product[]>([])
   const [upsell, setUpsell] = useState<Product[]>([])

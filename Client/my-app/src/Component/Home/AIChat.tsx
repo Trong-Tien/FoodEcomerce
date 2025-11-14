@@ -21,12 +21,6 @@ export default function GeminiChat({ chatHistory, setChatHistory }: GeminiChatPr
   const [productSuggest , setProductSuggest] = useState<Product[]>([])
 
   
-  const suggestedProducts = [
-    { id: 1, name: "Bánh mì đặc ruột", price: 25000, description: "Bánh mì thơm ngon truyền thống", icon: "🥖" },
-    { id: 2, name: "Trà sữa trân châu", price: 40000, description: "Trà sữa tươi mát với trân châu", icon: "🧋" },
-    { id: 3, name: "Cà phê sữa đá", price: 30000, description: "Cà phê đậm đà kiểu Việt", icon: "☕" },
-  ]
-
   async function handleAsk() {
     if (!prompt.trim()) return
 

@@ -55,7 +55,7 @@ function RouteComponent() {
                 header: 'Trạng thái',
                 size: 150,
                 Cell: ({ row }) => {
-                    const statusId = row.original.status.id;
+                    const statusId = row.original.statusId.id;
 
                     const statusMap: Record<number, { text: string; color: string }> = {
                         1: { text: 'Chưa kích hoạt', color: 'gray' },
@@ -119,7 +119,7 @@ function RouteComponent() {
             active: data.active,
             password : data.password,
             roleId: data.role.id,
-            statusId: data.status.id
+            statusId: data.statusId.id
         }
     }
 

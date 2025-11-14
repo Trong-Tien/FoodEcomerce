@@ -44,11 +44,7 @@ const AppSidebar = () => {
 
   // API menus theo quyền
   const { data } = useGetMenusByPermission(roleId);
-
-  const menu: MenuPermission[] = useMemo(
-    () => (Array.isArray(data) ? data : []),
-    [data]
-  );
+  const menu: MenuPermission[] = useMemo(() => (Array.isArray(data) ? data : []), [data]);
 
   // Mutation logout
   const mutation = useMutation({
@@ -70,34 +66,37 @@ const AppSidebar = () => {
   });
 
   // Check active route
-  const isActive = (path: string) =>
-    routerState.location.pathname.startsWith(path);
+  const isActive = (path: string) => routerState.location.pathname.startsWith(path);
 
   return (
     <Drawer
       variant="permanent"
       sx={{
         width: drawerWidth,
-        maxHeight: "100%",
         flexShrink: 0,
         "& .MuiDrawer-paper": {
           width: drawerWidth,
           boxSizing: "border-box",
-          backgroundColor: "#1e293b", // Tailwind slate-800
+          background: "linear-gradient(to bottom, #1e293b, #111827)",
+          backdropFilter: "blur(4px)",
           color: "white",
         },
       }}
     >
       {/* Header */}
       <Toolbar>
-        <Typography variant="h6" noWrap component="div">
-          {/* Logo hoặc tên app */}
-        </Typography>
+        <Typography className="text-white font-bold text-xl">Trang quản trị bán hàng</Typography>
       </Toolbar>
-      <Divider sx={{ borderColor: "rgba(255,255,255,0.2)" }} />
+      <Divider className="border-white/20" />
 
-      {/* Navigation */}
-      <Box sx={{ overflow: "auto" }}>
+      {/* Menu */}
+      <Box
+        sx={{
+          overflowY: "auto",
+          "&::-webkit-scrollbar": { width: 6 },
+          "&::-webkit-scrollbar-thumb": { backgroundColor: "rgba(255,255,255,0.2)", borderRadius: 3 },
+        }}
+      >
         <List>
           {menu.map((m) => (
             <ListItem disablePadding key={m.menuId}>
@@ -105,8 +104,16 @@ const AppSidebar = () => {
                 component={Link}
                 to={m.url}
                 selected={isActive(m.url)}
+                sx={{
+                  "&.Mui-selected": {
+                    backgroundColor: "rgba(59,130,246,0.3)",
+                    color: "#3b82f6",
+                  },
+                  "&:hover": { backgroundColor: "rgba(255,255,255,0.1)" },
+                  transition: "0.2s",
+                }}
               >
-                <ListItemIcon sx={{ color: "white" }}>
+                <ListItemIcon sx={{ color: "inherit" }}>
                   <span className="material-icons">{m.icon}</span>
                 </ListItemIcon>
                 <ListItemText primary={m.name} />
@@ -115,7 +122,7 @@ const AppSidebar = () => {
           ))}
         </List>
 
-        <Divider sx={{ borderColor: "rgba(255,255,255,0.2)", my: 1 }} />
+        <Divider className="border-white/20 my-1" />
 
         {/* Settings & Logout */}
         <List>
@@ -124,8 +131,16 @@ const AppSidebar = () => {
               component={Link}
               to="/admin/settings"
               selected={isActive("/admin/settings")}
+              sx={{
+                "&.Mui-selected": {
+                  backgroundColor: "rgba(59,130,246,0.3)",
+                  color: "#3b82f6",
+                },
+                "&:hover": { backgroundColor: "rgba(255,255,255,0.1)" },
+                transition: "0.2s",
+              }}
             >
-              <ListItemIcon sx={{ color: "white" }}>
+              <ListItemIcon sx={{ color: "inherit" }}>
                 <SettingsIcon />
               </ListItemIcon>
               <ListItemText primary="Cài đặt" />
@@ -133,8 +148,14 @@ const AppSidebar = () => {
           </ListItem>
 
           <ListItem disablePadding>
-            <ListItemButton onClick={() => mutation.mutate()}>
-              <ListItemIcon sx={{ color: "white" }}>
+            <ListItemButton
+              onClick={() => mutation.mutate()}
+              sx={{
+                "&:hover": { backgroundColor: "rgba(255,255,255,0.1)" },
+                transition: "0.2s",
+              }}
+            >
+              <ListItemIcon sx={{ color: "inherit" }}>
                 <LogoutIcon />
               </ListItemIcon>
               <ListItemText primary="Đăng xuất" />

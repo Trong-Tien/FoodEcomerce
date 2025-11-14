@@ -114,7 +114,7 @@ const ModalThem: React.FC<props> = ({ openModal, initialValues, handleClose }) =
                                     name="categoryParentId"
                                     control={control}
                                     // rules={{ required: "Vui lòng chọn danh mục cha" }}
-                                    render={({ field, fieldState }) => (
+                                    render={({ field }) => (
                                         <Autocomplete
                                             options={dataCategory}
                                             getOptionLabel={(option) => option.name || ""}

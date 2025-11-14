@@ -1,90 +1,85 @@
 import {
   AppBar,
   Toolbar,
-  Typography,
   IconButton,
+  Typography,
   InputBase,
-  Box,
   Badge,
   Avatar,
   Menu,
   MenuItem,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import NotificationsIcon from "@mui/icons-material/Notifications";
 import SearchIcon from "@mui/icons-material/Search";
+import NotificationsIcon from "@mui/icons-material/Notifications";
 import { useState } from "react";
 
-const AppHeader = ({ onToggleSidebar }: { onToggleSidebar?: () => void }) => {
+export default function ModernAppBar() {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => setAnchorEl(event.currentTarget);
+  const handleMenuClose = () => setAnchorEl(null);
   return (
-    <AppBar position="fixed" sx={{ zIndex: 1201, backgroundColor: "#1e293b" }}>
-      <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-        {/* Left: Menu toggle + Logo */}
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+    <AppBar
+      position="fixed"
+      elevation={0}
+      className="backdrop-blur-lg bg-slate-800/70 border-b border-slate-700 z-50"
+    >
+      <Toolbar className="flex justify-between px-6">
+        
+        {/* LEFT: Menu + Logo */}
+        <div className="flex items-center gap-3">
           <IconButton
             color="inherit"
-            edge="start"
-            onClick={onToggleSidebar}
-            sx={{ mr: 1 }}
+           // onClick={onToggleSidebar}
+            className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition"
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div">
-                Trang quản trị bán hàng
+          <Typography variant="h6" className="font-semibold">
+            
           </Typography>
-        </Box>
+        </div>
 
-        {/* Middle: Search bar */}
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            backgroundColor: "rgba(255,255,255,0.15)",
-            padding: "2px 8px",
-            borderRadius: "8px",
-            minWidth: "250px",
-          }}
-        >
-          <SearchIcon />
+        {/* MIDDLE: Search bar */}
+        <div className="flex items-center gap-2 bg-white/10 px-3 py-1 rounded-xl min-w-[250px] hover:bg-white/20 transition">
+          <SearchIcon className="text-white/70" />
           <InputBase
             placeholder="Search…"
-            sx={{ ml: 1, color: "inherit", flex: 1 }}
+            className="ml-2 text-white placeholder-white/50 w-full"
           />
-        </Box>
+        </div>
 
-        {/* Right: Notifications + User menu */}
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <IconButton color="inherit">
+        {/* RIGHT: Notifications + Avatar */}
+        <div className="flex items-center gap-3">
+          <IconButton color="inherit" className="relative">
             <Badge badgeContent={3} color="error">
               <NotificationsIcon />
             </Badge>
           </IconButton>
 
           <IconButton onClick={handleMenuOpen} color="inherit">
-            <Avatar sx={{ width: 32, height: 32 }}>A</Avatar>
+            <Avatar className="w-8 h-8 bg-blue-500 text-white font-semibold">A</Avatar>
           </IconButton>
           <Menu
             anchorEl={anchorEl}
             open={Boolean(anchorEl)}
             onClose={handleMenuClose}
+            className="mt-2"
+            PaperProps={{ className: "bg-slate-800 text-white" }}
           >
-            <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-            <MenuItem onClick={handleMenuClose}>Settings</MenuItem>
-            <MenuItem onClick={handleMenuClose}>Logout</MenuItem>
+            <MenuItem onClick={handleMenuClose} className="hover:bg-slate-700">
+              Profile
+            </MenuItem>
+            <MenuItem onClick={handleMenuClose} className="hover:bg-slate-700">
+              Settings
+            </MenuItem>
+            <MenuItem onClick={handleMenuClose} className="hover:bg-slate-700">
+              Logout
+            </MenuItem>
           </Menu>
-        </Box>
+        </div>
       </Toolbar>
     </AppBar>
   );
-};
-
-export default AppHeader;
+}

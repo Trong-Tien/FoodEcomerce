@@ -10,5 +10,6 @@ namespace FoodEcomerce.Reposiroty.Orderss
         Task<ResultModal> CreateWithQuery(OrderModal modal);    
         Task<ResultModal> UpdateWithQuery(Guid orderId , int type);    
         Task<List<sp_WebFood_GetAllOrders>> GetAllWithQuery(Guid? userId , int statusId , int pageNumber , int pageSize);  
+        Task<List<sp_WebFood_GetAllOrdersDetail>> GetAllOrderDetailByOrderId(Guid orderId);
     }
 }

@@ -54,7 +54,20 @@ namespace FoodEcomerce.Controllers
                 return BadRequest(ex.Message);
             }
         }
-       
+        [HttpGet("GetDetailByOrderId/{orderId}")]
+        public async Task<IActionResult> GetDetailByOrderId(Guid orderId)
+        {
+            try
+            {
+                var result = await _unitOfWork.OrderRepository.GetAllOrderDetailByOrderId(orderId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
 
         [HttpPost("Create")]
         public async Task<IActionResult> Create(OrderModal modal)

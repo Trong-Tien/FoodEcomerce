@@ -119,7 +119,7 @@ export default function Dangky() {
       setServerError(null);
 
       const payload: Register = {
-        username: form.username,
+        userName: form.username,
         email: form.email,
         phoneNumber: form.phoneNumber,
         otp: form.otp,

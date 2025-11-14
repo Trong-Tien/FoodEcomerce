@@ -1,17 +1,20 @@
-import { create, deleteMenu, getAll, getByPermission, update } from "@/Api/Menu";
+import { api } from "@/Api/BaseApi";
+import { create, deleteMenu, getByPermission, update } from "@/Api/Menu";
 import type { MenuForm } from "@/Type/Addmenu";
 import type { Menu } from "@/Type/Menu";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 const qk = {
-  menuPages: (pageNumber: number, pagesize: number) => ["menus"] as const,
   menus: () => ["menus"] as const,
   menu: (id: string | number) => ["menus", id] as const,
 };
 
 export const useGetMenus = (pageNumber: number, pagesize: number) =>
   useQuery({
-    queryKey: qk.menuPages(pageNumber, pagesize),
-    queryFn: () => getAll(pageNumber, pagesize),
+     queryKey: ["orders"],
+       queryFn: async () =>{
+          const {data} = await api.get(`GetAll?pageNumber=${pageNumber}&pagesize=${pagesize}}`)
+          return data;
+       } ,
   });
 
 export const useGetMenusByPermission = (roleId: string) =>
