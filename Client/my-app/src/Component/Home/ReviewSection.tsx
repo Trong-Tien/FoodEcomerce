@@ -1,329 +1,154 @@
-import React, { useEffect, useState, useMemo } from "react";
-import ReviewService from "../../Services/ReviewService";
-import type { Review } from "../../Types/review";
+"use client";
 
-/**
- * Hook auth siêu nhẹ:
- * - Kỳ vọng trong lúc đăng nhập bạn đã lưu localStorage.setItem('auth:user', JSON.stringify({ id, name, email }))
- * - Nếu bạn đã có AuthContext/useAuth riêng, hãy thay hook này bằng hook của bạn.
- */
-type AppUser = { id: number | string; name: string; email?: string };
-function useAuth() {
-  const [currentUser, setCurrentUser] = useState<AppUser | null>(null);
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem("auth:user");
-      if (raw) setCurrentUser(JSON.parse(raw));
-    } catch {
-      // ignore
-    }
-  }, []);
-  return { currentUser };
-}
+import { useState, useRef } from "react";
+import { foodReviewService } from "@/Services/FoodReviewService";
+import { useAuth } from "@/Context/AuthContext";
+import toast from "react-hot-toast";
 
-interface ReviewSectionProps {
-  productId: number;
-}
+type ReviewFormProps = {
+  productId: string;
+  onSuccess: () => void;
+};
 
-const ReviewSection: React.FC<ReviewSectionProps> = ({ productId }) => {
-  const { currentUser } = useAuth(); // ✅ lấy tài khoản hiện tại
-  const [reviews, setReviews] = useState<Review[]>([]);
+export default function ReviewForm({ productId, onSuccess }: ReviewFormProps) {
+  const { user } = useAuth();
+  const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
-  const [rating, setRating] = useState(5);
-  const [images, setImages] = useState<string[]>([]);
-  const [showWithMedia, setShowWithMedia] = useState(false);
-  const [filterStar, setFilterStar] = useState<number | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const reviewsPerPage = 6;
+  const [images, setImages] = useState<File[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Lấy dữ liệu review
-  useEffect(() => {
-    const fetchReviews = async () => {
-      const data = await ReviewService.getByProductId(productId);
-      const sorted = data.sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      );
-      setReviews(sorted);
-    };
-    fetchReviews();
-  }, [productId]);
-
-  // Submit review mới (dùng tên account)
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!currentUser) return; // chưa login thì không cho gửi
-    if (!comment.trim()) return;
-
-    const newReview = await ReviewService.addReview({
-      productId,
-      user: currentUser.name, // ✅ lấy tên từ tài khoản
-      rating,
-      comment,
-      images,
-      // Nếu BE có nhận userId: thêm userId: currentUser.id
+  // Chuyển file thành base64
+  const convertFileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        if (typeof reader.result === "string") resolve(reader.result);
+        else reject("Lỗi đọc file");
+      };
+      reader.onerror = (error) => reject(error);
     });
-
-    setReviews((prev) => [newReview, ...prev]);
-    setComment("");
-    setRating(5);
-    setImages([]);
   };
 
-  // Thống kê review
-  const stats = useMemo(() => {
-    const counts: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-    reviews.forEach((r) => {
-      counts[r.rating] = (counts[r.rating] || 0) + 1;
-    });
-    const total = reviews.length;
-    const sum = reviews.reduce((acc, r) => acc + r.rating, 0);
-    return {
-      average: total ? sum / total : 0,
-      total,
-      counts,
-    };
-  }, [reviews]);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+    const fileArr = Array.from(files);
+    setImages(fileArr);
+    setPreviewUrls(fileArr.map((file) => URL.createObjectURL(file)));
+  };
 
-  // 1) Sort ưu tiên: có media → sao cao → mới nhất
-  const sortedReviews = useMemo(() => {
-    return [...reviews].sort((a, b) => {
-      const aMedia = a.images && a.images.length > 0 ? 1 : 0;
-      const bMedia = b.images && b.images.length > 0 ? 1 : 0;
-      if (bMedia !== aMedia) return bMedia - aMedia;
-      if (b.rating !== a.rating) return b.rating - a.rating;
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    });
-  }, [reviews]);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  // 2) Lọc theo filter
-  const filteredReviews = useMemo(() => {
-    return sortedReviews.filter((r) => {
-      if (showWithMedia && (!r.images || r.images.length === 0)) return false;
-      if (filterStar !== null && r.rating !== filterStar) return false;
-      return true;
-    });
-  }, [sortedReviews, showWithMedia, filterStar]);
+    if (!user?.id) {
+      toast.error("Bạn cần đăng nhập để đánh giá");
+      return;
+    }
+    if (rating === 0) {
+      toast.error("Vui lòng chọn số sao đánh giá");
+      return;
+    }
 
-  // 3) Phân trang
-  const indexOfLast = currentPage * reviewsPerPage;
-  const indexOfFirst = indexOfLast - reviewsPerPage;
-  const currentReviews = filteredReviews.slice(indexOfFirst, indexOfLast);
+    try {
+      setLoading(true);
 
-  // 4) Upload ảnh (preview tạm thời)
-  const handleFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files) return;
-    const fileArray = Array.from(e.target.files);
-    const urls = fileArray.map((file) => URL.createObjectURL(file));
-    setImages(urls);
+      // Chuyển ảnh sang base64
+      const imageDTOs = await Promise.all(
+        images.map(async (file) => ({
+          imageUrl: await convertFileToBase64(file),
+        }))
+      );
+
+      const now = new Date().toISOString(); // Ngày giờ hợp lệ
+
+      const reviewPayload = {
+        productId,
+        userId: user.id,
+        rating,
+        comment,
+        createdAt: now,
+        updatedAt: now,
+        productReviewImageDTOs: imageDTOs,
+      };
+
+      await foodReviewService.create(reviewPayload);
+
+      toast.success("Gửi đánh giá thành công!");
+      onSuccess();
+
+      // Reset form
+      setRating(0);
+      setComment("");
+      setImages([]);
+      setPreviewUrls([]);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    } catch (err) {
+      console.error("Lỗi gửi đánh giá:", err);
+      toast.error("Gửi đánh giá thất bại!");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="mt-6 bg-white p-6 rounded-2xl shadow-md">
-      <h3 className="text-lg font-semibold mb-4">Đánh giá sản phẩm</h3>
-
-      {/* ⭐ Thống kê tổng quan */}
-      <div className="mb-6 p-4 bg-gray-50 rounded-xl border">
-        <div className="flex items-center gap-4">
-          <div className="text-3xl font-bold text-yellow-500">
-            {stats.average.toFixed(1)}⭐
-          </div>
-          <div className="text-sm text-gray-600">{stats.total} đánh giá</div>
-        </div>
-
-        {/* Thanh số sao + filter */}
-        <div className="mt-3 space-y-1">
-          <div
-            className={`flex items-center gap-2 text-sm cursor-pointer ${
-              filterStar === null ? "font-semibold text-blue-600" : ""
-            }`}
-            onClick={() => {
-              setFilterStar(null);
-              setCurrentPage(1);
-            }}
-          >
-            <span className="w-14">Tất cả</span>
-            <div className="flex-1 h-2 bg-gray-200 rounded">
-              <div
-                className="h-2 bg-yellow-400 rounded"
-                style={{ width: "100%" }}
-              />
-            </div>
-            <span className="w-10 text-right">{stats.total}</span>
-          </div>
-
-          {[5, 4, 3, 2, 1].map((s) => (
-            <div
-              key={s}
-              className={`flex items-center gap-2 text-sm cursor-pointer ${
-                filterStar === s ? "font-semibold text-blue-600" : ""
-              }`}
-              onClick={() => {
-                setFilterStar(filterStar === s ? null : s);
-                setCurrentPage(1);
-              }}
+    <form onSubmit={handleSubmit} className="bg-white border p-4 rounded-xl shadow-md space-y-4">
+      {/* Rating */}
+      <div>
+        <label className="font-semibold">Đánh giá sao:</label>
+        <div className="flex gap-1 mt-1">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <button
+              type="button"
+              key={star}
+              onClick={() => setRating(star)}
+              className={`text-2xl ${star <= rating ? "text-yellow-500" : "text-gray-300"}`}
             >
-              <span className="w-14">{s} ⭐</span>
-              <div className="flex-1 h-2 bg-gray-200 rounded">
-                <div
-                  className="h-2 bg-yellow-400 rounded"
-                  style={{
-                    width: `${
-                      stats.total ? (stats.counts[s] / stats.total) * 100 : 0
-                    }%`,
-                  }}
-                />
-              </div>
-              <span className="w-10 text-right">{stats.counts[s]}</span>
-            </div>
+              ★
+            </button>
           ))}
         </div>
-
-        {/* Toggle review có media */}
-        <div className="mt-3 flex items-center gap-2">
-          <input
-            type="checkbox"
-            id="withMedia"
-            checked={showWithMedia}
-            onChange={(e) => {
-              setShowWithMedia(e.target.checked);
-              setCurrentPage(1);
-            }}
-          />
-          <label htmlFor="withMedia" className="text-sm text-gray-700">
-            Chỉ hiện đánh giá có hình ảnh/video
-          </label>
-        </div>
       </div>
 
-      {/* Danh sách review */}
-      <div className="space-y-4">
-        {currentReviews.length === 0 ? (
-          <p className="text-gray-500 text-sm">Chưa có đánh giá nào.</p>
-        ) : (
-          currentReviews.map((r) => (
-            <div key={r.id} className="border-b pb-3">
-              <p className="text-sm font-semibold">{r.user}</p>
-              <p className="text-yellow-500">
-                {"⭐".repeat(r.rating)}
-                {"☆".repeat(5 - r.rating)}
-              </p>
-              <p className="text-gray-600 text-sm mt-1">{r.comment}</p>
+      {/* Comment */}
+      <textarea
+        placeholder="Nhập nhận xét của bạn..."
+        value={comment}
+        onChange={(e) => setComment(e.target.value)}
+        className="w-full border rounded-md p-2 min-h-[80px]"
+      />
 
-              {r.images && r.images.length > 0 && (
-                <div className="flex gap-2 mt-2 flex-wrap">
-                  {r.images.map((img, idx) => (
-                    <img
-                      key={idx}
-                      src={img}
-                      alt={`Review ${r.id} - ${idx}`}
-                      className="w-16 h-16 object-cover rounded-lg border"
-                    />
-                  ))}
-                </div>
-              )}
-              <p className="text-xs text-gray-400 mt-1">{r.createdAt}</p>
-            </div>
-          ))
-        )}
+      {/* Upload ảnh */}
+      <div>
+        <label className="font-semibold">Ảnh (tùy chọn):</label>
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          accept="image/*"
+          onChange={handleFileChange}
+          className="mt-1"
+        />
       </div>
 
-      {/* 🔐 Nếu chưa đăng nhập: nhắc đăng nhập */}
-      {!currentUser && (
-        <div className="mt-6 p-4 border rounded-xl bg-amber-50 text-amber-800 text-sm">
-          Vui lòng{" "}
-          <a href="/Dangnhap/" className="underline font-medium">
-            đăng nhập
-          </a>{" "}
-          để viết đánh giá.
+      {/* Preview ảnh */}
+      {previewUrls.length > 0 && (
+        <div className="flex gap-2 flex-wrap mt-2">
+          {previewUrls.map((url, idx) => (
+            <img key={idx} src={url} className="w-20 h-20 object-cover rounded border" alt="preview" />
+          ))}
         </div>
       )}
 
-      {/* Form thêm review (ẩn tên, dùng tên tài khoản) */}
-      <form onSubmit={handleSubmit} className="mt-6 space-y-3">
-        {/* Hiển thị “đánh giá với tư cách” */}
-        {currentUser && (
-          <div className="text-sm text-gray-700">
-            Đánh giá với tư cách:{" "}
-            <span className="font-semibold">{currentUser.name}</span>
-          </div>
-        )}
-
-        <select
-          className="w-full border rounded-lg p-2 text-sm"
-          value={rating}
-          onChange={(e) => setRating(Number(e.target.value))}
-          disabled={!currentUser}
-        >
-          {[5, 4, 3, 2, 1].map((r) => (
-            <option key={r} value={r}>
-              {r} ⭐
-            </option>
-          ))}
-        </select>
-
-        <textarea
-          className="w-full border rounded-lg p-2 text-sm"
-          rows={3}
-          placeholder={
-            currentUser
-              ? "Viết đánh giá của bạn..."
-              : "Đăng nhập để viết đánh giá"
-          }
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
-          disabled={!currentUser}
-        />
-
-        <div className="flex gap-2 flex-wrap">
-          {images.map((img, idx) => (
-            <div
-              key={idx}
-              className="relative w-20 h-20 border rounded-lg overflow-hidden"
-            >
-              <img
-                src={img}
-                alt={`Preview ${idx}`}
-                className="w-full h-full object-cover"
-              />
-              <button
-                type="button"
-                className="absolute top-0 right-0 bg-red-500 text-white text-xs px-1 rounded-bl"
-                onClick={() => setImages(images.filter((_, i) => i !== idx))}
-              >
-                x
-              </button>
-            </div>
-          ))}
-          <label
-            className={`w-20 h-20 border border-dashed rounded-lg flex items-center justify-center cursor-pointer text-gray-400 ${!currentUser ? "opacity-50 cursor-not-allowed" : ""}`}
-          >
-            + Thêm
-            <input
-              type="file"
-              multiple
-              className="hidden"
-              onChange={handleFilesChange}
-              disabled={!currentUser}
-            />
-          </label>
-        </div>
-
-        <button
-          type="submit"
-          disabled={!currentUser || !comment.trim()}
-          className={`px-4 py-2 rounded-lg shadow
-            ${
-              !currentUser || !comment.trim()
-                ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                : "bg-green-600 text-white hover:bg-green-700"
-            }`}
-        >
-          Gửi đánh giá
-        </button>
-      </form>
-    </div>
+      <button
+        type="submit"
+        disabled={loading || rating === 0}
+        className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg"
+      >
+        {loading ? "Đang gửi..." : "Gửi đánh giá"}
+      </button>
+    </form>
   );
-};
-
-export default ReviewSection;
+}
