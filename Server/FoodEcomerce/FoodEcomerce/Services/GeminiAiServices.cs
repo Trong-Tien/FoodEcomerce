@@ -20,7 +20,7 @@ namespace FoodEcomerce.Services
         public async Task<ResultGeminiDTO> GetDataFromAI(string prompt)
         {
             ResultGeminiDTO result = new ResultGeminiDTO();
-            var url = $"https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key={APIKeys.GemniApiKey}";
+            var url = $"https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key={APIKeys.GemniApiKey}";
             var geminiPrompt = $@"
                                     Bạn là trợ lý nấu ăn.
                                     Hãy trả về công thức nấu ăn phù hợp với yêu cầu sau: {prompt}.

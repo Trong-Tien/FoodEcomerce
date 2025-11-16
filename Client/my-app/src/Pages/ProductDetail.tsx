@@ -10,7 +10,7 @@ import { useNavigate } from "@tanstack/react-router"
 import Footer from "@/Component/Home/Footer"
 import { useCart } from "@/Context/CartContext"
 import toast from "react-hot-toast"
-import ReviewSection from "@/Component/Home/ReviewSection"
+import ProductReviewSection from "@/Component/Home/ProductReviewSection";
 import { useAuth } from "@/Hooks/useAuth"
 import { Route as ProductRoute } from "@/routes/product.$id"
 import { ArrowLeft, Heart, ShoppingCart, Truck, Shield, ChevronLeft, ChevronRight } from "lucide-react"
@@ -332,8 +332,11 @@ const DetailProduct: React.FC = () => {
         </div>
 
         <div className="mt-12">
-          <ReviewSection productId={Number(id)} />
-        </div>
+  <h3 className="text-xl font-bold mb-4">Đánh giá sản phẩm</h3>
+
+    <ProductReviewSection productId={String(product.id)} />
+
+</div>
 
         <div className="mt-12">
           <Footer />

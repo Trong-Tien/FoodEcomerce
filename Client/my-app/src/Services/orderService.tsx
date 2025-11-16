@@ -1,37 +1,74 @@
-const API_BASE = "http://localhost:5292/api/Orders";
+import axios from "axios";
 
-const storedRole = localStorage.getItem("role");
-const roleId: string = storedRole ? JSON.parse(storedRole) : "";
+const API_URL = "http://localhost:5292/api/FoodReview";
 
-export const orderService = {
-  async getAll(pageNumber = 1, pageSize = 10) {
-    const res = await fetch(`${API_BASE}/GetAll?type=-1&pageNumber=${pageNumber}&pageSize=${pageSize}&roleId=${roleId}`, {
-      method: "GET",
-    });
+export interface ProductReview {
+  id: number;
+  productId: string;
+  userId: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+  updatedAt: string;
+  productReviewImages?: {
+    id: number;
+    productReviewId: number;
+    imageUrl: string; // BE tuỳ bạn trả thế nào
+    createdAt: string;
+    updatedAt: string;
+  }[];
+}
 
-    if (res.status === 401) throw new Error("Phiên đăng nhập đã hết hạn");
-    if (!res.ok) throw new Error("Không thể tải danh sách đơn hàng");
+interface PagedResult<T> {
+  items: T[];
+  totalCount: number;
+}
 
-    // xử lý response an toàn hơn
-    const text = await res.text();
-    return text && text !== "null" ? JSON.parse(text) : [];
+export const FoodReviewService = {
+  // Lấy tất cả review (BE chưa filter theo ProductId nên ta filter ở FE)
+  getAll: async (pageNumber: number = 1, pageSize: number = 9999) => {
+    const res = await axios.get<PagedResult<ProductReview>>(
+      `${API_URL}/GetAll`,
+      {
+        params: { pageNumber, pageSize },
+      }
+    );
+    return res.data;
   },
 
+  // Lấy review theo ProductId (lọc ở FE)
+  getByProductId: async (productId: string) => {
+    const data = await FoodReviewService.getAll(1, 9999);
+    return data.items.filter((item) => item.productId === productId);
+  },
 
-  async getById(id: string) {
-    const token = localStorage.getItem("access_token");
+  // Tạo review mới + upload nhiều ảnh
+  create: async (data: {
+    productId: string;
+    userId: string;
+    rating: number;
+    comment: string;
+    images?: File[];
+  }) => {
+    const formData = new FormData();
 
-    const res = await fetch(`${API_BASE}/GetById?id=${id}`, {
+    formData.append("ProductId", data.productId);
+    formData.append("UserId", data.userId);
+    formData.append("Rating", data.rating.toString());
+    formData.append("Comment", data.comment || "");
+
+    if (data.images && data.images.length > 0) {
+      data.images.forEach((file, index) => {
+        formData.append(`productReviewImageModals[${index}].ImageUrl`, file);
+      });
+    }
+
+    const res = await axios.post(`${API_URL}/Create`, formData, {
       headers: {
-        "Content-Type": "application/json",
-        ...(token && { Authorization: `Bearer ${token}` }),
+        "Content-Type": "multipart/form-data",
       },
     });
 
-    if (res.status === 401) throw new Error("Phiên đăng nhập đã hết hạn");
-    if (!res.ok) throw new Error("Không thể tải chi tiết đơn hàng");
-
-    const text = await res.text();
-    return text && text !== "null" ? JSON.parse(text) : null;
+    return res.data;
   },
 };

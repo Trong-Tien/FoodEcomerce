@@ -53,7 +53,11 @@ namespace FoodEcomerce.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                var error = ex.InnerException?.InnerException?.Message
+                            ?? ex.InnerException?.Message
+                            ?? ex.Message;
+
+                return BadRequest(error);
             }
         }
         [HttpPut("Update")]
