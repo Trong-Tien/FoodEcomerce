@@ -365,7 +365,7 @@ namespace FoodEcomerce.Entity
             {
                 entity.HasKey(x => x.Id).HasName("PK_ProductReviewId");
                 entity.ToTable("ProductReview");
-                entity.Property(x => x.Id).ValueGeneratedOnAdd();
+                entity.Property(x => x.Id).ValueGeneratedNever();
                 entity.Property(x => x.Rating).HasColumnType("tinyint");
                 entity.Property(x => x.Comment).HasMaxLength(300);
                 entity.Property(x => x.CreatedAt).HasColumnType("Datetime");
@@ -385,13 +385,11 @@ namespace FoodEcomerce.Entity
             {
                 entity.HasKey(x => x.Id).HasName("PK_ProductReviewImage");
                 entity.ToTable("ProductReviewImage");
-                entity.Property(x => x.Id).ValueGeneratedOnAdd();
+                entity.Property(x => x.Id).ValueGeneratedNever();
                 entity.Property(x => x.ImageUrl).HasMaxLength(300);
-                entity.Property(x => x.CreatedAt).HasColumnType("Datetime");
-                entity.Property(x => x.UpdatedAt).HasColumnType("Datetime");
                 entity.HasOne(x => x.ProductReview)
                   .WithMany(x => x.ProductReviewImages)
-                  .HasForeignKey(x => x.ProductReviewId)
+                  .HasForeignKey(x => x.ReviewId)
                   .HasConstraintName("FK_ProductReview_ProductReviewImage")
                   .OnDelete(DeleteBehavior.ClientSetNull);
             });

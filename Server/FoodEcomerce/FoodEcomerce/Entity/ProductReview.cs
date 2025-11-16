@@ -2,7 +2,7 @@
 {
     public class ProductReview
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public Guid ProductId { get; set; }
         public Guid UserId { get; set; }
         public int Rating { get; set; }

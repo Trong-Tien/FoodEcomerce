@@ -2,14 +2,14 @@
 {
     public class ProductReviewModal
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public Guid ProductId { get; set; }
         public Guid UserId { get; set; }
         public int Rating { get; set; }
         public string? Comment { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } 
+        public DateTime UpdatedAt { get; set; } 
 
-        public List<ProductReviewImageModal>? productReviewImageModals { get; set; } 
+        public List<IFormFile>? ImageUrls { get; set; }
     }
 }

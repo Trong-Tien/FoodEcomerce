@@ -42,22 +42,30 @@ namespace FoodEcomerce.Controllers
             }
         }
 
-
+        [HttpGet("GetByProductId")]
+        public async Task<IActionResult> GetByProductId(Guid id)
+        {
+            try
+            {
+                var result = await _unitOfWork.productReviewRepository.GetReviewByProductId(id);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
         [HttpPost("Create")]
         public async Task<IActionResult> Create([FromForm]ProductReviewModal modal)
         {
             try
             {
-                var result = await _unitOfWork.productReviewRepository.Create(modal);
+                var result = await _unitOfWork.productReviewRepository.CreateWithQuery(modal);
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                var error = ex.InnerException?.InnerException?.Message
-                            ?? ex.InnerException?.Message
-                            ?? ex.Message;
-
-                return BadRequest(error);
+                return BadRequest(ex.Message);
             }
         }
         [HttpPut("Update")]
@@ -74,11 +82,11 @@ namespace FoodEcomerce.Controllers
             }
         }
         [HttpDelete("Delete")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(Guid id)
         {
             try
             {
-                var result = await _unitOfWork.productReviewRepository.Delete(id);
+                var result = await _unitOfWork.productReviewRepository.DeleteWithQuery(id);
                 return Ok(result);
             }
             catch (Exception ex)

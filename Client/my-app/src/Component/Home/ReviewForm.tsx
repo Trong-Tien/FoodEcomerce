@@ -58,9 +58,12 @@ export default function ReviewForm({ productId, onSuccess }: ReviewFormProps) {
       formData.append("Rating", rating.toString());
       formData.append("Comment", comment || "");
 
-      images.forEach((file, idx) => {
-        formData.append(`productReviewImageModals[${idx}].ImageUrl`, file, file.name);
+
+
+      images.forEach(file => {
+        formData.append("ImageUrls", file);
       });
+
 
       const result = await foodReviewService.create(formData);
 

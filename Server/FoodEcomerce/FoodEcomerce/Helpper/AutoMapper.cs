@@ -57,6 +57,8 @@ namespace FoodEcomerce.Helpper
 
             CreateMap<ProductReviewModal, ProductReview>().ReverseMap();
             CreateMap<ProductReviewImageModal, ProductReviewImage>().ReverseMap();
+            CreateMap<ProductReview, ProductReviewDTO>().ReverseMap();
+            CreateMap<ProductReviewImage, ProductReviewImageDTO>().ReverseMap();
 
 
             CreateMap<VoucherUser, VoucherUserDTO>()
