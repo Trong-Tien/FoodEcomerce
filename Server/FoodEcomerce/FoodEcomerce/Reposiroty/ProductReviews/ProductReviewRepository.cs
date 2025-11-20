@@ -69,7 +69,7 @@ namespace FoodEcomerce.Reposiroty.ProductReviews
 
         public async Task<List<ProductReviewDTO>> GetReviewByProductId(Guid id)
         {
-            return _mapper.Map<List<ProductReviewDTO>>(await _foodDbContex.ProductReviews.Where(r => r.ProductId == id).Include(r=> r.ProductReviewImages).ToListAsync());
+            return _mapper.Map<List<ProductReviewDTO>>(await _foodDbContex.ProductReviews.Where(r => r.ProductId == id).Include(r => r.ProductReviewImages).Include(r => r.User).ToListAsync());
         }
     }
 }

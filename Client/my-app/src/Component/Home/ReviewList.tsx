@@ -2,15 +2,22 @@
 
 import { useEffect, useState } from "react";
 import { foodReviewService } from "@/Services/FoodReviewService";
+import { Star } from 'lucide-react';
+
+type ReviewImage = {
+  id: string;
+  imageUrl: string;
+};
 
 type Review = {
-  id: number;
+  id: string;
   productId: string;
   userId: string;
+  userName: String;
   rating: number;
   comment: string;
   createdAt: string;
-  productReviewImageModals?: { ImageUrl: string }[];
+  productReviewImages?: ReviewImage[];
 };
 
 type ReviewListProps = {
@@ -37,35 +44,91 @@ export default function ReviewList({ productId }: ReviewListProps) {
     fetchReviews();
   }, [productId]);
 
-  if (loading) return <p>Đang tải đánh giá...</p>;
+  if (loading) {
+    return (
+      <div className="w-full space-y-4">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="bg-slate-100 rounded-2xl p-6 animate-pulse h-32"></div>
+        ))}
+      </div>
+    );
+  }
+
+  if (reviews.length === 0) {
+    return (
+      <div className="w-full bg-slate-50 rounded-2xl border border-slate-200 p-8 text-center">
+        <p className="text-slate-600">Chưa có đánh giá nào.</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-4">
-      {reviews.length === 0 && <p>Chưa có đánh giá nào.</p>}
-      {reviews.map((r) => (
-        <div key={r.id} className="border p-3 rounded-lg shadow-sm">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="font-semibold">User: {r.userId}</span>
-            <span className="text-yellow-500">
-              {"★".repeat(r.rating)}{"☆".repeat(5 - r.rating)}
-            </span>
-          </div>
-          <p>{r.comment}</p>
-          {r.productReviewImageModals?.length && (
-            <div className="flex gap-2 mt-2 flex-wrap">
-              {r.productReviewImageModals.map((img, idx) => (
-                <img
-                  key={idx}
-                  src={img.ImageUrl}
-                  className="w-20 h-20 object-cover rounded border"
-                  alt="review image"
-                />
-              ))}
+    <div className="w-full space-y-4">
+      {reviews.map((r) => {
+        const images = r.productReviewImages || [];
+        return (
+          <div
+            key={r.id}
+            className="bg-white rounded-2xl shadow-lg border border-slate-100 p-6 hover:shadow-xl transition-shadow"
+          >
+            {/* Header with user and rating */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+              <div className="flex flex-col gap-1">
+                <span className="font-semibold text-slate-900">{r.userName || r.userId}</span>
+                <p className="text-xs text-slate-500">
+                  {new Date(r.createdAt).toLocaleDateString("vi-VN", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </p>
+              </div>
+
+              <div className="flex gap-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={star}
+                    size={18}
+                    className={
+                      star <= r.rating
+                        ? "fill-emerald-600 text-emerald-600"
+                        : "text-slate-300"
+                    }
+                  />
+                ))}
+              </div>
             </div>
-          )}
-          <small className="text-gray-400">{new Date(r.createdAt).toLocaleString()}</small>
-        </div>
-      ))}
+
+            {/* Comment */}
+            <p className="text-slate-700 leading-relaxed mb-4">{r.comment}</p>
+
+            {images.length > 0 && (
+              <div className="mt-4">
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+                  {images.map((img) => {
+                    const encodedPath = encodeURIComponent(img.imageUrl);
+                    const imgUrl = `http://localhost:5292/api/File/image?path=${encodedPath}`;
+                    return (
+                      <div
+                        key={img.id}
+                        className="relative group overflow-hidden rounded-lg border border-slate-200"
+                      >
+                        <img
+                          src={imgUrl || "/placeholder.svg"}
+                          className="w-full aspect-square object-cover hover:scale-105 transition-transform duration-200"
+                          alt="review image"
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }

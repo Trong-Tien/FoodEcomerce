@@ -11,9 +11,9 @@ export const foodReviewService = {
   },
 
   getByProductId: async (productId: string) => {
-    const res = await axios.get(`${API_URL}/GetByProduct`, {
-      params: { productId, pageNumber: 1, pageSize: 9999 },
-    });
-    return res.data;
-  },
+  const res = await axios.get(`${API_URL}/GetByProductId`, {
+    params: { id: productId },
+  });
+  return res.data;
+},
 };

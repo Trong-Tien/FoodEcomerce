@@ -79,7 +79,7 @@ namespace FoodEcomerce.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.InnerException?.Message ?? ex.Message);
+                return BadRequest( ex.Message);
             }
 
         }
