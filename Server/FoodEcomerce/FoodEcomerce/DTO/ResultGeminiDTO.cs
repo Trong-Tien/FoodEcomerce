@@ -6,6 +6,6 @@ namespace FoodEcomerce.DTO
     {
         public RecipeResponseDTO RecipeResponse { get; set;}
 
-        public List<sp_WebFood_GetAllProduct>? Product { get; set;}   
+        public List<ProductDataDTO>? Product { get; set;}   
     }
 }
