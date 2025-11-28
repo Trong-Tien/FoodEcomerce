@@ -17,15 +17,18 @@ export default function ProductReviewSection({ productId }: ProductReviewSection
 
   return (
     <div className="space-y-6">
-      <div>
-        <h3 className="font-bold text-lg mb-2">Viết đánh giá</h3>
-        <ReviewForm productId={productId} onSuccess={handleReviewSuccess} />
-      </div>
 
       <div>
         <h3 className="font-bold text-lg mb-2">Đánh giá của khách hàng</h3>
         <ReviewList key={refreshKey} productId={productId} />
       </div>
+      
+      <div>
+        <h3 className="font-bold text-lg mb-2">Viết đánh giá</h3>
+        <ReviewForm productId={productId} onSuccess={handleReviewSuccess} />
+      </div>
+
+      
     </div>
   );
 }
