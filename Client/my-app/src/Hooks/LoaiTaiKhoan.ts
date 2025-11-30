@@ -9,9 +9,9 @@ const qk = {
 
 export const useGetLoaiTaiKhoan = (pageNumber: number, pagesize: number) =>
     useQuery({
-      queryKey: ["orders"],
+      queryKey: ["loaitaikhoan"],
          queryFn: async () =>{
-            const {data} = await api.get(`GetAll?pageNumber=${pageNumber}&pagesize=${pagesize}`)
+            const {data} = await api.get(`Role/GetAll?pageNumber=${pageNumber}&pagesize=${pagesize}`)
             return data;
          } ,
     });
