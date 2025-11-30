@@ -23,7 +23,7 @@ import type { Product } from "@/Type/Product";
 import ImageIcon from "@mui/icons-material/Image";
 import ModalThem from "./-components/ModalThem";
 import ModalSua from "./-components/ModalSua";
-import ReactHtmlParser from "react-html-parser";
+import parse from "html-react-parser";
 import ModalXemHinhAnh from "./-components/ModalXemHinhAnh";
 import type { UpdateProduct } from "@/Type/UpdateProduct";
 import Swal from 'sweetalert2';
@@ -132,7 +132,7 @@ function RouteComponent() {
         Cell: ({ row }) => {
           return (
             <>
-              <p>{ReactHtmlParser(row.original.description)}</p>
+              <p>{parse(row.original.description)}</p>
             </>
           )
         }

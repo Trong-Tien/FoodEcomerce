@@ -64,7 +64,7 @@ export default function ReviewForm({ productId, onSuccess }: ReviewFormProps) {
 
       const now = new Date().toISOString(); // Ngày giờ hợp lệ
 
-      const reviewPayload = {
+      const reviewPayload  = {
         productId,
         userId: user.id,
         rating,
@@ -74,7 +74,7 @@ export default function ReviewForm({ productId, onSuccess }: ReviewFormProps) {
         productReviewImageDTOs: imageDTOs,
       };
 
-      await foodReviewService.create(reviewPayload);
+      await foodReviewService.create(reviewPayload ) ;
 
       toast.success("Gửi đánh giá thành công!");
       onSuccess();
