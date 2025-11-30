@@ -1,7 +1,10 @@
 ﻿using FoodEcomerce.DTO;
+using FoodEcomerce.Entity;
 using FoodEcomerce.Entity.StoreProcedure;
 using FoodEcomerce.Helpper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.ML;
+using Microsoft.ML.Data;
 using Newtonsoft.Json;
 using System.Net.Http;
 using System.Text;
@@ -12,10 +15,12 @@ namespace FoodEcomerce.Services
     {
         private readonly HttpClient _httpClient;
         private readonly StoreDbcontext _storeDbcontext;
-        public GeminiAiServices(HttpClient httpClient , StoreDbcontext storeDbcontext)
+        private readonly FoodDbContex _foodDbContex;
+        public GeminiAiServices(HttpClient httpClient , StoreDbcontext storeDbcontext , FoodDbContex foodDbContex)
         {
             _httpClient = httpClient;
             _storeDbcontext = storeDbcontext;
+            _foodDbContex = foodDbContex;
         }
         public async Task<ResultGeminiDTO> GetDataFromAI(string prompt)
         {
@@ -77,8 +82,58 @@ namespace FoodEcomerce.Services
 
                 string testIngredient = string.Join(",", result.RecipeResponse.Ingredients);
 
-                // lấy danh sách sản phẩm được để xuất từ AI
-                result.Product = await _storeDbcontext.sp_WebFood_GetAllProduct.FromSqlInterpolated($"Execute sp_WebFood_GetAllProduct_ByGemini @Ingredients={testIngredient}").ToListAsync();
+                var mlContext = new MLContext();
+                var products = await _foodDbContex.Products
+                             .Include(p => p.ImageProducts)
+                             .Select(p => new ProductDataDTO
+                             {
+                                 ProductId = p.Id.ToString(),
+                                 ProductText = p.Name + " " + p.Description,
+                                 UnitPrice = p.UnitPrice.ToString(),
+                                 Image = p.ImageProducts
+                                              .Select(ip => ip.ImageUrl)
+                                              .FirstOrDefault()
+                             })
+                             .ToListAsync();
+
+
+                var productDataView = mlContext.Data.LoadFromEnumerable(products);
+
+                var pipeline = mlContext.Transforms.Text.FeaturizeText(outputColumnName: "Features",inputColumnName: nameof(ProductDataDTO.ProductText));
+
+                var model = pipeline.Fit(productDataView);
+                var transformedData = model.Transform(productDataView);
+                var featureColumn = transformedData.GetColumn<float[]>("Features").ToArray();
+
+                var ingredientText = string.Join(" ", result.RecipeResponse.Ingredients);
+                var tempData = new List<ProductDataDTO> { new ProductDataDTO { ProductText = ingredientText } };
+                var tempDataView = mlContext.Data.LoadFromEnumerable(tempData);
+                var transformedIngredient = model.Transform(tempDataView);
+                var ingredientVector = transformedIngredient.GetColumn<float[]>("Features").First();
+
+                float CosineSimilarity(float[] vectorA, float[] vectorB)
+                {
+                    float dot = 0, magA = 0, magB = 0;
+                    for (int i = 0; i < vectorA.Length; i++)
+                    {
+                        dot += vectorA[i] * vectorB[i];
+                        magA += vectorA[i] * vectorA[i];
+                        magB += vectorB[i] * vectorB[i];
+                    }
+                    return dot / (float)(Math.Sqrt(magA) * Math.Sqrt(magB));
+                }
+
+                var scoredProducts = products
+                    .Select((p, idx) => new
+                    {
+                        Product = p,
+                        Score = CosineSimilarity(ingredientVector, featureColumn[idx])
+                    })
+                    .OrderByDescending(x => x.Score)
+                    .Take(3).Select(x => x.Product).ToList();
+
+                result.Product = scoredProducts;
+
 
 
                 return result;  
