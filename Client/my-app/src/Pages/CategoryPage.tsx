@@ -1,5 +1,3 @@
-"use client"
-
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "@tanstack/react-router"
 import productService from "@/Services/ProductService"
@@ -32,6 +30,9 @@ export default function CategoryPage() {
   const [hasMore, setHasMore] = useState(true)
   const [pageSize] = useState(10)
 
+  // kiểu sắp xếp hiện tại
+  const [sortType, setSortType] = useState<string>("")
+
   const API_BASE = "https://localhost:5292"
 
   // ✅ Flatten danh mục
@@ -51,6 +52,41 @@ export default function CategoryPage() {
     }
     traverse(categories)
     return result
+  }
+
+  // ✅ Hàm lấy giá & tên để sort (chỉnh lại field nếu khác)
+  const getPrice = (p: any): number => {
+    // đổi sang field thật của bạn, ví dụ p.price, p.unitPrice, p.sellPrice...
+    return Number(p.price ?? p.unitPrice ?? p.salePrice ?? 0)
+  }
+
+  const getName = (p: any): string => {
+    // đổi sang field thật của bạn, ví dụ p.name hoặc p.productName
+    return (p.name ?? p.productName ?? "").toString()
+  }
+
+  // ✅ Hàm sắp xếp
+  const sortProducts = (items: Product[], sort: string): Product[] => {
+    const sorted = [...items]
+
+    switch (sort) {
+      case "price-asc":
+        sorted.sort((a, b) => getPrice(a) - getPrice(b))
+        break
+      case "price-desc":
+        sorted.sort((a, b) => getPrice(b) - getPrice(a))
+        break
+      case "name-asc":
+        sorted.sort((a, b) => getName(a).localeCompare(getName(b)))
+        break
+      case "name-desc":
+        sorted.sort((a, b) => getName(b).localeCompare(getName(a)))
+        break
+      default:
+        return items
+    }
+
+    return sorted
   }
 
   // ✅ Load tất cả danh mục
@@ -122,8 +158,14 @@ export default function CategoryPage() {
               : "/no-image.png",
       }))
 
-      if (append) setProducts((prev) => [...prev, ...fixed])
-      else setProducts(fixed)
+      if (append) {
+        setProducts((prev) => {
+          const merged = [...prev, ...fixed]
+          return sortProducts(merged, sortType)
+        })
+      } else {
+        setProducts(sortProducts(fixed, sortType))
+      }
 
       setHasMore(items.length >= pageSize)
     } catch (err) {
@@ -134,12 +176,18 @@ export default function CategoryPage() {
     }
   }
 
+  // Khi đổi danh mục → reset list & gọi lại
   useEffect(() => {
     setProducts([])
     setPageNumber(1)
     setHasMore(true)
     loadProducts(1, false)
   }, [category])
+
+  // Khi đổi kiểu sort → sắp xếp lại list hiện tại
+  useEffect(() => {
+    setProducts((prev) => sortProducts(prev, sortType))
+  }, [sortType])
 
   const handleLoadMore = (): void => {
     const nextPage = pageNumber + 1
@@ -155,6 +203,7 @@ export default function CategoryPage() {
       <Header />
 
       <div className="pt-32 pb-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Breadcrumb */}
         <div className="flex items-center gap-2 mb-8 text-sm">
           <button
             onClick={() => navigate({ to: "/" })}
@@ -166,6 +215,7 @@ export default function CategoryPage() {
           <span className="text-slate-700 font-semibold">{categoryInfo?.name || "Danh mục"}</span>
         </div>
 
+        {/* Subcategory menu */}
         {subCategories.length > 0 && (
           <div className="mb-8">
             <SubCategoryMenu
@@ -181,13 +231,31 @@ export default function CategoryPage() {
 
         <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300 p-8 border border-slate-100">
           {/* Header section */}
-          <div className="mb-8 pb-6 border-b border-slate-100">
-            <h1 className="text-4xl font-bold text-slate-900 tracking-tight">
-              {categoryInfo?.name || "Danh mục sản phẩm"}
-            </h1>
-            {categoryInfo?.description && (
-              <p className="text-slate-600 mt-2 leading-relaxed">{categoryInfo.description}</p>
-            )}
+          <div className="mb-6 pb-6 border-b border-slate-100 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h1 className="text-4xl font-bold text-slate-900 tracking-tight">
+                {categoryInfo?.name || "Danh mục sản phẩm"}
+              </h1>
+              {categoryInfo?.description && (
+                <p className="text-slate-600 mt-2 leading-relaxed">{categoryInfo.description}</p>
+              )}
+            </div>
+
+            {/* SORT BAR – vị trí bạn khoanh đỏ */}
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-medium text-slate-600">Sắp xếp:</span>
+              <select
+                value={sortType}
+                onChange={(e) => setSortType(e.target.value)}
+                className="px-4 py-2 text-sm border border-slate-200 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              >
+                <option value="">Mặc định</option>
+                <option value="price-asc">Giá: Thấp → Cao</option>
+                <option value="price-desc">Giá: Cao → Thấp</option>
+                <option value="name-asc">Tên: A → Z</option>
+                <option value="name-desc">Tên: Z → A</option>
+              </select>
+            </div>
           </div>
 
           {/* Products grid */}
