@@ -15,11 +15,11 @@ namespace FoodEcomerce.Controllers
         }
        
         [HttpGet("getall")]
-        public async Task<IActionResult> GetAll(int pageNumber, int pageSize, string ids, int orderType = 3)
+        public async Task<IActionResult> GetAll(int pageNumber, int pageSize, string ids, int orderType = 3 , string keyWord = "-1")
         {
             try
             {
-                var result = await unitOfWork.ProductRepository.GetAll(pageNumber, pageSize, ids ,orderType);
+                var result = await unitOfWork.ProductRepository.GetAll(pageNumber, pageSize, ids ,orderType , keyWord);
                 return Ok(result);
             }
             catch (Exception ex)
