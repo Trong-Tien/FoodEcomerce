@@ -1,7 +1,7 @@
 // src/Services/ProductService.ts
 import type { Product } from "@/Type/Product";
 
-const API_BASE = "http://localhost:5292/api";
+const API_BASE = "http://foodecomerceapi.runasp.net/api";
 
 /* ============================================================
    🔹 Hàm chuẩn hóa Product từ backend → frontend

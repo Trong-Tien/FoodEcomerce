@@ -20,7 +20,7 @@ export default function ProductModal({
   const [qty, setQty] = useState(1);
 
   // ✅ Chuẩn hóa ảnh (fix hiển thị)
-  const API_BASE = "http://localhost:5292/api";
+  const API_BASE = "http://foodecomerceapi.runasp.net/api";
   const imageSrc =
     Array.isArray(product.imageProducts) && product.imageProducts.length > 0
       ? `${API_BASE}/File/image?path=${encodeURIComponent(

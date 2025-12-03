@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:5292/api/FoodReview";
+const API_URL = "http://foodecomerceapi.runasp.net/api/FoodReview";
 
 export const foodReviewService = {
   create: async (formData: FormData) => {

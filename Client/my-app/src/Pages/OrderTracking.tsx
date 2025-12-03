@@ -33,7 +33,7 @@ const parseOrderDetails = (orderDetails?: string): OrderDetail[] => {
 }
 
 const getImageUrl = (url: string) =>
-  url.startsWith("http") ? url : `http://localhost:5292/api/File/image?path=${encodeURIComponent(url)}`
+  url.startsWith("http") ? url : `http://foodecomerceapi.runasp.net/api/File/image?path=${encodeURIComponent(url)}`
 
 const getStatusBadgeStyle = (statusName: string) => {
   const statusLower = statusName.toLowerCase()

@@ -109,7 +109,7 @@ export default function ReviewList({ productId }: ReviewListProps) {
                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
                   {images.map((img) => {
                     const encodedPath = encodeURIComponent(img.imageUrl);
-                    const imgUrl = `http://localhost:5292/api/File/image?path=${encodedPath}`;
+                    const imgUrl = `http://foodecomerceapi.runasp.net/api/File/image?path=${encodedPath}`;
                     return (
                       <div
                         key={img.id}

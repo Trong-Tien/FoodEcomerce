@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:5292/api/Auth";
+const API_BASE = "http://foodecomerceapi.runasp.net/api/Auth";
 
 export const AuthService = {
 

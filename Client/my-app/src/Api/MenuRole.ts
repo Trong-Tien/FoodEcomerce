@@ -2,7 +2,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:5292/api/MenuRole/",
+  baseURL: "http://foodecomerceapi.runasp.net/api/MenuRole/",
 });
 
 export const getAllByRole = async (roleId : string) => {
