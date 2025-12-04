@@ -23,7 +23,7 @@ import type { Product } from "@/Type/Product";
 import ImageIcon from "@mui/icons-material/Image";
 import ModalThem from "./-components/ModalThem";
 import ModalSua from "./-components/ModalSua";
-import ReactHtmlParser from "react-html-parser";
+import parse from "html-react-parser";
 import ModalXemHinhAnh from "./-components/ModalXemHinhAnh";
 import type { UpdateProduct } from "@/Type/UpdateProduct";
 import Swal from 'sweetalert2';
@@ -39,7 +39,7 @@ function RouteComponent() {
     pageSize: 10,
   });
   console.log(pagination)
-  const { data, isError: isLoadingMenuError ,refetch , isFetching } = useGetProduct(1, 25);
+  const { data, isError: isLoadingMenuError ,refetch , isFetching } = useGetProduct(1, 100);
   const deleteProduct = useDeleteProduct()
   const dataProduct: Product[] = data ?? []
   const [openModal, setOpenModal] = useState(false);
@@ -132,7 +132,7 @@ function RouteComponent() {
         Cell: ({ row }) => {
           return (
             <>
-              <p>{ReactHtmlParser(row.original.description)}</p>
+              <p>{parse(row.original.description)}</p>
             </>
           )
         }

@@ -1,4 +1,4 @@
-const API_BASE = "http://foodecomerceapi.runasp.net/api/Auth";
+const API_BASE = "https://foodecomerceapi.runasp.net/api/Auth";
 
 export const AuthService = {
 

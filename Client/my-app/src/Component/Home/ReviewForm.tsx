@@ -13,7 +13,7 @@ type ReviewFormProps = {
 
 export default function ReviewForm({ productId, onSuccess }: ReviewFormProps) {
   const { user } = useAuth();
-  const [rating, setRating] = useState(0);
+  const [rating, setRating] = useState<number>(0);
   const [comment, setComment] = useState("");
   const [images, setImages] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
@@ -52,20 +52,30 @@ export default function ReviewForm({ productId, onSuccess }: ReviewFormProps) {
     try {
       setLoading(true);
 
-      const formData = new FormData();
-      formData.append("ProductId", productId);
-      formData.append("UserId", user.id);
-      formData.append("Rating", rating.toString());
-      formData.append("Comment", comment || "");
+      // const formData = new FormData();
+      // formData.append("ProductId", productId);
+      // formData.append("UserId", user.id);
+      // formData.append("Rating", rating.toString());
+      // formData.append("Comment", comment || "");
 
+      // images.forEach(file => {
+      //   formData.append("ImageUrls", file);
+      // });
 
+      
 
-      images.forEach(file => {
-        formData.append("ImageUrls", file);
-      });
+      const dataRequest  = {
+        productId: productId,
+        userId: user.id,
+        rating: rating,
+        comment: comment,
+        imageUrls: images
+      }
 
+      console.log(dataRequest)
+      
 
-      const result = await foodReviewService.create(formData);
+      const result = await foodReviewService.create(dataRequest);
 
       toast.success(result?.message || "Gửi đánh giá thành công!");
       onSuccess();

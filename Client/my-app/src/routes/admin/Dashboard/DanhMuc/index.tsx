@@ -25,6 +25,7 @@ import { useFile } from '@/Hooks/File';
 import type { UpdateCategory } from '@/Type/UpdateCategory';
 import Swal from 'sweetalert2';
 import type { ResponseType } from '@/Type/ResponseType';
+
 export const Route = createFileRoute('/admin/Dashboard/DanhMuc/')({
   component: RouteComponent,
 });
@@ -36,30 +37,28 @@ function RouteComponent() {
 
   const { data, isError: isLoadingMenuError } = useGetCategory(1, 25);
   const dataCategory: Category[] = data ?? [];
-  const deleteCategory = useDeleteCategory()
+
+  const deleteCategory = useDeleteCategory();
 
   const handleDelete = (id: string) => {
     Swal.fire({
-      title: "Bạn có muốn xóa dữ liệu này ? ",
-      text: "Lưu ý dữ liệu này sẽ mất vĩnh viễn",
+      title: 'Bạn có muốn xóa dữ liệu này ? ',
+      text: 'Lưu ý dữ liệu này sẽ mất vĩnh viễn',
       showDenyButton: true,
-      confirmButtonText: "Xác nhận",
-      denyButtonText: `Không`
+      confirmButtonText: 'Xác nhận',
+      denyButtonText: 'Không',
     }).then(async (result) => {
-      /* Read more about isConfirmed, isDenied below */
       if (result.isConfirmed) {
-        const response: ResponseType = await deleteCategory.mutateAsync(
-          id,
-        );
+        const response: ResponseType = await deleteCategory.mutateAsync(id);
+
         if (response?.status === 200) {
-          Swal.fire("Xóa dữ liệu thành công");
+          Swal.fire('Xóa dữ liệu thành công');
         } else {
-          Swal.fire("Đã có lỗi xảy ra");
+          Swal.fire('Đã có lỗi xảy ra');
         }
       }
     });
-  }
-
+  };
 
   const columns = useMemo<MRT_ColumnDef<Category>[]>(
     () => [
@@ -127,24 +126,24 @@ function RouteComponent() {
     setOpenModalUpdate(false);
   };
 
-
-
   const table = useMaterialReactTable({
     columns,
     data: dataCategory,
     getRowId: (row) => row.id,
-
     enableExpanding: true,
+
     renderDetailPanel: ({ row }) => (
       <Collapse in={row.getIsExpanded()} timeout="auto" unmountOnExit>
         <Box sx={{ p: 2, bgcolor: '#f5f5f5' }}>
           <Typography variant="body2">
-         <b>{row.original.name}</b>
+            <b>{row.original.name}</b>
           </Typography>
         </Box>
       </Collapse>
     ),
+
     getSubRows: (row) => row.categorys,
+
     initialState: {
       showColumnFilters: true,
       expanded: true,
@@ -159,11 +158,13 @@ function RouteComponent() {
     enableEditing: true,
 
     muiToolbarAlertBannerProps: isLoadingMenuError
-      ? { color: 'error', children: 'Đã có lỗi xảy ra' }
+      ? {
+          color: 'error',
+          children: 'Đã có lỗi xảy ra',
+        }
       : undefined,
-    muiTableContainerProps: {
-      sx: { minHeight: '500px' },
-    },
+
+    muiTableContainerProps: { sx: { minHeight: '500px' } },
 
     renderRowActions: ({ row }) => (
       <Box sx={{ display: 'flex', gap: 1 }}>
@@ -175,6 +176,7 @@ function RouteComponent() {
             <EditIcon />
           </IconButton>
         </Tooltip>
+
         <Tooltip title="Xóa">
           <IconButton
             color="error"
@@ -199,6 +201,7 @@ function RouteComponent() {
         <Typography variant="h6" fontWeight="bold">
           Quản lý danh mục
         </Typography>
+
         <Button
           variant="contained"
           color="primary"
@@ -210,7 +213,6 @@ function RouteComponent() {
       </Box>
     ),
   });
-
 
   return (
     <Card elevation={3} sx={{ p: 2 }}>

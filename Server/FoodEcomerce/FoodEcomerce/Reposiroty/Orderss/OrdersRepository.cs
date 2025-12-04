@@ -9,6 +9,7 @@ using static System.Net.WebRequestMethods;
 using MailKit.Net.Smtp;
 using SmtpClient = MailKit.Net.Smtp.SmtpClient;
 using FoodEcomerce.Entity.StoreProcedure;
+using System.Text;
 
 namespace FoodEcomerce.Reposiroty.Orderss
 {
@@ -27,6 +28,8 @@ namespace FoodEcomerce.Reposiroty.Orderss
         public async Task<ResultModal> CreateWithQuery(OrderModal modal)
         {
             var ordersData = _context.Orders.FirstOrDefault(r=> r.Id == modal.Id);
+            int TotalStatus = 200;
+            StringBuilder  message = new StringBuilder();
             if (ordersData == null)
             {
               var item =  _mapper.Map<Orders>(modal);
@@ -40,26 +43,51 @@ namespace FoodEcomerce.Reposiroty.Orderss
                 if (modal.OrdersDetails != null) {
                     foreach (var item1 in modal.OrdersDetails)
                     {
-                        var dataDetail = _mapper.Map<OrderDetail>(item1);
-                        dataDetail.OrderId = item.Id;
+                        var product  =await _context.Products.FirstOrDefaultAsync(r=> r.Id ==item1.ProductId);
+                        if (product != null && product.Inventory > 0)
+                        {
+                            if (product.Inventory >= item1.Quantity)
+                            {
+                                var dataDetail = _mapper.Map<OrderDetail>(item1);
+                                dataDetail.OrderId = item.Id;
+                                ordersDetail.Add(dataDetail);
+                                TotalStatus = 200;
+                                message = message.Append("đặt hàng thành công");
+                            }
+                            else
+                            {
+                                TotalStatus = 202;
+                                message = message.Append($"Sản phẩm {product.Name} có số lượng không còn đủ trong kho , bạn vui lòng chọn sản phẩm khác");
+                            }
+                        }
+                        else
+                        {
+                            TotalStatus = 202;
+                            message = message.Append($"Sản phẩm {product.Name}  có số lượng không còn đủ trong kho , bạn vui lòng chọn sản phẩm khác");
+                        }    
 
-                        ordersDetail.Add(dataDetail);
+                     
                     }
-                    _context.OrderDetail.AddRange(ordersDetail);
+                    if (TotalStatus == 200)
+                    {
+                          _context.OrderDetail.AddRange(ordersDetail);
+                    }
                 }
-               
-                await _context.SaveChangesAsync();
 
-                var itemUser = await _context.Users.FirstOrDefaultAsync(r=> r.Id == modal.UserId);
+                if(TotalStatus == 200)
+                {
+                    await _context.SaveChangesAsync();
 
-                var email = new MimeMessage();
-                email.From.Add(new MailboxAddress("YourApp", "vodangphat2002@gmail.com"));
-                email.To.Add(new MailboxAddress("", itemUser.Email));
-                email.Subject = "Đơn đặt hàng";
+                    var itemUser = await _context.Users.FirstOrDefaultAsync(r => r.Id == modal.UserId);
 
-                var builder = new BodyBuilder();
+                    var email = new MimeMessage();
+                    email.From.Add(new MailboxAddress("YourApp", "vodangphat2002@gmail.com"));
+                    email.To.Add(new MailboxAddress("", itemUser.Email));
+                    email.Subject = "Đơn đặt hàng";
 
-                builder.HtmlBody = $@"
+                    var builder = new BodyBuilder();
+
+                    builder.HtmlBody = $@"
                             <!DOCTYPE html>
                             <html>
                             <head>
@@ -136,16 +164,19 @@ namespace FoodEcomerce.Reposiroty.Orderss
                             </html>
                             ";
 
-                email.Body = builder.ToMessageBody();
+                    email.Body = builder.ToMessageBody();
 
-                using var smtp = new SmtpClient();
-                await smtp.ConnectAsync("smtp.gmail.com", 587, MailKit.Security.SecureSocketOptions.StartTls);
-                await smtp.AuthenticateAsync("vodangphat2002@gmail.com", "phnhagyuliyrokqx"); 
-                await smtp.SendAsync(email);
-                await smtp.DisconnectAsync(true);
-                return new ResultModal() { Status = 200 , Message="Đặt hàng thành công" , Success = true }; 
+                    using var smtp = new SmtpClient();
+                    await smtp.ConnectAsync("smtp.gmail.com", 587, MailKit.Security.SecureSocketOptions.StartTls);
+                    await smtp.AuthenticateAsync("vodangphat2002@gmail.com", "phnhagyuliyrokqx");
+                    await smtp.SendAsync(email);
+                    await smtp.DisconnectAsync(true);
+                    return new ResultModal() { Status = 200, Message = "Đặt hàng thành công", Success = true };
+                }    
+               
+                
             }
-            return new ResultModal() { Status = 202, Message = "Đơn hàng đã tồn tại", Success = true };
+            return new ResultModal() { Status = 202, Message = message.ToString(), Success = true };
         }
 
         public async Task<List<sp_WebFood_GetAllOrdersDetail>> GetAllOrderDetailByOrderId(Guid orderId)
@@ -165,7 +196,20 @@ namespace FoodEcomerce.Reposiroty.Orderss
             string orderMessage = ""; 
             if(orderData != null)
             {
-                if (type == 1) { orderData.StatusOrdersId = 3; orderMessage = "Đơn hàng đã được xác nhận thành công"; }
+                if (type == 1) {
+                    var orderDetail =await _context.OrderDetail.Where(r=> r.OrderId == orderId).ToListAsync();
+                    foreach (var item in orderDetail)
+                    {
+                        var product = _context.Products.FirstOrDefault(p => p.Id == item.ProductId);
+                        if(product!= null && ( product.Inventory != 0 || product.Inventory < 0 ))
+                        {
+                            product.Inventory -= item.Quantity;
+                            _context.Products.Update(product);  
+                        }
+                    }
+                    await _context.SaveChangesAsync();  
+                    orderData.StatusOrdersId = 3; orderMessage = "Đơn hàng đã được xác nhận thành công"; 
+                }
                 else if (type == 2) { orderData.StatusOrdersId = 5; orderMessage = "Đơn hàng đã được chuyển sang trạng thái đang giao hàng "; }
                 else if (type == 3) { orderData.StatusOrdersId = 6; orderMessage = "Chúc mừng ! đơn hàng đã được giao thành công"; }
                 else if (type == 4) { orderData.StatusOrdersId = 7; orderMessage = "Đơn hàng đã được hủy thành công";  }

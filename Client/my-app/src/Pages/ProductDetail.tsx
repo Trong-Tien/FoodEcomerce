@@ -8,18 +8,20 @@ import type { Product } from "@/Type/Product"
 import ProductGroup from "@/Component/Home/ProductGroup"
 import { useNavigate } from "@tanstack/react-router"
 import Footer from "@/Component/Home/Footer"
-import { useCart } from "@/Context/CartContext"
 import toast from "react-hot-toast"
-import ProductReviewSection from "@/Component/Home/ProductReviewSection";
+import ProductReviewSection from "@/Component/Home/ProductReviewSection"
 import { useAuth } from "@/Hooks/useAuth"
 import { Route as ProductRoute } from "@/routes/product.$id"
 import { ArrowLeft, Heart, ShoppingCart, Truck, Shield, ChevronLeft, ChevronRight } from "lucide-react"
 
+// ❗ Import modal mua ngay
+import ProductModal from "@/Component/Common/ProductModal"
+
 const DetailProduct: React.FC = () => {
   const { id } = ProductRoute.useParams()
+  const [showSidebar, setShowSidebar] = useState(false)
   const [product, setProduct] = useState<Product | null>(null)
   const [related, setRelated] = useState<Product[]>([])
-  const [upsell, setUpsell] = useState<Product[]>([])
   const [activeTab, setActiveTab] = useState<"info" | "desc">("info")
   const [isFavorite, setIsFavorite] = useState(false)
   const [activeImageIndex, setActiveImageIndex] = useState(0)
@@ -27,16 +29,23 @@ const DetailProduct: React.FC = () => {
   const leftRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
   const { isLoggedIn } = useAuth()
-  const { add } = useCart()
 
+  // ✅ State modal mua ngay
+  const [open, setOpen] = useState(false)
+
+  // -----------------------------------------------------------------------------------
+  // 📌 LOAD SẢN PHẨM
+  // -----------------------------------------------------------------------------------
   useEffect(() => {
     if (!id) return
 
     productService.getById(id).then((res) => {
       setProduct(res ?? null)
+
       if (res && res.images) {
         const imageArray =
           typeof res.images === "string" ? res.images.split(",").filter((img) => img.trim()) : [res.images]
+
         setImages(imageArray.length > 0 ? imageArray : ["/assets/img/no-image.png"])
         setActiveImageIndex(0)
       }
@@ -45,7 +54,6 @@ const DetailProduct: React.FC = () => {
     productService.getAll().then((all) => {
       const filtered = all.filter((p) => p.id !== id)
       setRelated(filtered.slice(0, 5))
-      setUpsell(filtered.slice(0, 3))
     })
   }, [id])
 
@@ -70,6 +78,9 @@ const DetailProduct: React.FC = () => {
     setActiveImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))
   }
 
+  // ===================================================================================
+  // ⭐⭐⭐ JSX RETURN ⭐⭐⭐
+  // ===================================================================================
   return (
     <div className="bg-gradient-to-br from-emerald-50 via-white to-emerald-50 min-h-screen">
       <Header />
@@ -84,10 +95,10 @@ const DetailProduct: React.FC = () => {
         </button>
 
         <div className="grid grid-cols-12 gap-6 mt-6">
+          {/* LEFT SIDE */}
           <div className="col-span-12 lg:col-span-8" ref={leftRef}>
             <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-slate-100">
               <div className="space-y-4 p-4">
-                {/* Main image container */}
                 <div className="relative bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl overflow-hidden aspect-square flex items-center justify-center group">
                   <img
                     src={images[activeImageIndex] || "/placeholder.svg"}
@@ -95,7 +106,6 @@ const DetailProduct: React.FC = () => {
                     className="h-full w-full object-contain group-hover:scale-105 transition-transform duration-500 p-4"
                   />
 
-                  {/* Image navigation controls */}
                   {images.length > 1 && (
                     <>
                       <button
@@ -113,7 +123,6 @@ const DetailProduct: React.FC = () => {
                     </>
                   )}
 
-                  {/* Image counter */}
                   {images.length > 1 && (
                     <div className="absolute bottom-3 right-3 bg-black/60 text-white px-3 py-1.5 rounded-full text-xs font-semibold">
                       {activeImageIndex + 1}/{images.length}
@@ -144,6 +153,7 @@ const DetailProduct: React.FC = () => {
                 )}
               </div>
 
+              {/* TAB */}
               <div className="border-b border-slate-200">
                 <div className="flex px-6">
                   <button
@@ -157,6 +167,7 @@ const DetailProduct: React.FC = () => {
                       <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-emerald-600"></div>
                     )}
                   </button>
+
                   <button
                     className={`px-6 py-4 text-sm font-semibold relative transition-colors duration-300 ${
                       activeTab === "desc" ? "text-emerald-600" : "text-slate-600 hover:text-slate-900"
@@ -171,6 +182,7 @@ const DetailProduct: React.FC = () => {
                 </div>
               </div>
 
+              {/* TAB CONTENT */}
               <div className="p-6 text-slate-700 leading-relaxed">
                 {activeTab === "info" ? (
                   <ul className="space-y-3">
@@ -225,12 +237,14 @@ const DetailProduct: React.FC = () => {
             )}
           </div>
 
+          {/* RIGHT SIDE (SIDEBAR) */}
           <div className="col-span-12 lg:col-span-4">
             <div className="sticky top-32 space-y-4">
               <div className="bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden">
                 <div className="p-6 border-b border-slate-100">
                   <div className="flex justify-between items-start gap-2 mb-3">
                     <h2 className="text-xl font-bold text-slate-900 flex-1">{product.name}</h2>
+
                     <button
                       onClick={() => setIsFavorite(!isFavorite)}
                       className="p-2 hover:bg-slate-100 rounded-lg transition-colors duration-300"
@@ -249,12 +263,14 @@ const DetailProduct: React.FC = () => {
                       <span className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-emerald-500 bg-clip-text text-transparent">
                         {discountedPrice.toLocaleString("vi-VN")}₫
                       </span>
+
                       {product.discount > 0 && (
                         <span className="inline-block bg-red-100 text-red-700 px-2.5 py-1 rounded-full text-xs font-semibold">
                           -{product.discount}%
                         </span>
                       )}
                     </div>
+
                     {product.discount > 0 && (
                       <p className="text-sm text-slate-500 line-through">
                         {product.unitPrice.toLocaleString("vi-VN")}₫
@@ -263,6 +279,7 @@ const DetailProduct: React.FC = () => {
                   </div>
                 </div>
 
+                {/* NÚT MUA NGAY */}
                 <div className="p-6 space-y-3">
                   <button
                     type="button"
@@ -271,9 +288,7 @@ const DetailProduct: React.FC = () => {
                         toast.error("Vui lòng đăng nhập để mua hàng!")
                         return
                       }
-
-                      add(product)
-                      toast.success("Đã thêm vào giỏ hàng!")
+                      setOpen(true) // 🌟 MỞ MODAL CHUẨN
                     }}
                     className="w-full bg-gradient-to-r from-emerald-600 to-emerald-500 text-white py-3.5 rounded-xl font-semibold flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-emerald-500/30 transition-all duration-300 active:scale-95"
                   >
@@ -281,7 +296,6 @@ const DetailProduct: React.FC = () => {
                     <span>MUA NGAY</span>
                   </button>
 
-                  {/* Benefits info */}
                   <div className="grid grid-cols-2 gap-2 pt-2">
                     <div className="flex items-center gap-2 p-3 bg-emerald-50 rounded-lg">
                       <Truck size={18} className="text-emerald-600" />
@@ -295,33 +309,6 @@ const DetailProduct: React.FC = () => {
                 </div>
               </div>
 
-              {upsell.length > 0 && (
-                <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-6">
-                  <h4 className="font-bold text-slate-900 mb-4 text-sm uppercase tracking-wider">Sản phẩm đi kèm</h4>
-                  <div className="flex flex-col gap-3">
-                    {upsell.map((p) => (
-                      <div
-                        key={p.id}
-                        onClick={() => navigate({ to: "/product/$id", params: { id: String(p.id) } })}
-                        className="flex gap-3 p-3 bg-slate-50 rounded-lg hover:bg-emerald-50 cursor-pointer transition-colors duration-300 border border-slate-200 hover:border-emerald-300"
-                      >
-                        <img
-                          src={p.images?.includes(",") ? p.images.split(",")[0] : p.images}
-                          alt={p.name}
-                          className="h-20 w-20 object-cover rounded-lg"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs text-slate-600 line-clamp-2 mb-1">{p.name}</p>
-                          <p className="text-sm font-bold text-emerald-600">
-                            {(p.unitPrice * (1 - p.discount / 100)).toLocaleString("vi-VN")}₫
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
               <div className="bg-gradient-to-r from-emerald-50 to-emerald-100 border border-emerald-200 rounded-xl p-4">
                 <p className="text-sm text-emerald-900 font-medium">
                   ✓ Nếu tồn kho thay đổi, chúng tôi sẽ liên hệ trước khi giao hàng.
@@ -331,17 +318,24 @@ const DetailProduct: React.FC = () => {
           </div>
         </div>
 
+        {/* REVIEW */}
         <div className="mt-12">
-  <h3 className="text-xl font-bold mb-4">Đánh giá sản phẩm</h3>
-
-    <ProductReviewSection productId={String(product.id)} />
-
-</div>
+          <h3 className="text-xl font-bold mb-4">Đánh giá sản phẩm</h3>
+          <ProductReviewSection productId={String(product.id)} />
+        </div>
 
         <div className="mt-12">
           <Footer />
         </div>
       </div>
+
+      {/*  MODAL MUA NGAY  */}
+      {open && (
+        <ProductModal
+          product={product}     
+          onClose={() => setOpen(false)}
+        />
+      )}
     </div>
   )
 }

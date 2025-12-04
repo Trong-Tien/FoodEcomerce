@@ -1,14 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { FaSearch, FaShoppingCart, FaUser } from "react-icons/fa";
 import CategorySidebar from "./CategorySidebar";
-import { useNavigate, useLocation } from "@tanstack/react-router";
+import { useNavigate, useLocation, Link } from "@tanstack/react-router";
 import LocationModal from "../Common/LocationModal";
 import AccountSidebar from "../Common/AccountSidebar";
 import logo from "@/assets/img/logo.jpg";
 import { useCart } from "@/Context/CartContext";
-import { useAuth } from "@/Context/AuthContext"; // ✅ thêm
+import { useAuth } from "@/Context/AuthContext";
 
 function Header() {
   const [showSidebar, setShowSidebar] = useState(false);
@@ -16,12 +16,23 @@ function Header() {
   const [locationInput, setLocationInput] = useState<string>("");
   const [openAccount, setOpenAccount] = useState(false);
 
+  // 🔎 Search state  
+  const [searchText, setSearchText] = useState("");
+
+  const handleSearch = () => {
+    if (!searchText.trim()) return;
+    navigate({
+      to: "/SearchProduct",
+      search: { keyword: searchText.trim() },
+    });
+  };
+
   const location = useLocation();
   const navigate = useNavigate();
   const isHome = location.pathname === "/";
 
   const { totalQuantity, clear } = useCart();
-  const { user, logout, isAuthenticated } = useAuth(); // ✅ dùng context
+  const { user, logout, isAuthenticated } = useAuth();
 
   const handleLogout = () => {
     logout();
@@ -30,14 +41,16 @@ function Header() {
     navigate({ to: "/Dangnhap" });
   };
 
-  // 🧩 Hover xử lý mở/đóng danh mục
-  let hoverTimeout: NodeJS.Timeout;
+  // 🧩 Hover xử lý mở/đóng danh mục (fix bằng useRef)
+  const hoverTimeout = useRef<NodeJS.Timeout | null>(null);
+
   const handleMouseEnter = () => {
-    clearTimeout(hoverTimeout);
+    if (hoverTimeout.current) clearTimeout(hoverTimeout.current);
     if (!isHome) setShowSidebar(true);
   };
+
   const handleMouseLeave = () => {
-    hoverTimeout = setTimeout(() => setShowSidebar(false), 150);
+    hoverTimeout.current = setTimeout(() => setShowSidebar(false), 150);
   };
 
   return (
@@ -109,9 +122,16 @@ function Header() {
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/70 group-focus-within:text-white transition-colors">
                   <FaSearch size={16} />
                 </div>
+
+                {/* 🔰 INPUT đã chỉnh theo yêu cầu */}
                 <input
                   type="text"
                   placeholder="Tìm sản phẩm..."
+                  value={searchText}
+                  onChange={(e) => setSearchText(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleSearch();
+                  }}
                   className="w-full pl-12 pr-4 py-3 rounded-full bg-white/95 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white focus:bg-white shadow-md transition-all duration-300"
                 />
               </div>
@@ -120,8 +140,8 @@ function Header() {
             {/* ===== Các nút bên phải ===== */}
             <div className="flex items-center gap-3 sm:gap-4">
               {/* Giỏ hàng */}
-              <a
-                href="/GioHang"
+              <Link
+                to="/GioHang"
                 className="relative p-2.5 rounded-full bg-white/15 backdrop-blur-sm text-white transition-all duration-300 hover:bg-white/25 hover:shadow-md"
               >
                 <FaShoppingCart size={20} />
@@ -130,7 +150,7 @@ function Header() {
                     {totalQuantity > 99 ? "99+" : totalQuantity}
                   </span>
                 )}
-              </a>
+              </Link>
 
               {/* Nút chọn vị trí */}
               <button
@@ -156,7 +176,7 @@ function Header() {
                     d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                   />
                 </svg>
-                <span className="truncate text-xs">
+                <span className="truncate max-w-[120px] text-xs">
                   {locationInput || "Chọn vị trí"}
                 </span>
               </button>
@@ -174,23 +194,21 @@ function Header() {
                 </button>
               ) : (
                 <div className="flex items-center gap-2">
-                  {/* 🔹 Nút Đăng ký */}
-                  <a
-                    href="/DangKyGmailFlow"
+                  <Link
+                    to="/DangKyGmailFlow"
                     className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-emerald-600 font-semibold transition-all duration-300 hover:shadow-lg hover:scale-105"
                   >
                     <FaUser size={16} />
                     <span className="hidden sm:inline text-sm">Đăng ký</span>
-                  </a>
+                  </Link>
 
-                  {/* 🔹 Nút Đăng nhập */}
-                  <a
-                    href="/Dangnhap"
+                  <Link
+                    to="/Dangnhap"
                     className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-emerald-600 font-semibold transition-all duration-300 hover:shadow-lg hover:scale-105"
                   >
                     <FaUser size={16} />
                     <span className="hidden sm:inline text-sm">Đăng nhập</span>
-                  </a>
+                  </Link>
                 </div>
               )}
             </div>

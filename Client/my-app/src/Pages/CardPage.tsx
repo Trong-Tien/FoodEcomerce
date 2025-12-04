@@ -101,7 +101,7 @@ export default function CartPage() {
         <AddressInfo setAddressCurrent={setAddressCurrent} />
 
         {/* Sản phẩm */}
-        <div className="mx-4 mb-4 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="mx-4 mb-2 bg-white border border-slate-200 shadow-sm overflow-hidden">
           {items.map((item) => (
             <CartItemRow
               key={item.id}
@@ -126,14 +126,14 @@ export default function CartPage() {
         <ApplyVoucherButton onOpen={() => setShowVoucherModal(true)} />
 
         {voucher.length > 0 && (
-          <div className="mx-4 mb-4 p-4 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl flex justify-between items-center">
+          <div className="mx-4 mb-4 p-4 bg-emerald-50 border border-emerald-200 text-emerald-700 flex justify-between items-center">
             <span className="text-sm font-semibold">🎟️ Đã áp dụng <b>{voucher.length}</b> mã giảm giá</span>
             <button onClick={() => setVoucher([])} className="text-xs font-semibold hover:underline">Huỷ</button>
           </div>
         )}
 
         {/* Thanh toán + ghi chú */}
-        <div className="mx-4 mb-6">
+        <div className=" mb-6">
           <div className="p-4">
             <h2 className="text-xl font-bold mb-4">🛒 Phương thức thanh toán</h2>
 

@@ -82,9 +82,9 @@ namespace FoodEcomerce.Reposiroty.Products
             return new ResultModal() { Status = 202, Message = "Không tìm thấy dữ liệu", Success = true };
         }
 
-        public async Task<List<sp_WebFood_GetAllProduct>> GetAll(int pageNumber, int pageSize, string ids)
+        public async Task<List<sp_WebFood_GetAllProduct>> GetAll(int pageNumber, int pageSize, string ids , int orderType = 3 , string keyWord = "-1")
         {
-            return await _storeContext.sp_WebFood_GetAllProduct.FromSql($"Execute sp_WebFood_GetAllProduct @pageNumber={pageNumber} , @pageSize={pageSize} , @categoryIds={ids}").ToListAsync();
+            return await _storeContext.sp_WebFood_GetAllProduct.FromSql($"Execute sp_WebFood_GetAllProduct @pageNumber={pageNumber} , @pageSize={pageSize} , @categoryIds={ids} , @orderType={orderType} , @keyWord={keyWord}").ToListAsync();
         }
 
         public async Task<List<sp_WebFood_GetAllProductImage>> GetProductImage(Guid productId)

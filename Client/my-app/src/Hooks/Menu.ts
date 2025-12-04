@@ -12,7 +12,7 @@ export const useGetMenus = (pageNumber: number, pagesize: number) =>
   useQuery({
      queryKey: ["orders"],
        queryFn: async () =>{
-          const {data} = await api.get(`GetAll?pageNumber=${pageNumber}&pagesize=${pagesize}}`)
+          const {data} = await api.get(`Menu/GetAll?pageNumber=${pageNumber}&pagesize=${pagesize}`)
           return data;
        } ,
   });

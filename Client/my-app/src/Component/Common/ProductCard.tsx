@@ -101,7 +101,7 @@ function ProductCard({ p }: { p: ProductWithSuggest }) {
         </div>
       </div>
 
-      {open && <ProductModal product={p} suggestedProducts={p.suggestedProducts} onClose={() => setOpen(false)} />}
+      {open && <ProductModal product={p}  onClose={() => setOpen(false)} />}
     </>
   )
 }

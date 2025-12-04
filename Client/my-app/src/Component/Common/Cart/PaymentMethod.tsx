@@ -17,7 +17,7 @@ export default function PaymentMethod({ methods, selected, setSelected }: Paymen
   }
 
   return (
-    <div className="mx-4 mb-6">
+    <div className="mb-6">
       <h3 className="text-base font-semibold mb-3 text-slate-900">💳 Phương thức thanh toán</h3>
       <div className="space-y-2">
         {methods.map(m => (

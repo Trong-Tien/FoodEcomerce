@@ -25,5 +25,6 @@ namespace FoodEcomerce.Entity.StoreProcedure
         public int PlaceProductId { get; set; }
         public string? Expiry { get; set; }  // hạn sử dụng
         public string? Preserve { get; set; }    // bảo quản
+        public double? Rating { get; set; }
     }
 }

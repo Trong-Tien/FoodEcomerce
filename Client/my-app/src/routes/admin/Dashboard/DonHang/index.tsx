@@ -6,7 +6,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef } from 'material-react-table';
 import { useEffect, useMemo, useState } from 'react';
 import ModalChiTietDonHang from './-components/ModalChiTietDonHang';
-import { Eye, Download, Trash2, CheckCircle2, Truck, Person } from 'lucide-react';
+import { Eye, Download, Trash2, CheckCircle2 ,User} from 'lucide-react';
 
 export const Route = createFileRoute('/admin/Dashboard/DonHang/')({
   component: RouteComponent,
@@ -138,7 +138,7 @@ function RouteComponent() {
           <CheckCircle2 size={16} /> Xác nhận đơn hàng
         </button>
         <button className="flex items-center gap-1 px-3 py-2 rounded-md bg-amber-50 text-amber-700 hover:bg-amber-100 text-sm" disabled>
-          <Person size={16} /> Bàn giao cho shipper
+          <User size={16} /> Bàn giao cho shipper
         </button>
       </div>
     )

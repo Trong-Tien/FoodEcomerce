@@ -3,7 +3,7 @@ import type { Menu } from "@/Type/Menu";
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://foodecomerceapi.runasp.net/api/Menu",
+  baseURL: "https://foodecomerceapi.runasp.net/api/Menu",
 });
 
 export const getAll = async (pageNumber: number, pageSize: number) => {

@@ -1,10 +1,10 @@
 import type { Category } from "@/Type/Category";
 
-const API_BASE = "http://foodecomerceapi.runasp.net/api";
+const API_BASE = "https://foodecomerceapi.runasp.net/api";
 
 export const categoryService = {
   async getAll(): Promise<Category[]> {
-    const res = await fetch(`${API_BASE}/Category/GetAll?pageNumber=1&pagesize=20`);
+    const res = await fetch(`${API_BASE}/Category/GetAll?pageNumber=1&pagesize=30`);
     if (!res.ok) throw new Error("Không tải được danh mục");
 
     const data: Category[] = await res.json();

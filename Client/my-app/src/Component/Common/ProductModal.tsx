@@ -20,7 +20,7 @@ export default function ProductModal({
   const [qty, setQty] = useState(1);
 
   // ✅ Chuẩn hóa ảnh (fix hiển thị)
-  const API_BASE = "http://foodecomerceapi.runasp.net/api";
+  const API_BASE = "https://foodecomerceapi.runasp.net/api";
   const imageSrc =
     Array.isArray(product.imageProducts) && product.imageProducts.length > 0
       ? `${API_BASE}/File/image?path=${encodeURIComponent(
@@ -117,19 +117,7 @@ export default function ProductModal({
           />
         )}
 
-        {/* Sản phẩm gợi ý */}
-        {suggestedProducts.length > 0 && (
-          <div className="mt-6">
-            <h3 className="font-semibold mb-3 text-left text-gray-800">
-              Nguyên liệu thường mua kèm
-            </h3>
-            <div className="flex gap-3 overflow-x-auto pb-2">
-              {suggestedProducts.map((sp) => (
-                <SuggestProductCard key={sp.id} product={sp} />
-              ))}
-            </div>
-          </div>
-        )}
+        
 
         {/* Nút hoàn tất */}
         <button
@@ -138,7 +126,7 @@ export default function ProductModal({
                      from-green-600 to-green-700 text-white font-semibold 
                      text-lg shadow hover:shadow-lg hover:opacity-95 transition"
         >
-          Hoàn tất
+          Hoàn tất nha
         </button>
       </div>
     </div>,

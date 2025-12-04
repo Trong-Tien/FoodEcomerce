@@ -1,6 +1,6 @@
 import type { User } from "@/Type/User";
 
-const API_BASE = "http://foodecomerceapi.runasp.net/api/User";
+const API_BASE = "https://foodecomerceapi.runasp.net/api/User";
 
 export const UserService = {
   // ✅ Lấy thông tin user theo ID

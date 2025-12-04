@@ -3,7 +3,7 @@ import type { UpdateCategory } from "@/Type/UpdateCategory";
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://foodecomerceapi.runasp.net/api/Category",
+  baseURL: "https://foodecomerceapi.runasp.net/api/Category",
 });
 
 export const getAll = async (pageNumber: number, pageSize: number) => {

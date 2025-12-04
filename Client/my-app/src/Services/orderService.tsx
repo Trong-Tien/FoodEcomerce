@@ -1,4 +1,4 @@
-const API_BASE = "http://foodecomerceapi.runasp.net/api/Orders";
+const API_BASE = "https://foodecomerceapi.runasp.net/api/Orders";
 
 export const orderService = {
   async getAll(pageNumber = 1, pageSize = 10) {

@@ -24,7 +24,7 @@ const mapProductToUI = (p: Product) => ({
   oldPrice: p.discount > 0 ? p.unitPrice : undefined,
   img:
     typeof p.images === "string" && p.images.length > 0
-      ? `http://foodecomerceapi.runasp.net/api/File/image?path=${encodeURIComponent(
+      ? `https://foodecomerceapi.runasp.net/api/File/image?path=${encodeURIComponent(
           p.images.split(",")[0]
         )}`
       : "/assets/img/no-image.png",
@@ -38,6 +38,9 @@ export default function Home() {
   const [rauProducts, setRauProducts] = useState<Product[]>([]);
   const [banhProducts, setBanhProducts] = useState<Product[]>([]);
   const [suaProducts, setSuaProducts] = useState<Product[]>([]);
+  const [biaProducts, setBiaProducts] = useState<Product[]>([]);
+  const [gaoProducts, setGaoProducts] = useState<Product[]>([]);
+  const [dauAnProducts, setDauAnProducts] = useState<Product[]>([]);
 
   useEffect(() => {
     setLoading(true);
@@ -46,14 +49,20 @@ export default function Home() {
       productService.getByCategory("4693d14a-b0fa-4a71-8693-bd3ea4322cd3"), // Rau củ
       productService.getByCategory("7de26305-0653-4d4f-b40b-40284cceee84"), // Bánh
       productService.getByCategory("10926cc4-5cf1-4207-b132-9197ddd7937f"), // Sữa
+      productService.getByCategory("78025e59-d7bd-41e1-8a44-3b38fd299782"), // Bia
+      productService.getByCategory("5ca471b0-0f40-418b-882f-9d81b73f8d81"), // Gao
+      productService.getByCategory("c595ba91-67ab-4671-a9ed-83cf0d986b53"), // Dầu ăn
       blogService.getBlogs(),
       brandService.getBrands(),
     ])
-      .then(([allProducts, rauData, banhData, suaData, blogData, brandData]) => {
+      .then(([allProducts, rauData, banhData, suaData,biaData,gaoData,dauAnData, blogData, brandData]) => {
         setProducts(allProducts);
         setRauProducts(rauData);
         setBanhProducts(banhData);
         setSuaProducts(suaData);
+        setBiaProducts(biaData);
+        setGaoProducts(gaoData);
+        setDauAnProducts(dauAnData);
         setBlogs(blogData);
         setBrands(brandData);
       })
@@ -126,7 +135,7 @@ export default function Home() {
             maxItems={5}
           />
 
-          {/* 🍼 Sữa */}
+          {/* Sữa */}
           <ProductGroup
             title="Sữa"
             titleVariant="boxed"
@@ -134,6 +143,48 @@ export default function Home() {
             products={suaProducts.map(mapProductToUI)}
             loading={loading}
             maxItems={5}
+          />
+
+          {/* Bia */}
+          <ProductGroup
+            topBanners={[
+              "https://cdnv2.tgdd.vn/bhx-static/bhx/5562/trang-cate-pc_202509301429490138.jpg",
+            ]}
+            title="BIA"
+            badge="NEW"
+            products={biaProducts.map(mapProductToUI)}
+            loading={loading}
+            maxItems={5}
+            bgColor="bg-gradient-to-b from-yellow-50 to-yellow-400"
+            bottomBanners={[
+              "https://cdnv2.tgdd.vn/bhx-static/bhx/5562/freecompress-trang-cate-pc-1_202510301054158760.jpg"
+            ]}
+            
+            showTitle={false}
+          />
+
+          {/* Gạo */}
+          <ProductGroup
+            title="Gạo"
+            titleVariant="boxed"
+            badge="GẠO"
+            products={gaoProducts.map(mapProductToUI)}
+            loading={loading}
+            maxItems={5}
+          />
+
+          {/* Dầu ăn */}
+          <ProductGroup
+            topBanners={[
+              "https://cdnv2.tgdd.vn/bhx-static/bhx/5562/freecompress-trang-cate-pc_202510301637057098.jpg",
+            ]}
+            title="Dầu ăn"
+            badge="DẦU ĂN"
+            products={dauAnProducts.map(mapProductToUI)}
+            loading={loading}
+            maxItems={10}
+            bgColor="bg-gradient-to-b from-yellow-50 to-yellow-400"
+            showTitle={false}
           />
 
           {/* 🏷️ Brand */}

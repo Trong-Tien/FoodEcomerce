@@ -1,7 +1,7 @@
 // src/Services/ProductService.ts
 import type { Product } from "@/Type/Product";
 
-const API_BASE = "http://foodecomerceapi.runasp.net/api";
+const API_BASE = "https://foodecomerceapi.runasp.net/api";
 
 /* ============================================================
    🔹 Hàm chuẩn hóa Product từ backend → frontend
@@ -90,6 +90,41 @@ export const productService = {
     const data = await res.json();
     return mapProduct(data);
   },
+
+
+    async searchProduct({
+  pageNumber = 1,
+  pageSize = 12,
+  ids = "00000000-0000-0000-0000-000000000000",
+  orderType = 3,
+  keyWord = ""
+}: {
+  pageNumber?: number;
+  pageSize?: number;
+  ids?: string;
+  orderType?: number;
+  keyWord?: string;
+}): Promise<Product[]> {
+
+  const params = new URLSearchParams();
+  params.append("pageNumber", pageNumber.toString());
+  params.append("pageSize", pageSize.toString());
+  params.append("ids", ids);
+  params.append("orderType", orderType.toString());
+  if (keyWord.trim() !== "") params.append("keyword", keyWord);
+
+  const url = `${API_BASE}/Product/getall?${params.toString()}`;
+  const res = await fetch(url);
+
+  if (!res.ok) throw new Error("Không tìm được sản phẩm");
+
+  const data = await res.json();
+  return (data.items || data).map(mapProduct);
+},
+
+
 };
+
+
 
 export default productService;

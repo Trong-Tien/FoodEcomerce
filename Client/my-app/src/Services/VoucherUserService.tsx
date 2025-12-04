@@ -1,4 +1,4 @@
-const API_BASE = "http://foodecomerceapi.runasp.net/api/VoucherUser"; // ⚠️ nếu Swagger của bạn chạy port 5292 thì đổi lại thành 5292
+const API_BASE = "https://foodecomerceapi.runasp.net/api/VoucherUser"; // ⚠️ nếu Swagger của bạn chạy port 5292 thì đổi lại thành 5292
 
 export const voucherUserService = {
   // Lấy toàn bộ (dành cho admin)

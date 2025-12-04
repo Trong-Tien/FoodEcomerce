@@ -4,7 +4,7 @@ import type { UnitCacaulate } from "@/Type/UnitCaculate";
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://foodecomerceapi.runasp.net/api/UnitCaculate",
+  baseURL: "https://foodecomerceapi.runasp.net/api/UnitCaculate",
 });
 
 export const getAll = async (pageNumber: number, pageSize: number) => {
