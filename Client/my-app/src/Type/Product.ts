@@ -33,6 +33,7 @@ export type Product = {
   imageProducts?: ImageProduct[];
   productCategories?: ProductCategory[];
   categoryId: string;
+  image? : string
 
   
 

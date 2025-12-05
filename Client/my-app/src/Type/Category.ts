@@ -5,4 +5,5 @@ export type Category ={
   imageUrl : string ,
   categoryParentId : string 
   categorys : Category[]
+  image : string
 }

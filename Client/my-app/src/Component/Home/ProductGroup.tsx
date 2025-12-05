@@ -72,10 +72,11 @@ const ProductGroup: React.FC<ProductGroupProps> = ({
     onNext: () => void
   ) => {
     if (banners.length === 0) return null
+    console.log(banners)
     return (
       <div className="relative group overflow-hidden rounded-lg mb-4">
         <img
-          src={banners[index] || "/placeholder.svg"}
+          src={banners[index]|| "/placeholder.svg"}
           alt={`${title} banner`}
           className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
         />

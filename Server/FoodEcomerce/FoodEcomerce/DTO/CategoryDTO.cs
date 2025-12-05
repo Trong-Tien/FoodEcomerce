@@ -6,6 +6,7 @@
         public string? Name { get; set; }
         public string? Description { get; set; }
         public string? ImageUrl { get; set; }
+        public byte[]? Image { get; set; }
         public Guid CategoryParentId { get; set; }
         public List<CategoryDTO>? Categorys{ get; set; }
     }

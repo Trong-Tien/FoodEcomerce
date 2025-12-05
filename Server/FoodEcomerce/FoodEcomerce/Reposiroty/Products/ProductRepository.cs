@@ -2,9 +2,12 @@
 using FoodEcomerce.DTO;
 using FoodEcomerce.Entity;
 using FoodEcomerce.Entity.StoreProcedure;
+using FoodEcomerce.Helpper;
 using FoodEcomerce.Modal;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Org.BouncyCastle.Crypto;
+using System.IO;
 
 namespace FoodEcomerce.Reposiroty.Products
 {
@@ -12,10 +15,14 @@ namespace FoodEcomerce.Reposiroty.Products
     {
         private readonly FoodDbContex _context;
         private readonly StoreDbcontext _storeContext;
-        public ProductRepository(FoodDbContex dbContext, IMapper mapper, StoreDbcontext storeDbcontext) : base(dbContext, mapper)
+        private readonly IMapper _mapper;
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        public ProductRepository(FoodDbContex dbContext, IMapper mapper, StoreDbcontext storeDbcontext , IWebHostEnvironment webHostEnvironment ) : base(dbContext, mapper)
         {
             _context = dbContext;
             _storeContext = storeDbcontext;
+            _mapper = mapper;   
+            _webHostEnvironment = webHostEnvironment;
         }
 
         public async Task<ResultModal> CreateWithQuery(ProductModal modal)
@@ -82,10 +89,39 @@ namespace FoodEcomerce.Reposiroty.Products
             return new ResultModal() { Status = 202, Message = "Không tìm thấy dữ liệu", Success = true };
         }
 
-        public async Task<List<sp_WebFood_GetAllProduct>> GetAll(int pageNumber, int pageSize, string ids , int orderType = 3 , string keyWord = "-1")
+        public async Task<List<ProductListDTO>> GetAll(int pageNumber, int pageSize, string ids , int orderType = 3 , string keyWord = "-1")
         {
-            return await _storeContext.sp_WebFood_GetAllProduct.FromSql($"Execute sp_WebFood_GetAllProduct @pageNumber={pageNumber} , @pageSize={pageSize} , @categoryIds={ids} , @orderType={orderType} , @keyWord={keyWord}").ToListAsync();
-        }
+            List<sp_WebFood_GetAllProduct> data = await _storeContext.sp_WebFood_GetAllProduct.FromSql($"Execute sp_WebFood_GetAllProduct @pageNumber={pageNumber} , @pageSize={pageSize} , @categoryIds={ids} , @orderType={orderType} , @keyWord={keyWord}").ToListAsync();
+ 
+             List<ProductListDTO> result = _mapper.Map<List<ProductListDTO>>(data);
+                foreach (var item in result)
+                {
+                  if (string.IsNullOrEmpty(item.Images))
+                    { continue; }
+                    else
+                    {
+                    string extension;
+                    extension = Path.GetExtension(item.Images);
+                    var filePath = Path.Combine(_webHostEnvironment.WebRootPath, item.Images);
+                    if (System.IO.File.Exists(filePath))
+                    {
+                        // Read the file content
+                        byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
+
+                        // Set the content type and file name for the response
+                        var contentType = Untils.GetmimeType(extension);
+                        if (extension == ".png" || extension == ".jpg" || extension == ".jpeg")
+                        {
+                            item.Image = fileBytes;
+                        }
+                    }
+                }
+                }
+
+
+            
+            return result; 
+        } 
 
         public async Task<List<sp_WebFood_GetAllProductImage>> GetProductImage(Guid productId)
         {

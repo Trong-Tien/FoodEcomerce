@@ -19,9 +19,9 @@ function ProductCard({ p }: { p: ProductWithSuggest }) {
 
   const finalPrice = p.discount ? Math.round(p.unitPrice * (1 - p.discount / 100)) : p.unitPrice
 
-  const imgUrl =
-    typeof p.images === "string" && p.images.length > 0 ? p.images.split(",")[0] : "/assets/img/no-image.png"
 
+
+ 
   const handleBuyNow = () => {
     if (!isLoggedIn) {
       toast.error("Vui lòng đăng nhập để mua hàng!")
@@ -35,6 +35,11 @@ function ProductCard({ p }: { p: ProductWithSuggest }) {
     setIsFavorite(!isFavorite)
   }
 
+  const Url = p.image 
+  ? `data:image/jpeg;base64,${p.image}`
+  : "/placeholder.svg";
+
+
   return (
     <>
       <div className="group flex flex-col border border-gray-100 rounded-xl bg-white overflow-hidden min-h-[380px] shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
@@ -44,7 +49,7 @@ function ProductCard({ p }: { p: ProductWithSuggest }) {
           className="relative w-full aspect-square block overflow-hidden bg-gray-50"
         >
           <img
-            src={imgUrl || "/placeholder.svg"}
+            src={Url || "/placeholder.svg"}
             alt={p.name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />

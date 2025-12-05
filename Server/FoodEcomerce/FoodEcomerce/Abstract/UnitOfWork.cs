@@ -26,6 +26,7 @@ namespace FoodEcomerce.Abstract
     {
         private readonly FoodDbContex _dbContext;
         private readonly StoreDbcontext _storeDbcontext;
+        private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IMapper _mapper;
         private IUserRepository _userRepository;
         private IBannerRepository _bannerRepository;
@@ -45,11 +46,12 @@ namespace FoodEcomerce.Abstract
         private IPaymendMethodRepository _PaymendMethodRepository;
         private IOrderStatusRepository _orderStatusRepository;
         private IProductReviewRepository _productReviewRepository;
-        public UnitOfWork(FoodDbContex dbContext, IMapper mapper, StoreDbcontext storeDbcontext)
+        public UnitOfWork(FoodDbContex dbContext, IMapper mapper, StoreDbcontext storeDbcontext , IWebHostEnvironment webHostEnvironment)
         {
             _dbContext = dbContext;
             _mapper = mapper;
             _storeDbcontext = storeDbcontext;
+            _webHostEnvironment = webHostEnvironment;
         }
         public IUserRepository UserRepository
         => _userRepository ??= new UserRepository(_dbContext, _mapper);
@@ -58,7 +60,7 @@ namespace FoodEcomerce.Abstract
         public IAuthRepository AuthRepository
         => _authRepository ??= new AuthRepository(_dbContext, _mapper);
         public ICategoryDepository CategoryDepository
-        => _categoryRepository ??= new CategoryRepository(_dbContext, _mapper);
+        => _categoryRepository ??= new CategoryRepository(_dbContext, _mapper , _webHostEnvironment);
         public IUnitCaculateRepository UnitCaculateRepository
            => _unitCaculateRepository ??= new UnitCaculateRepository(_dbContext, _mapper);
         public IMenuRepository MenuRepository
@@ -68,7 +70,7 @@ namespace FoodEcomerce.Abstract
         public IMenuRoleRepository MenuRoleReposirory
         => _menuRoleRepository ??= new MenuRoleRepository(_dbContext, _mapper);
         public IProductRepository ProductRepository
-        => _productRepository ??= new ProductRepository(_dbContext, _mapper, _storeDbcontext);
+        => _productRepository ??= new ProductRepository(_dbContext, _mapper, _storeDbcontext , _webHostEnvironment);
         public ITRadeMarkRepository TradeMarkRepository
          => _tRadeMarkRepository ??= new TradeMarkRepository(_dbContext, _mapper);
         public IPlaceOfProduct PlaceOfProductRepository

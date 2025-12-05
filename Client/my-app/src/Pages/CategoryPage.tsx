@@ -33,7 +33,7 @@ export default function CategoryPage() {
   // kiểu sắp xếp hiện tại
   const [sortType, setSortType] = useState<string>("")
 
-  const API_BASE = "https://localhost:5292"
+  const API_BASE = "https://foodecomerceapi.runasp.net"
 
   // ✅ Flatten danh mục
   const flattenCategories = (categories: Category[]): Category[] => {
@@ -150,11 +150,7 @@ export default function CategoryPage() {
                   img.imageUrl?.startsWith("http") ? img.imageUrl : `${API_BASE}/${img.imageUrl.replace(/^\/+/, "")}`,
                 )
                 .join(",")
-            : typeof p.images === "string" && p.images.length > 0
-              ? p.images
-                  .split(",")
-                  .map((path: string) => (path.startsWith("http") ? path : `${API_BASE}/${path.replace(/^\/+/, "")}`))
-                  .join(",")
+            :  p?.image=="" ? p.image
               : "/no-image.png",
       }))
 

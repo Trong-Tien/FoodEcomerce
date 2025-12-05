@@ -22,11 +22,9 @@ const mapProductToUI = (p: Product) => ({
   ...p,
   price: p.unitPrice * (1 - p.discount / 100),
   oldPrice: p.discount > 0 ? p.unitPrice : undefined,
-  img:
-    typeof p.images === "string" && p.images.length > 0
-      ? `https://foodecomerceapi.runasp.net/api/File/image?path=${encodeURIComponent(
-          p.images.split(",")[0]
-        )}`
+  image:
+    typeof p.image === "string" && p.image.length > 0
+      ? p.image
       : "/assets/img/no-image.png",
 });
 
@@ -71,6 +69,8 @@ export default function Home() {
   }, []);
 
   const mappedProducts = products.map(mapProductToUI);
+
+
 
   return (
     <div className="bg-gray-100 min-h-screen">

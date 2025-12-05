@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FoodEcomerce.DTO;
 using FoodEcomerce.Entity;
+using FoodEcomerce.Entity.StoreProcedure;
 using FoodEcomerce.Modal;
 
 namespace FoodEcomerce.Helpper
@@ -67,6 +68,7 @@ namespace FoodEcomerce.Helpper
                 .ForMember(dest => dest.VoucherDTO, opt => opt.MapFrom(src => src.Voucher))
                 .ReverseMap();
 
+            CreateMap<sp_WebFood_GetAllProduct, ProductListDTO>().ReverseMap();
 
         }
     }

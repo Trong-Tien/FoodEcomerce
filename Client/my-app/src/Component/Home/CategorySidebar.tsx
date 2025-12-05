@@ -28,6 +28,8 @@ function CategorySidebar() {
     const isOpen = openIds.includes(c.id)
     const isParent = level === 0
 
+   
+
     return (
       <li key={c.id} className="list-none">
         <div
