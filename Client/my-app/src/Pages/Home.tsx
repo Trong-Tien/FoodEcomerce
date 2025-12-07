@@ -49,8 +49,8 @@ export default function Home() {
       productService.getByCategory("4693d14a-b0fa-4a71-8693-bd3ea4322cd3"), // Rau củ
       productService.getByCategory("7de26305-0653-4d4f-b40b-40284cceee84"), // Bánh
       productService.getByCategory("10926cc4-5cf1-4207-b132-9197ddd7937f"), // Sữa
-      productService.getByCategory("78025e59-d7bd-41e1-8a44-3b38fd299782"), // Bia
-      productService.getByCategory("5ca471b0-0f40-418b-882f-9d81b73f8d81"), // Gao
+      productService.getByCategory("63c739c1-18e1-483a-8139-6facce036172"), // Bia
+      productService.getByCategory("324bb0d2-d992-4c6f-b0f3-26297dba72ce"), // Gao
       productService.getByCategory("c595ba91-67ab-4671-a9ed-83cf0d986b53"), // Dầu ăn
       blogService.getBlogs(),
       brandService.getBrands(),
@@ -78,7 +78,7 @@ export default function Home() {
       <Header />
 
       {/* Container chính */}
-      <div className="pt-[122px] max-w-7xl mx-auto px-0 grid grid-cols-12 gap-0 bg-white">
+      <div className="pt-[122px] max-w-7xl mx-auto px-0 grid grid-cols-12 gap-0 bg-gray-100 ">
         {/* Sidebar */}
         <div className="col-span-12 lg:col-span-3">
           <div className="sticky top-[122px] h-[calc(100vh-122px)] overflow-y-auto">

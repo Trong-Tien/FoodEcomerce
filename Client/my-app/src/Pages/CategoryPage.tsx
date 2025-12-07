@@ -29,13 +29,11 @@ export default function CategoryPage() {
   const [pageNumber, setPageNumber] = useState(1)
   const [hasMore, setHasMore] = useState(true)
   const [pageSize] = useState(10)
-
-  // kiểu sắp xếp hiện tại
   const [sortType, setSortType] = useState<string>("")
 
-  const API_BASE = "https://localhost:5292"
+  const API_BASE = "https://localhost:7004"
 
-  // ✅ Flatten danh mục
+  // Flatten danh mục
   const flattenCategories = (categories: Category[]): Category[] => {
     const result: Category[] = []
     const traverse = (cats: Category[]): void => {
@@ -54,21 +52,11 @@ export default function CategoryPage() {
     return result
   }
 
-  // ✅ Hàm lấy giá & tên để sort (chỉnh lại field nếu khác)
-  const getPrice = (p: any): number => {
-    // đổi sang field thật của bạn, ví dụ p.price, p.unitPrice, p.sellPrice...
-    return Number(p.price ?? p.unitPrice ?? p.salePrice ?? 0)
-  }
+  const getPrice = (p: any): number => Number(p.price ?? p.unitPrice ?? p.salePrice ?? 0)
+  const getName = (p: any): string => (p.name ?? p.productName ?? "").toString()
 
-  const getName = (p: any): string => {
-    // đổi sang field thật của bạn, ví dụ p.name hoặc p.productName
-    return (p.name ?? p.productName ?? "").toString()
-  }
-
-  // ✅ Hàm sắp xếp
   const sortProducts = (items: Product[], sort: string): Product[] => {
     const sorted = [...items]
-
     switch (sort) {
       case "price-asc":
         sorted.sort((a, b) => getPrice(a) - getPrice(b))
@@ -85,11 +73,15 @@ export default function CategoryPage() {
       default:
         return items
     }
-
     return sorted
   }
 
-  // ✅ Load tất cả danh mục
+  useEffect(() => {
+  window.scrollTo(0, 0)
+}, [category])
+
+
+  // Load tất cả danh mục
   useEffect(() => {
     fetch(`${API_BASE}/api/Category/GetAll`)
       .then((res) => res.json())
@@ -97,7 +89,7 @@ export default function CategoryPage() {
       .catch(() => setAllCategories([]))
   }, [])
 
-  // ✅ Lấy thông tin danh mục hiện tại
+  // Lấy thông tin category hiện tại
   useEffect(() => {
     if (!category) return
     fetch(`${API_BASE}/api/Category/GetById?id=${category}`)
@@ -106,7 +98,7 @@ export default function CategoryPage() {
       .catch(() => setCategoryInfo(null))
   }, [category])
 
-  // ✅ Lọc danh mục con cùng cấp
+  // Lọc subcategories cùng cấp
   useEffect(() => {
     if (!categoryInfo || allCategories.length === 0) return
 
@@ -116,21 +108,19 @@ export default function CategoryPage() {
     let filtered: Category[] = []
 
     if (isRoot) {
-      filtered = allCategories.filter((c: Category) => c.categoryParentId === categoryInfo.id)
+      filtered = allCategories.filter((c) => c.categoryParentId === categoryInfo.id)
     } else {
-      filtered = allCategories.filter((c: Category) => c.categoryParentId === categoryInfo.categoryParentId)
+      filtered = allCategories.filter((c) => c.categoryParentId === categoryInfo.categoryParentId)
     }
-
-    if (filtered.length === 0) {
-      filtered = allCategories.filter(
-        (c: Category) => !c.categoryParentId || c.categoryParentId === "00000000-0000-0000-0000-000000000000",
-      )
-    }
-
     setSubCategories(filtered)
   }, [categoryInfo, allCategories])
 
-  // ✅ Lấy sản phẩm
+  // Xác định category cha để truyền vào SubCategoryMenu
+  const parentCategory = categoryInfo?.categoryParentId
+    ? allCategories.find((c) => c.id === categoryInfo.categoryParentId)
+    : undefined
+
+  // Lấy sản phẩm
   const loadProducts = async (page: number, append = false): Promise<void> => {
     if (!category) return
 
@@ -159,10 +149,7 @@ export default function CategoryPage() {
       }))
 
       if (append) {
-        setProducts((prev) => {
-          const merged = [...prev, ...fixed]
-          return sortProducts(merged, sortType)
-        })
+        setProducts((prev) => sortProducts([...prev, ...fixed], sortType))
       } else {
         setProducts(sortProducts(fixed, sortType))
       }
@@ -176,7 +163,6 @@ export default function CategoryPage() {
     }
   }
 
-  // Khi đổi danh mục → reset list & gọi lại
   useEffect(() => {
     setProducts([])
     setPageNumber(1)
@@ -184,7 +170,6 @@ export default function CategoryPage() {
     loadProducts(1, false)
   }, [category])
 
-  // Khi đổi kiểu sort → sắp xếp lại list hiện tại
   useEffect(() => {
     setProducts((prev) => sortProducts(prev, sortType))
   }, [sortType])
@@ -195,31 +180,27 @@ export default function CategoryPage() {
     loadProducts(nextPage, true)
   }
 
-  /* ==========================================================
-     🎨 MODERN DESIGN - Hiện đại & Tối ưu UX
-  ========================================================== */
   return (
     <div className="bg-slate-50 min-h-screen">
       <Header />
 
       <div className="pt-32 pb-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2 mb-8 text-sm">
-          <button
-            onClick={() => navigate({ to: "/" })}
-            className="text-emerald-600 hover:text-emerald-700 font-medium transition-colors duration-200"
-          >
-            Trang chủ
-          </button>
-          <span className="text-slate-300">/</span>
-          <span className="text-slate-700 font-semibold">{categoryInfo?.name || "Danh mục"}</span>
-        </div>
-
+      
         {/* Subcategory menu */}
         {subCategories.length > 0 && (
           <div className="mb-8">
             <SubCategoryMenu
-              subCategories={subCategories.map((c: Category) => ({
+              parentCategory={
+                parentCategory && {
+                  id: parentCategory.id,
+                  name: parentCategory.name,
+                  icon: parentCategory.imageUrl
+                    ? `${API_BASE}/api/File/image?path=${encodeURIComponent(parentCategory.imageUrl)}`
+                    : undefined,
+                }
+              }
+              subCategories={subCategories.map((c) => ({
                 id: c.id,
                 name: c.name,
                 icon: c.imageUrl ? `${API_BASE}/api/File/image?path=${encodeURIComponent(c.imageUrl)}` : undefined,
@@ -229,8 +210,8 @@ export default function CategoryPage() {
           </div>
         )}
 
+        {/* Products section */}
         <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300 p-8 border border-slate-100">
-          {/* Header section */}
           <div className="mb-6 pb-6 border-b border-slate-100 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <h1 className="text-4xl font-bold text-slate-900 tracking-tight">
@@ -241,7 +222,7 @@ export default function CategoryPage() {
               )}
             </div>
 
-            {/* SORT BAR – vị trí bạn khoanh đỏ */}
+            {/* Sort bar */}
             <div className="flex items-center gap-3">
               <span className="text-sm font-medium text-slate-600">Sắp xếp:</span>
               <select
@@ -274,7 +255,6 @@ export default function CategoryPage() {
                 ))}
               </div>
 
-              {/* Load more section */}
               {hasMore ? (
                 <div className="flex justify-center pt-6">
                   <button

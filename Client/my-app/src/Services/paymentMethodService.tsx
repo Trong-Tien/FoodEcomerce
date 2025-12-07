@@ -1,4 +1,4 @@
-const API_BASE = "https://foodecomerceapi.runasp.net/api/PaymentMethod";
+const API_BASE = "https://localhost:7004/api/PaymentMethod";
 
 export const paymentMethodService = {
   // Lấy toàn bộ

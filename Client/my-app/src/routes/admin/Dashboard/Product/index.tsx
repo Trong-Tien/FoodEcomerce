@@ -143,10 +143,26 @@ function RouteComponent() {
         size: 180,
       },
       {
-        accessorKey: "quantityInStock",
-        header: "Số lượng tồn",
-        size: 180,
-      },
+  accessorKey: "inventory",
+  header: "Số lượng tồn",
+  size: 180,
+  Cell: ({ row }) => {
+    const qty = row.original.inventory ?? 0;
+    const isLow = qty <= 5; // cảnh báo khi ≤ 5
+    return (
+      <span style={{ 
+        color: isLow ? "red" : "inherit", 
+        fontWeight: isLow ? "bold" : "normal" 
+      }}>
+        {qty} {isLow && "⚠️"} 
+      </span>
+    );
+  },
+  muiTableHeadCellProps: { align: "center" },
+  muiTableBodyCellProps: { align: "center" },
+}
+
+,
       {
         accessorKey: "id",
         header: "Hình ảnh",
@@ -173,86 +189,102 @@ function RouteComponent() {
 
 
   const table = useMaterialReactTable({
-    columns,
-    data: dataProduct,
-    getRowId: (row) => row.id,
+  columns,
+  data: dataProduct,
+  getRowId: (row) => row.id,
 
-    enableExpanding: true,
-    renderDetailPanel: ({ row }) => (
-      <Collapse in={row.getIsExpanded()} timeout="auto" unmountOnExit>
-        <Box sx={{ p: 2, bgcolor: "#f5f5f5" }}>
-          <Typography variant="body2">
-            <b>{row.original.name}</b>
-          </Typography>
-        </Box>
-      </Collapse>
-    ),
-    enableRowSelection: false,
-    createDisplayMode: "modal",
-    editDisplayMode: "modal",
-    paginationDisplayMode: "pages",
-    positionToolbarAlertBanner: "bottom",
-    manualPagination: true,
-    //enableRowOrdering: true,
-     state: {
-      pagination,
-      isLoading: isFetching,
-    },
-    onPaginationChange : setPagination,
-    enableEditing: true,
-
-    muiToolbarAlertBannerProps: isLoadingMenuError
-      ? { color: "error", children: "Đã có lỗi xảy ra" }
-      : undefined,
-    muiTableContainerProps: {
-      sx: { minHeight: "500px" },
-    },
-
-    renderRowActions: ({ row }) => (
-      <Box sx={{ display: "flex", gap: 1 }}>
-        <Tooltip title="Chỉnh sửa">
-          <IconButton
-            color="primary"
-            onClick={() => handleOpenModalUpdate(row.original)}
-          >
-            <EditIcon />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title="Xóa">
-          <IconButton
-            color="error"
-            onClick={() => handleDelete(row.original.id)}
-          >
-            <DeleteIcon />
-          </IconButton>
-        </Tooltip>
-      </Box>
-    ),
-
-    renderTopToolbarCustomActions: () => (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          width: "100%",
-          px: 2,
-        }}
-      >
-        <Typography variant="h6" fontWeight="bold">
-          Quản lý sản phẩm
+  enableExpanding: true,
+  renderDetailPanel: ({ row }) => (
+    <Collapse in={row.getIsExpanded()} timeout="auto" unmountOnExit>
+      <Box sx={{ p: 2, bgcolor: "#f5f5f5" }}>
+        <Typography variant="body2">
+          <b>{row.original.name}</b>
         </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          onClick={handleOpenModal}
-        >
-          Thêm mới sản phẩm
-        </Button>
       </Box>
-    ),
-  });
+    </Collapse>
+  ),
+  enableRowSelection: false,
+  createDisplayMode: "modal",
+  editDisplayMode: "modal",
+  paginationDisplayMode: "pages",
+  positionToolbarAlertBanner: "bottom",
+  manualPagination: true,
+  state: {
+    pagination,
+    isLoading: isFetching,
+  },
+  onPaginationChange: setPagination,
+  enableEditing: true,
+
+  muiToolbarAlertBannerProps: isLoadingMenuError
+    ? { color: "error", children: "Đã có lỗi xảy ra" }
+    : undefined,
+  muiTableContainerProps: {
+    sx: { minHeight: "500px" },
+  },
+
+  renderRowActions: ({ row }) => (
+    <Box sx={{ display: "flex", gap: 1 }}>
+      <Tooltip title="Chỉnh sửa">
+        <IconButton
+          color="primary"
+          onClick={() => handleOpenModalUpdate(row.original)}
+        >
+          <EditIcon />
+        </IconButton>
+      </Tooltip>
+      <Tooltip title="Xóa">
+        <IconButton
+          color="error"
+          onClick={() => handleDelete(row.original.id)}
+        >
+          <DeleteIcon />
+        </IconButton>
+      </Tooltip>
+    </Box>
+  ),
+
+  renderTopToolbarCustomActions: () => (
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        width: "100%",
+        px: 2,
+      }}
+    >
+      <Typography variant="h6" fontWeight="bold">
+        Quản lý sản phẩm
+      </Typography>
+      <Button
+        variant="contained"
+        color="primary"
+        startIcon={<AddIcon />}
+        onClick={handleOpenModal}
+      >
+        Thêm mới sản phẩm
+      </Button>
+    </Box>
+  ),
+
+  // ----- Thêm đoạn này để highlight toàn row -----
+  muiTableBodyRowProps: ({ row }) => {
+    const qty = row.original.inventory ?? 0;
+  let bgColor = "inherit";
+
+  if (qty === 0) bgColor = "#ffcccc";      // đỏ nhạt: hết hàng
+  else if (qty <= 5) bgColor = "#fff3cd";  // vàng nhạt: sắp hết
+
+  return {
+    sx: {
+      backgroundColor: bgColor,
+    },
+  };
+},
+
+});
+
 
   return (
     <Card elevation={3} sx={{ p: 2 }}>

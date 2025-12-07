@@ -6,16 +6,13 @@ interface OrderNoteProps {
 export default function OrderNote({ note, setNote }: OrderNoteProps) {
   return (
     <div className="mx-4 mb-6">
-      <label htmlFor="order-note" className="block text-sm font-semibold text-slate-900 mb-2">
-        📝 Ghi chú cho đơn hàng
-      </label>
       <textarea
         id="order-note"
         rows={3}
         value={note}
         onChange={(e) => e.target.value.length <= 300 && setNote(e.target.value)}
-        placeholder="Ví dụ: Giao buổi sáng, gọi trước khi đến..."
-        className={`w-full rounded-xl border-2 p-3 text-sm transition-all duration-200 resize-none 
+        placeholder="Gi chú giao cho đơn hàng"
+        className={`w-full border-2 p-3 text-sm transition-all duration-200 resize-none 
           ${note.length > 250
             ? "border-amber-300 focus:ring-2 focus:ring-amber-200"
             : "border-slate-200 focus:ring-2 focus:ring-emerald-200 focus:border-emerald-500"

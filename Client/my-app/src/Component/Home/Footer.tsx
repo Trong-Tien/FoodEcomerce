@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { Mail, Phone, Leaf, Instagram, Facebook, Twitter, Linkedin } from "lucide-react"
+import { Mail, Phone, Leaf } from "lucide-react"
 
 export const Footer: React.FC = () => {
   return (
@@ -23,22 +23,7 @@ export const Footer: React.FC = () => {
             <p className="text-sm text-slate-600 leading-relaxed">
               Mang đến những sản phẩm hữu cơ nguyên chất, an toàn cho sức khỏe gia đình bạn.
             </p>
-            <div className="flex gap-3 pt-4">
-              {[
-                { icon: Facebook, href: "#" },
-                { icon: Instagram, href: "#" },
-                { icon: Twitter, href: "#" },
-                { icon: Linkedin, href: "#" },
-              ].map(({ icon: Icon, href }) => (
-                <a
-                  key={href}
-                  href={href}
-                  className="bg-slate-100 hover:bg-emerald-500 p-2.5 rounded-full transition-colors duration-300 text-slate-700 hover:text-white"
-                >
-                  <Icon className="w-4 h-4" />
-                </a>
-              ))}
-            </div>
+            
           </div>
 
           {/* Quick links */}

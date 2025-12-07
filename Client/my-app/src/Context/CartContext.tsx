@@ -68,7 +68,6 @@ localStorage.setItem("cart_items_cache", JSON.stringify(grouped));
     if (storedUser) {
       const { cartId } = JSON.parse(storedUser);
       if (cartId) {
-        console.log("🛒 Đang tải giỏ hàng cho CartId:", cartId);
         loadCart();
       } else {
         console.warn("⚠️ Không tìm thấy cartId trong user localStorage");

@@ -1,11 +1,8 @@
 // src/Services/ProductService.ts
 import type { Product } from "@/Type/Product";
 
-const API_BASE = "https://foodecomerceapi.runasp.net/api";
+const API_BASE = "https://localhost:7004/api";
 
-/* ============================================================
-   🔹 Hàm chuẩn hóa Product từ backend → frontend
-============================================================ */
 
 const mapProduct = (p: any): Product => ({
   ...p,
@@ -55,9 +52,6 @@ const mapProduct = (p: any): Product => ({
       : "",
 });
 
-/* ============================================================
-   🔹 Product Service
-============================================================ */
 
 export const productService = {
   /** 🔹 Lấy toàn bộ sản phẩm (có phân trang) */
