@@ -1,6 +1,6 @@
 import type { Category } from "@/Type/Category";
 
-const API_BASE = "https://foodecomerceapi.runasp.net/api";
+const API_BASE = "https://localhost:7004/api";
 
 export const categoryService = {
   async getAll(): Promise<Category[]> {

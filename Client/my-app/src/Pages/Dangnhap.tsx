@@ -70,7 +70,7 @@ export default function Dangnhap() {
 
       if (response.status === 200 && response.accessToken) {
         toast.success("Đăng nhập thành công!");
-        localStorage.setItem("userId" , response.id)
+        localStorage.setItem("userId", response.id)
         setAuth(response, response.accessToken);
         setTimeout(() => {
           navigate({ to: "/" });
@@ -177,34 +177,17 @@ export default function Dangnhap() {
             </div>
           </div>
 
-          {/* Nút đăng nhập bằng MXH */}
-          <div className="grid grid-cols-2 gap-4">
-            <button
-              type="button"
-              className="bg-slate-700/30 hover:bg-slate-700/50 border border-slate-600/50 hover:border-slate-500/50 rounded-xl py-3 transition duration-300 flex items-center justify-center gap-2 group"
-            >
-              <img
-                src="https://cdn-icons-png.flaticon.com/512/733/733547.png"
-                className="w-5 h-5"
-                alt="Facebook"
-              />
-              <span className="text-sm font-medium text-slate-300 group-hover:text-white transition">
-                Facebook
-              </span>
-            </button>
-            <button
-              type="button"
-              className="bg-slate-700/30 hover:bg-slate-700/50 border border-slate-600/50 hover:border-slate-500/50 rounded-xl py-3 transition duration-300 flex items-center justify-center gap-2 group"
-            >
-              <img
-                src="https://cdn-icons-png.flaticon.com/512/300/300221.png"
-                className="w-5 h-5"
-                alt="Google"
-              />
-              <span className="text-sm font-medium text-slate-300 group-hover:text-white transition">
-                Google
-              </span>
-            </button>
+          {/* Nút GoogleLogin đưa lên đây */}
+          <div className="flex justify-center">
+            <GoogleLogin
+              onSuccess={handleGoogleLoginSuccess}
+              onError={handleGoogleLoginError}
+              theme="outline"
+              size="large"
+              shape="pill"
+              text="signin_with"
+              locale="vi"
+            />
           </div>
 
           {/* Liên kết phụ */}
@@ -225,34 +208,6 @@ export default function Dangnhap() {
                 Đăng ký ngay
               </Link>
             </p>
-          </div>
-
-          <div className="mt-4 space-y-3">
-            <p className="text-center text-slate-400 text-sm">Hoặc đăng nhập bằng</p>
-            <div className="flex flex-col gap-3">
-              <div className="flex justify-center">
-                <GoogleLogin
-                  onSuccess={handleGoogleLoginSuccess}
-                  onError={handleGoogleLoginError}
-                  theme="outline"
-                  size="large"
-                  shape="pill"
-                  text="signin_with"
-                  locale="vi"
-                />
-              </div>
-              {/* <button
-                type="button"
-                className="w-full py-2 flex items-center justify-center gap-2 rounded-xl border border-slate-600 bg-[#1877f2] hover:bg-[#166fe5] transition shadow-sm"
-              >
-                <img
-                  src="https://www.svgrepo.com/show/475647/facebook-color.svg"
-                  alt="Facebook"
-                  className="w-5 h-5 bg-white rounded-full"
-                />
-                <span className="text-white font-medium">Facebook</span>
-              </button> */}
-            </div>
           </div>
 
           {/* Footer nhỏ */}

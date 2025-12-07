@@ -51,19 +51,6 @@ export default function ReviewForm({ productId, onSuccess }: ReviewFormProps) {
 
     try {
       setLoading(true);
-
-      // const formData = new FormData();
-      // formData.append("ProductId", productId);
-      // formData.append("UserId", user.id);
-      // formData.append("Rating", rating.toString());
-      // formData.append("Comment", comment || "");
-
-      // images.forEach(file => {
-      //   formData.append("ImageUrls", file);
-      // });
-
-      
-
       const dataRequest  = {
         productId: productId,
         userId: user.id,
@@ -72,7 +59,7 @@ export default function ReviewForm({ productId, onSuccess }: ReviewFormProps) {
         imageUrls: images
       }
 
-      console.log(dataRequest)
+   
       
 
       const result = await foodReviewService.create(dataRequest);
@@ -191,7 +178,7 @@ export default function ReviewForm({ productId, onSuccess }: ReviewFormProps) {
           disabled={loading || rating === 0}
           className="w-full bg-gradient-to-r from-emerald-600 to-emerald-500 text-white py-3.5 rounded-xl font-semibold flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-emerald-500/30 transition-all duration-300 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? <span className="animate-spin">⟳ Đang gửi...</span> : "Gửi đánh giá"}
+          Gửi đánh giá
         </button>
       </form>
     </div>

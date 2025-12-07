@@ -21,6 +21,7 @@ export type Product = {
   inventory: number;
   expiry: string;
   preserve: string;
+  rating?: number;
    unitCaculate?: {
     id: string;
     name: string;
@@ -64,3 +65,12 @@ export type CartItem = {
   images?: string; 
   name?: string; 
 };
+
+export type ProductFilter = {
+  priceRange?: [number, number];
+  tradeMarkIds?: number[];
+  placeProductIds?: number[];
+  rating?: number;
+  hasDiscount?: boolean;
+  inStock?: boolean;
+}

@@ -1,4 +1,4 @@
-const API_STATUS = "https://foodecomerceapi.runasp.net/api/OrderStatus";
+const API_STATUS = "https://localhost:7004/api/OrderStatus";
 
 // Helper chung (giống orderService)
 async function fetchWithErrorHandling(url: string, options: RequestInit = {}) {

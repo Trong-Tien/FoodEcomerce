@@ -3,7 +3,7 @@ import type { MenuRole } from "@/Type/MenuRole";
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://foodecomerceapi.runasp.net/api/Role/",
+  baseURL: "https://localhost:7004/api/Role/",
 });
 
 export const getAll = async (pageNumber: number , pageSize : number) => {

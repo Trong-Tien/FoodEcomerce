@@ -132,26 +132,17 @@ export default function CartPage() {
           </div>
         )}
 
-        {/* Thanh toán + ghi chú */}
-        <div className=" mb-6">
-          <div className="p-4">
-            <h2 className="text-xl font-bold mb-4">🛒 Phương thức thanh toán</h2>
-
+        <div className="mb-2">
+          <div className="px-4 pt-3 pb-2">
             <PaymentMethod
               methods={dataPayment}
               selected={selected}
               setSelected={setSelected}
             />
-
-            {selected !== 0 && (
-              <div className="mt-4 p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-lg text-sm font-medium animate-fade-in">
-                ✓ Đã chọn: <b>{dataPayment.find((m) => m.id === selected)?.name ?? "—"}</b>
-              </div>
-            )}
           </div>
-
           <OrderNote note={note} setNote={setNote} />
         </div>
+
 
         {/* Nút đặt hàng */}
         <div className="mx-4 sticky bottom-6">

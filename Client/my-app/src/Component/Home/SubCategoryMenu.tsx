@@ -8,48 +8,56 @@ interface SubCategory {
 }
 
 interface Props {
-  subCategories: SubCategory[];
-  activeId?: string; // danh mục hiện tại
+  parentCategory?: SubCategory; // Category cha
+  subCategories: SubCategory[];  // Danh sách subcategory
+  activeId?: string;             // ID category hiện tại
 }
 
 /**
- * SubCategoryMenu
- * - Hiển thị danh mục con theo hàng ngang, có thể cuộn.
- * - Nút đang chọn được tô màu xanh.
- * - Có thể hiển thị hình đại diện (nếu backend trả imageUrl).
+ * SubCategoryMenuV2
+ * - Hiển thị category cha + subcategory theo hàng ngang
+ * - Nút active được tô màu xanh
+ * - Icon được hiển thị nếu có
+ * - Có scroll mượt khi danh mục nhiều
  */
-const SubCategoryMenu: React.FC<Props> = ({ subCategories, activeId }) => {
+const SubCategoryMenu: React.FC<Props> = ({ parentCategory, subCategories, activeId }) => {
   const navigate = useNavigate();
 
-  if (subCategories.length === 0) return null;
+  if (!parentCategory && subCategories.length === 0) return null;
+
+  // Ghép parent + subcategory vào 1 mảng
+  const categoriesToShow: SubCategory[] = parentCategory
+    ? [parentCategory, ...subCategories]
+    : [...subCategories];
 
   return (
     <nav className="bg-white border-t border-b border-green-200 shadow-sm sticky top-[120px] z-[10]">
       <div className="max-w-7xl mx-auto flex overflow-x-auto gap-3 px-3 py-3 scrollbar-hide">
-        {subCategories.map((sub) => (
+        {categoriesToShow.map((cat) => (
           <button
-            key={sub.id}
-            onClick={() =>
-              navigate({
-                to: "/category/$category",
-                params: { category: sub.id },
-              })
-            }
-            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition duration-200 ${
-              activeId === sub.id
-                ? "bg-green-600 text-white shadow"
-                : "bg-green-50 text-green-700 hover:bg-green-100"
-            }`}
-          >
-            {sub.icon && (
-              <img
-                src={sub.icon}
-                alt={sub.name}
-                className="w-6 h-6 object-cover rounded-md border border-green-200"
-              />
-            )}
-            <span className="truncate">{sub.name}</span>
-          </button>
+  key={cat.id}
+  onClick={() =>
+    navigate({
+      to: "/category/$category",
+      params: { category: cat.id },
+    })
+  }
+  className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition duration-200 ${
+    activeId === cat.id
+      ? "bg-green-600 text-white shadow"
+      : "bg-green-50 text-green-700 hover:bg-green-100"
+  }`}
+>
+  {cat.icon && (
+    <img
+      src={cat.icon}
+      alt={cat.name}
+      className="w-6 h-6 object-cover rounded-md border border-green-200"
+    />
+  )}
+  <span className="truncate">{cat.name}</span>
+</button>
+
         ))}
       </div>
     </nav>
