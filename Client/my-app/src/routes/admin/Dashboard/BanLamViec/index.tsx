@@ -23,7 +23,6 @@ const pieData1 = [{ name: 'Total Order', value: 81 }]
 const pieData2 = [{ name: 'Growth', value: 22 }]
 const pieData3 = [{ name: 'Revenue', value: 62 }]
 
-const COLORS = ['#FF6B6B', '#36B37E', '#5E83FF']
 
 const orderChart = [
   { name: 'Sun', orders: 120 },

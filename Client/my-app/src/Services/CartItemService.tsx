@@ -1,6 +1,6 @@
 import type { CartItem, Product } from "@/Type/Product";
 
-const API_BASE = "https://localhost:7004/api/CartItem" ;
+const API_BASE = "https://foodecomerceapi.runasp.net/api/CartItem" ;
 
 /* ============================================================
    🔹 Lấy token từ localStorage để xác thực

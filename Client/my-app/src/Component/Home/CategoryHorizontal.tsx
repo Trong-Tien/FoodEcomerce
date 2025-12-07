@@ -22,6 +22,7 @@ export default function CategoryHorizontal() {
       imageUrl: "",
       categoryParentId: "",
       categorys: [],
+      image:""
     },
     {
       id: "weekend-sale",
@@ -30,6 +31,7 @@ export default function CategoryHorizontal() {
       imageUrl: "",
       categoryParentId: "",
       categorys: [],
+        image:""
     },
     {
       id: "member-deal",
@@ -38,6 +40,7 @@ export default function CategoryHorizontal() {
       imageUrl: "",
       categoryParentId: "",
       categorys: [],
+        image:""
     },
   ]
 

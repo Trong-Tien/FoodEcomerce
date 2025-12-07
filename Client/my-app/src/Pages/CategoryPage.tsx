@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { useParams, useNavigate } from "@tanstack/react-router"
+import { useParams } from "@tanstack/react-router"
 import productService from "@/Services/ProductService"
 import ProductCard from "@/Component/Common/ProductCard"
 import type { Product } from "@/Type/Product"
@@ -18,7 +18,6 @@ interface Category {
 
 export default function CategoryPage() {
   const { category } = useParams({ from: "/category/$category" })
-  const navigate = useNavigate()
 
   const [products, setProducts] = useState<Product[]>([])
   const [allCategories, setAllCategories] = useState<Category[]>([])

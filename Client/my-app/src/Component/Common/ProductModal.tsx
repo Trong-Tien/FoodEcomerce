@@ -3,7 +3,6 @@ import { useCart } from "@/Context/CartContext";
 import type { Product } from "@/Type/Product";
 import toast from "react-hot-toast";
 import ReactDOM from "react-dom";
-import SuggestProductCard from "./SuggestProductCard";
 
 interface Props {
   product: Product;
@@ -14,13 +13,12 @@ interface Props {
 export default function ProductModal({
   product,
   onClose,
-  suggestedProducts = [],
 }: Props) {
   const { add } = useCart();
   const [qty, setQty] = useState(1);
 
   // ✅ Chuẩn hóa ảnh (fix hiển thị)
-  const API_BASE = "https://localhost:7004/api";
+  const API_BASE = "https://foodecomerceapi.runasp.net/api";
   const imageSrc =
     Array.isArray(product.imageProducts) && product.imageProducts.length > 0
       ? `${API_BASE}/File/image?path=${encodeURIComponent(

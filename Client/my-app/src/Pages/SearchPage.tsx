@@ -17,7 +17,7 @@ export default function SearchPage() {
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
 
-  const API_BASE = "https://localhost:7004";
+  const API_BASE = "https://foodecomerceapi.runasp.net";
 
   const loadProducts = async (page: number, append = false) => {
     if (!keyword || keyword.trim() === "") return;

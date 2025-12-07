@@ -1,7 +1,7 @@
 // src/Services/ProductService.ts
 import type { Product } from "@/Type/Product";
 
-const API_BASE = "https://localhost:7004/api";
+const API_BASE = "https://foodecomerceapi.runasp.net/api";
 
 
 const mapProduct = (p: any): Product => ({

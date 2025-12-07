@@ -5,7 +5,7 @@ import { useState } from "react"
 import { Link } from "@tanstack/react-router"
 import ProductModal from "./ProductModal"
 import type { Product } from "@/Type/Product"
-import { useCart } from "@/Context/CartContext"
+// import { useCart } from "@/Context/CartContext"
 import { useAuth } from "@/Hooks/useAuth"
 import { toast } from "react-hot-toast"
 import { Heart, ShoppingCart, Star } from "lucide-react"
@@ -15,7 +15,6 @@ type ProductWithSuggest = Product & { suggestedProducts?: Product[] }
 function ProductCard({ p }: { p: ProductWithSuggest }) {
   const [open, setOpen] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
-  const { add } = useCart()
   const { isLoggedIn } = useAuth()
 
   const finalPrice = p.discount ? Math.round(p.unitPrice * (1 - p.discount / 100)) : p.unitPrice
@@ -40,6 +39,10 @@ function ProductCard({ p }: { p: ProductWithSuggest }) {
     setIsFavorite(!isFavorite)
   }
 
+  const isOutOfStock = p.inventory === 0
+   const Url = p.image 
+  ? `data:image/jpeg;base64,${p.image}`
+  : "/placeholder.svg";
   return (
     <>
       <div className="group flex flex-col border border-gray-200 rounded-md bg-white overflow-hidden min-h-[380px] shadow-sm hover:shadow-md transition-all duration-300 hover:border-emerald-200 relative">

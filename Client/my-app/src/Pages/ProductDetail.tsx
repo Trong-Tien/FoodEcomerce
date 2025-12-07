@@ -19,7 +19,7 @@ import ProductModal from "@/Component/Common/ProductModal"
 
 const DetailProduct: React.FC = () => {
   const { id } = ProductRoute.useParams()
-  const [showSidebar, setShowSidebar] = useState(false)
+
   const [product, setProduct] = useState<Product | null>(null)
   const [related, setRelated] = useState<Product[]>([])
   const [activeTab, setActiveTab] = useState<"info" | "desc">("info")
