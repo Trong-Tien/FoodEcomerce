@@ -13,6 +13,7 @@ using FoodEcomerce.Reposiroty.PaymentMethods;
 using FoodEcomerce.Reposiroty.PlaceOfProducts;
 using FoodEcomerce.Reposiroty.ProductReviews;
 using FoodEcomerce.Reposiroty.Products;
+using FoodEcomerce.Reposiroty.Results;
 using FoodEcomerce.Reposiroty.Roles;
 using FoodEcomerce.Reposiroty.TradeMarks;
 using FoodEcomerce.Reposiroty.UnitCaculates;
@@ -46,6 +47,7 @@ namespace FoodEcomerce.Abstract
         private IPaymendMethodRepository _PaymendMethodRepository;
         private IOrderStatusRepository _orderStatusRepository;
         private IProductReviewRepository _productReviewRepository;
+        private IResultRepository _resultRepository;
         public UnitOfWork(FoodDbContex dbContext, IMapper mapper, StoreDbcontext storeDbcontext , IWebHostEnvironment webHostEnvironment)
         {
             _dbContext = dbContext;
@@ -91,6 +93,8 @@ namespace FoodEcomerce.Abstract
          => _orderStatusRepository ??= new OrderStatusRepository(_dbContext, _mapper);
         public IProductReviewRepository productReviewRepository
         => _productReviewRepository ??= new ProductReviewRepository(_dbContext, _mapper);
+        public IResultRepository resultRepository
+        => _resultRepository ??= new ResultRepository(_storeDbcontext);
 
         public bool Save()
         {

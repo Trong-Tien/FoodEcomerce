@@ -28,9 +28,6 @@ function getCartId(): string | null {
   }
 }
 
-/* ============================================================
-   🔹 Service quản lý CartItem
-============================================================ */
 export const CartItemService = {
   /** 🔹 Lấy danh sách item trong giỏ hàng */
   async getByCartId(): Promise<CartItem[]> {
