@@ -12,11 +12,12 @@ namespace FoodEcomerce.Reposiroty.Results
         }
         public async Task<sp_WebFood_Report_Total> GetReportTotalAsync(int type)
         {
-            var result  = await _context.sp_WebFood_Report_Total
-                .FromSqlInterpolated($"EXEC sp_WebFood_Report_Total @Type = {type}")
-                .AsNoTracking()
-                .FirstOrDefaultAsync();
+            var result =  _context.sp_WebFood_Report_Total
+                .FromSqlInterpolated($"EXEC sp_WebFood_Report_Total @Type={type}")
+                .AsEnumerable()   
+                .FirstOrDefault();
             return result;
         }
+
     }
 }
