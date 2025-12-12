@@ -15,7 +15,7 @@ const queryClient = new QueryClient();
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <GoogleOAuthProvider clientId="580570996033-p9ghho18akvdvbq6bgi0alk6nvfon06a.apps.googleusercontent.com">
+    <GoogleOAuthProvider clientId="775183142029-p76aalh1m081anvtg4pu4l05m3tq46g7.apps.googleusercontent.com">
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <CartProvider>

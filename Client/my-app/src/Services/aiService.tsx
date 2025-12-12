@@ -1,20 +1,21 @@
 import type { GeminiResponse } from "@/Type/GeminiResponse";
 
 // services/geminiService.ts
-const API_BASE = "http://localhost:5292/api/Gemini";
+const API_BASE = "https://foodecomerceapi.runasp.net/api/Gemini";
 
 
 
 export const geminiService = {
   async ask(prompt: string) {
-    const res  = await fetch(`${API_BASE}/GeminiAI?prompt=${encodeURIComponent(prompt)}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        // Nếu cần auth token
-        Authorization: `Bearer ${localStorage.getItem("access_token") || ""}`,
-      },
-    });
+    const res = await fetch(
+      `${API_BASE}/GeminiAI?prompt=${encodeURIComponent(prompt)}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token") || ""}`,
+        },
+      }
+    );
 
     if (!res.ok) {
       const err = await res.text();
@@ -22,6 +23,7 @@ export const geminiService = {
     }
 
     const data: GeminiResponse = await res.json();
-    return data; 
+    return data;
   },
 };
+
