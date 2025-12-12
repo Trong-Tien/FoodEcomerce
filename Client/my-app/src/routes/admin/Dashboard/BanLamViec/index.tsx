@@ -1,4 +1,8 @@
+import { useGetResult } from '@/Hooks/Result'
+import type { ReportTotal } from '@/Type/ReportTotal'
+import { Button } from '@mui/material'
 import { createFileRoute } from '@tanstack/react-router'
+import { useState } from 'react'
 import {
   PieChart,
   Pie,
@@ -22,6 +26,8 @@ export const Route = createFileRoute('/admin/Dashboard/BanLamViec/')({
 const pieData1 = [{ name: 'Total Order', value: 81 }]
 const pieData2 = [{ name: 'Growth', value: 22 }]
 const pieData3 = [{ name: 'Revenue', value: 62 }]
+
+
 
 
 const orderChart = [
@@ -58,35 +64,36 @@ const customerMap = [
 ]
 
 // ------------------ MAIN COMPONENT -------------------
-
+type ReportType = 1 | 2 | 3 | 4;
 function RouteComponent() {
+  const [type, setType] = useState<number>(1);
+  const handleType = (value: ReportType) => {
+    setType(value);
+    console.log("Selected type:", value);
+  };
+  const { data } = useGetResult(type);
   return (
     <div className="p-6 space-y-6">
 
-       <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Ecommerce Dashboard</h1>
 
         <div className="flex space-x-2">
-          <button className="px-3 py-1 bg-gray-200 rounded">Day</button>
-          <button className="px-3 py-1 bg-gray-200 rounded">Week</button>
-          <button className="px-3 py-1 bg-gray-200 rounded">Month</button>
-          <button className="px-3 py-1 bg-blue-500 text-white rounded">
-            Annual
-          </button>
-          <input
-            type="date"
-            className="px-3 py-1 border rounded"
-            defaultValue="2019-04-30"
-          />
+          <div className="relative z-10 flex space-x-2">
+            <Button variant='contained' sx={{margin : 1}}  onClick={() => handleType(1)}>Ngày</Button>
+            <Button variant='contained' sx={{margin : 1}}  onClick={() => handleType(2)}>Tuần</Button>
+            <Button variant='contained' sx={{margin : 1}}  onClick={() => handleType(3)}>Tháng</Button>
+            <Button variant='contained' sx={{margin : 1}}   onClick={() => handleType(4)}>Hiện tại</Button>
+          </div>
         </div>
       </div>
 
       {/* TOP CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <TopCard title="Total Orders" value="75" percent="+4% (30 days)" icon="🛒" />
-        <TopCard title="Total Delivered" value="357" percent="+8% (30 days)" icon="📦" />
-        <TopCard title="Total Canceled" value="65" percent="-2% (30 days)" icon="❌" />
-        <TopCard title="Total Revenue" value="$128" percent="+12% (30 days)" icon="💰" />
+        <TopCard title="Tổng đơn hàng" value={data?.totalOrders_Current?.toString() ?? "Không có dữ liệu"} percent={data?.totalOrders_Change?.toString() ?? ""} icon="🛒" />
+        <TopCard title="Tổng đơn hàng đã giao" value={data?.successOrders_Current?.toString() ?? "Không có dữ liệu"} percent={data?.successOrders_Change?.toString() ?? ""} icon="📦" />
+        <TopCard title="Dơn hàng bị hủy" value={data?.deliceOrders_Current?.toString() ?? "Không có dữ liệu"} percent={data?.deliceOrders?.toString() ?? ""} icon="❌" />
+        <TopCard title="Doanh thu" value={data?.revenues_Current?.toString() ?? "Không có dữ liệu"} percent={data?.revenues_Change?.toString() ?? ""} icon="💰" />
       </div>
 
       {/* PIE CHARTS + LINE CHART SMALL */}
@@ -97,17 +104,17 @@ function RouteComponent() {
           <h2 className="font-semibold mb-4">Pie Chart</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <PieChartBox title="Total Order" data={pieData1} color="#FF6B6B" />
-            <PieChartBox title="Customer Growth" data={pieData2} color="#36B37E" />
-            <PieChartBox title="Total Revenue" data={pieData3} color="#5E83FF" />
+            <PieChartBox title="Tổng đơn hàng" data={pieData1} color="#FF6B6B" />
+            <PieChartBox title="Khách hàng mới" data={pieData2} color="#36B37E" />
+            <PieChartBox title="Tổng doanh thu" data={pieData3} color="#5E83FF" />
           </div>
         </div>
 
         {/* LINE CHART SMALL */}
         <div className="bg-white p-5 shadow rounded-xl">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="font-semibold">Chart Order</h2>
-            <button className="px-3 py-1 border rounded text-blue-600">Save Report</button>
+            <h2 className="font-semibold">Biểu đồ đơn hàng </h2>
+            <button className="px-3 py-1 border rounded text-blue-600">Tải báo cáo </button>
           </div>
 
           <LineChart width={350} height={200} data={orderChart}>
@@ -124,7 +131,7 @@ function RouteComponent() {
 
         {/* REVENUE LINE CHART */}
         <div className="col-span-2 bg-white p-5 shadow rounded-xl">
-          <h2 className="font-semibold mb-4">Total Revenue</h2>
+          <h2 className="font-semibold mb-4">Tổng doanh thu</h2>
 
           <LineChart width={700} height={300} data={revenueChart}>
             <CartesianGrid stroke="#eee" />

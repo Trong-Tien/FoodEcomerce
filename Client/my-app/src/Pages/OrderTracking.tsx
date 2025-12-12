@@ -61,7 +61,7 @@ export default function OrderTracking() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [orderList, statusList] = await Promise.all([orderService.getAll(1, 100), orderStatusService.getAll()])
+        const [orderList, statusList] = await Promise.all([orderService.getAll(1, 10), orderStatusService.getAll()])
         setOrders(orderList)
         setStatuses(statusList)
       } catch (err: any) {

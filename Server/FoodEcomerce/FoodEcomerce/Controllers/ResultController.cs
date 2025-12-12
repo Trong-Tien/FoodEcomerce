@@ -13,7 +13,7 @@ namespace FoodEcomerce.Controllers
             _unitOfWork = unitOfWork;
         }
         [HttpGet("report-total/{type}")]
-        public async Task<IActionResult> GetReportTotalAsync([FromRoute] int type)
+        public async Task<IActionResult> GetReportTotalAsync(int type)
         {
             var result = await _unitOfWork.resultRepository.GetReportTotalAsync(type);
             return Ok(result);
