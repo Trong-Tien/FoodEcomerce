@@ -207,15 +207,13 @@ namespace FoodEcomerce.Reposiroty.Orderss
                             _context.Products.Update(product);  
                         }
                     }
-                    await _context.SaveChangesAsync();  
-                    orderData.StatusOrdersId = 3; orderMessage = "Đơn hàng đã được xác nhận thành công"; 
+                    
+                    orderData.StatusId = 2; orderMessage = "Đơn hàng đã được xác nhận thành công";
+                    _context.Orders.Update(orderData);
                 }
-                else if (type == 2) { orderData.StatusOrdersId = 5; orderMessage = "Đơn hàng đã được chuyển sang trạng thái đang giao hàng "; }
-                else if (type == 3) { orderData.StatusOrdersId = 6; orderMessage = "Chúc mừng ! đơn hàng đã được giao thành công"; }
-                else if (type == 4) { orderData.StatusOrdersId = 7; orderMessage = "Đơn hàng đã được hủy thành công";  }
-
-                _context.Orders.Update(orderData);   
-
+                else if (type == 2) { orderData.StatusId = 3; orderMessage = "Đơn hàng đã được gao cho đơn vị vận chuyển"; _context.Orders.Update(orderData); }
+                else if (type == 3) { orderData.StatusId = 5; orderMessage = "Đơn hàng đã được hủy thành công"; _context.Orders.Update(orderData); }
+                else if (type == 4) { orderData.StatusId = 4; orderMessage = "Đã nhận được hàng"; _context.Orders.Update(orderData); }
                 await _context.SaveChangesAsync();
 
                 return new ResultModal() { Status = 200, Message = orderMessage, Success = true };

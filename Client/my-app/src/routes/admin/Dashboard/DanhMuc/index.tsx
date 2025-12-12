@@ -33,6 +33,7 @@ export const Route = createFileRoute('/admin/Dashboard/DanhMuc/')({
 function RouteComponent() {
   const [openModal, setOpenModal] = useState(false);
   const [openModalUpdate, setOpenModalUpdate] = useState(false);
+  const [expanded, setExpanded] = useState({});
   const [selectedRow, setSelectedRow] = useState<UpdateCategory | undefined>();
 
   const { data, isError: isLoadingMenuError } = useGetCategory(1, 25);
@@ -126,11 +127,19 @@ function RouteComponent() {
     setOpenModalUpdate(false);
   };
 
+
   const table = useMaterialReactTable({
     columns,
     data: dataCategory,
     getRowId: (row) => row.id,
+
     enableExpanding: true,
+    getSubRows: (row) => row.categorys,
+    state: {
+      expanded,
+    },
+    onExpandedChange: setExpanded,
+
 
     renderDetailPanel: ({ row }) => (
       <Collapse in={row.getIsExpanded()} timeout="auto" unmountOnExit>
@@ -141,13 +150,6 @@ function RouteComponent() {
         </Box>
       </Collapse>
     ),
-
-    getSubRows: (row) => row.categorys,
-
-    initialState: {
-      showColumnFilters: true,
-      expanded: true,
-    },
 
     enableRowSelection: false,
     createDisplayMode: 'modal',

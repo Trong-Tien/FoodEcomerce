@@ -39,3 +39,20 @@ export const useGetOrdersDetail = (orderId: string, enabled: boolean) =>
     },
     enabled: enabled && !!orderId,
   });
+
+export const useHandleOrderChange = () => {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ orderId, type }: { orderId: string; type: number }) => {
+      const { data } = await api.put<ResponseType>(
+        `/Orders/Update?orderId=${orderId}&type=${type}`
+      );
+      return data;
+    },
+
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["updatestatus"] });
+    },
+  });
+};
