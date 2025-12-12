@@ -8,13 +8,14 @@ import type { Voucher } from "@/Type/Voucher"
 import { Ticket, Gift, ArrowRight, Sparkles } from "lucide-react"
 
 export default function VoucherPage() {
-  const API_BASE = "http://localhost:5292"
+  const API_BASE = "https://foodecomerceapi.runasp.net"
   const [vouchers, setVouchers] = useState<Voucher[]>([])
   const [loading, setLoading] = useState(true)
   const [claimedIds, setClaimedIds] = useState<number[]>([])
 
   const userId = localStorage.getItem("userId") || "00000000-0000-0000-0000-000000000000"
 
+  // Lấy danh sách voucher từ API
   const fetchVouchers = async () => {
     try {
       const res = await fetch(`${API_BASE}/api/VoucherUser/GetAll`)
@@ -39,10 +40,11 @@ export default function VoucherPage() {
     "from-violet-400 via-purple-400 to-indigo-500",
   ]
 
-  const handleClaimVoucher = async (voucherId: number) => {
+  // Xử lý nhận voucher
+  const handleClaimVoucher = async (voucher: Voucher) => {
     try {
       const body = {
-        voucherId,
+        voucherId: voucher.id,
         userId,
         isUsed: false,
         usedAt: null,
@@ -55,7 +57,8 @@ export default function VoucherPage() {
       })
 
       if (res.ok) {
-        setClaimedIds([...claimedIds, voucherId])
+        // Đánh dấu voucher đã nhận
+        setClaimedIds([...claimedIds, voucher.id])
         Swal.fire({
           icon: "success",
           title: "Nhận voucher thành công!",
@@ -81,6 +84,15 @@ export default function VoucherPage() {
     }
   }
 
+  // Kiểm tra trạng thái voucher: đã nhận / hết hạn / hết lượt
+  const isVoucherClaimed = (v: Voucher) => {
+    const claimedByUser = v.voucherUsers?.some(u => u.userId === userId)
+    const outOfUsage = v.usedCount >= (v.usageLimit || 0)
+    const expired = !v.isActive || (v.endTime && new Date(v.endTime) < new Date())
+    const alreadyClaimedState = claimedIds.includes(v.id)
+    return claimedByUser || outOfUsage || expired || alreadyClaimedState
+  }
+
   return (
     <div className="bg-gray-100 min-h-screen">
       <Header />
@@ -103,7 +115,7 @@ export default function VoucherPage() {
           </div>
         </div>
 
-        {/* Voucher List - body nổi lên */}
+        {/* Voucher List */}
         <div className="max-w-6xl mx-auto px-4">
           <div className="bg-white rounded-2xl shadow-md p-6 sm:p-8">
             {loading ? (
@@ -127,7 +139,7 @@ export default function VoucherPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {vouchers.map((v, idx) => {
                   const colorIdx = idx % cardGradients.length
-                  const isClaimed = claimedIds.includes(v.id)
+                  const disabled = isVoucherClaimed(v)
 
                   const discountLabel =
                     v.discountType === "PERCENT"
@@ -143,13 +155,10 @@ export default function VoucherPage() {
                       <div
                         className={`absolute inset-0 bg-gradient-to-br ${cardGradients[colorIdx]} opacity-90`}
                       />
-
                       {/* Overlay pattern */}
                       <div className="absolute inset-0 opacity-5 bg-[radial-gradient(circle_at_20%_50%,white_0%,transparent_50%)]" />
-
                       {/* Content */}
                       <div className="relative p-6 h-full flex flex-col justify-between">
-                        {/* Image & Discount */}
                         <div>
                           <div className="flex items-start justify-between mb-6">
                             <div className="bg-white bg-opacity-20 backdrop-blur-md rounded-xl p-4 flex-1 mr-4">
@@ -165,8 +174,6 @@ export default function VoucherPage() {
                                 className="w-full h-24 object-contain"
                               />
                             </div>
-
-                            {/* Discount badge */}
                             <div className="bg-white rounded-xl p-3 text-center shadow-lg">
                               <div className="text-2xl font-bold bg-gradient-to-br from-emerald-500 to-teal-600 bg-clip-text text-transparent">
                                 {v.discountType === "PERCENT"
@@ -180,8 +187,6 @@ export default function VoucherPage() {
                               )}
                             </div>
                           </div>
-
-                          {/* Voucher info */}
                           <div className="text-white">
                             <h2 className="text-lg font-bold mb-2 line-clamp-2">{v.name}</h2>
                             <p className="text-sm font-medium text-white text-opacity-90 mb-3">
@@ -199,20 +204,18 @@ export default function VoucherPage() {
                             </div>
                           </div>
                         </div>
-
-                        {/* Claim button */}
                         <div className="mt-6">
                           <button
-                            onClick={() => handleClaimVoucher(v.id)}
-                            disabled={isClaimed}
+                            onClick={() => handleClaimVoucher(v)}
+                            disabled={disabled}
                             className={`w-full py-3 px-4 rounded-xl font-bold text-sm transition-all duration-300 transform ${
-                              isClaimed
+                              disabled
                                 ? "bg-white bg-opacity-20 text-white cursor-not-allowed"
                                 : "bg-white text-emerald-600 hover:shadow-2xl hover:scale-105 active:scale-95"
                             }`}
                           >
                             <div className="flex items-center justify-center gap-2">
-                              {isClaimed ? (
+                              {disabled ? (
                                 <>
                                   <Ticket className="w-4 h-4" />
                                   ĐÃ NHẬN

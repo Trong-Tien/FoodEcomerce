@@ -13,7 +13,7 @@ interface Props {
 export default function VoucherModal({ onClose, dataVoucher, onSelect }: Props) {
   const [vouchers, setVouchers] = useState<Voucher[]>([])
   const [loading, setLoading] = useState(true)
-  const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5292"
+  const API_BASE = import.meta.env.VITE_API_URL || "https://foodecomerceapi.runasp.net"
   const [userId, setUserId] = useState<string | null>(null)
 
   useEffect(() => {

@@ -1,3 +1,4 @@
+import type { VoucherUser } from "./VoucherUser";
 export type Voucher= {
     id :number,
     code : string,
@@ -13,4 +14,6 @@ export type Voucher= {
     usedCount:  number,
     isActive : boolean,
     imageUrl : string
+    voucherUsers?: VoucherUser[]   // 👈 thêm trường này
+
 }
