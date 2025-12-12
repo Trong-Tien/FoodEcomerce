@@ -1,7 +1,11 @@
-import type { Product } from "./Product"
-import type { RecipeResponse } from "./RecipeResponse"
+import type { ProductDataDTO } from "./ProductDataDTO"
 
-export type GeminiResponse = {
-     recipeResponse : RecipeResponse,
-     product : Product[]
+export interface RecipeResponseDTO {
+  recipe: string
+  ingredients: string[]
+}
+
+export interface GeminiResponse {
+  recipeResponse: RecipeResponseDTO
+  product: ProductDataDTO[]
 }

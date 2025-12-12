@@ -16,8 +16,7 @@ import AddIcon from "@mui/icons-material/Add";
 import {
   MaterialReactTable,
   useMaterialReactTable,
-  type MRT_ColumnDef,
-  type MRT_PaginationState,
+  type MRT_ColumnDef
 } from "material-react-table";
 import type { Product } from "@/Type/Product";
 import ImageIcon from "@mui/icons-material/Image";

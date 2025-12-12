@@ -1,11 +1,11 @@
-﻿using FoodEcomerce.Entity.StoreProcedure;
+﻿    using FoodEcomerce.Entity.StoreProcedure;
 
-namespace FoodEcomerce.DTO
-{
-    public class ResultGeminiDTO
+    namespace FoodEcomerce.DTO
     {
-        public RecipeResponseDTO RecipeResponse { get; set;}
+        public class ResultGeminiDTO
+        {
+            public RecipeResponseDTO RecipeResponse { get; set;}
 
-        public List<ProductDataDTO>? Product { get; set;}   
+            public List<ProductDataDTO>? Product { get; set;}   
+        }
     }
-}

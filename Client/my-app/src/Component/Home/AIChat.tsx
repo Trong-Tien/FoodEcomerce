@@ -1,9 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { geminiService } from "@/Services/aiService"
 import { Send, Sparkles } from "lucide-react"
-import type { Product } from "@/Type/Product"
 
 export type ChatMessage = {
   sender: "user" | "ai"
@@ -15,25 +14,59 @@ type GeminiChatProps = {
   setChatHistory: React.Dispatch<React.SetStateAction<ChatMessage[]>>
 }
 
+type SuggestedProduct = {
+  productId: string
+  productText: string
+  unitPrice: string
+  image?: string
+}
+
+// Hàm chuẩn hóa đường dẫn ảnh
+const getImageUrl = (path?: string) => {
+  if (!path) return "/images/placeholder.png" // fallback nếu null
+  if (path.startsWith("http")) return path // đã là URL đầy đủ
+  return `https://foodecomerceapi.runasp.net/api/File/image?path=${encodeURIComponent(path)}`
+}
+
 export default function GeminiChat({ chatHistory, setChatHistory }: GeminiChatProps) {
   const [prompt, setPrompt] = useState("")
   const [loading, setLoading] = useState(false)
-  const [productSuggest , setProductSuggest] = useState<Product[]>([])
+  const [productSuggest, setProductSuggest] = useState<SuggestedProduct[]>([])
+  const chatEndRef = useRef<HTMLDivElement>(null)
 
-  
+  // Scroll chat tự động xuống dưới khi chatHistory thay đổi
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [chatHistory])
+
   async function handleAsk() {
     if (!prompt.trim()) return
-
     setChatHistory(prev => [...prev, { sender: "user", text: prompt }])
     setLoading(true)
 
     try {
       const res = await geminiService.ask(prompt)
-      setChatHistory(prev => [...prev, { sender: "ai", text: res?.recipeResponse?.recipe }])
-      setProductSuggest(res.product)
+
+      // Lấy công thức
+      const recipeText = res?.recipeResponse?.recipe ?? "(Không có công thức trả về)"
+      setChatHistory(prev => [...prev, { sender: "ai", text: recipeText }])
+
+      // Chuyển đổi product từ backend thành SuggestedProduct[]
+      const suggestedProducts: SuggestedProduct[] =
+        res?.product?.map(p => ({
+          productId: p.productId,
+          productText: p.productText,
+          unitPrice: p.unitPrice,
+          image: getImageUrl(p.image),
+        })) ?? []
+
+      setProductSuggest(suggestedProducts)
       setPrompt("")
     } catch (err: any) {
-      setChatHistory(prev => [...prev, { sender: "ai", text: `Lỗi: ${err.message}` }])
+      setChatHistory(prev => [
+        ...prev,
+        { sender: "ai", text: `Lỗi: ${err?.message ?? err}` },
+      ])
     } finally {
       setLoading(false)
     }
@@ -47,7 +80,7 @@ export default function GeminiChat({ chatHistory, setChatHistory }: GeminiChatPr
         <h1 className="text-2xl font-bold text-slate-900">Food Assistant</h1>
       </div>
 
-      {/* Chat messages */}
+      {/* Chat history */}
       <div className="bg-white rounded-2xl shadow-lg p-4 flex-1 overflow-y-auto space-y-4 border border-slate-200">
         {chatHistory.length === 0 ? (
           <div className="flex items-center justify-center h-full text-center">
@@ -58,7 +91,12 @@ export default function GeminiChat({ chatHistory, setChatHistory }: GeminiChatPr
           </div>
         ) : (
           chatHistory.map((msg, idx) => (
-            <div key={idx} className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}>
+            <div
+              key={idx}
+              className={`flex ${
+                msg.sender === "user" ? "justify-end" : "justify-start"
+              }`}
+            >
               <div
                 className={`max-w-xs lg:max-w-md xl:max-w-lg px-5 py-4 rounded-2xl text-base leading-relaxed ${
                   msg.sender === "user"
@@ -71,9 +109,10 @@ export default function GeminiChat({ chatHistory, setChatHistory }: GeminiChatPr
             </div>
           ))
         )}
+        <div ref={chatEndRef} />
       </div>
 
-      {/* Input và nút gửi */}
+      {/* Input */}
       <div className="flex gap-2 items-center">
         <textarea
           rows={2}
@@ -102,21 +141,44 @@ export default function GeminiChat({ chatHistory, setChatHistory }: GeminiChatPr
       <div className="bg-white rounded-2xl shadow-lg p-4 border border-slate-200 mt-4">
         <h3 className="text-xl font-bold text-slate-900 mb-3">Sản phẩm nổi bật</h3>
         <div className="flex flex-col gap-3">
-          {productSuggest.length > 0 &&  productSuggest.map(product => (
-            <div
-              key={product.id}
-              className="p-3 border-2 border-slate-200 rounded-xl hover:border-emerald-600 hover:shadow-md transition-all cursor-pointer flex justify-between items-center"
-            >
-              <div className="flex items-center gap-3">
-                <span className="text-2xl"></span>
-                <div>
-                  <p className="font-semibold text-slate-900">{product.name}</p>
-                  {/* <p className="text-sm text-slate-600">{product.description}</p> */}
+          {productSuggest.length > 0 ? (
+            productSuggest.map(p => {
+              const priceNumber = Number(p.unitPrice)
+              const priceText = Number.isFinite(priceNumber)
+                ? priceNumber.toLocaleString("vi-VN")
+                : p.unitPrice
+              const imageUrl = getImageUrl(p.image)
+
+              return (
+                <div
+                  key={p.productId}
+                  className="p-3 border-2 border-slate-200 rounded-xl hover:border-emerald-600 hover:shadow-md transition-all cursor-pointer flex justify-between items-center"
+                >
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={imageUrl || "/images/placeholder.png"}
+                      alt={p.productText}
+                      className="w-12 h-12 rounded-lg object-cover border border-slate-200"
+                      onError={e => {
+                        ;(e.currentTarget as HTMLImageElement).src =
+                          "/images/placeholder.png"
+                      }}
+                    />
+                    <div className="min-w-0">
+                      <p className="font-semibold text-slate-900 truncate max-w-[220px]">
+                        {p.productText}
+                      </p>
+                    </div>
+                  </div>
+                  <span className="text-emerald-600 font-bold whitespace-nowrap">
+                    {priceText}₫
+                  </span>
                 </div>
-              </div>
-              <span className="text-emerald-600 font-bold">{product.unitPrice.toLocaleString()}₫</span>
-            </div>
-          ))}
+              )
+            })
+          ) : (
+            <p className="text-slate-500">Chưa có gợi ý sản phẩm.</p>
+          )}
         </div>
       </div>
     </div>
