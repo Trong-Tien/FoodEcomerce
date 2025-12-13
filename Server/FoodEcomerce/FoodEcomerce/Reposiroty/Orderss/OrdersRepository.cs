@@ -81,7 +81,7 @@ namespace FoodEcomerce.Reposiroty.Orderss
                     var itemUser = await _context.Users.FirstOrDefaultAsync(r => r.Id == modal.UserId);
 
                     var email = new MimeMessage();
-                    email.From.Add(new MailboxAddress("YourApp", "vodangphat2002@gmail.com"));
+                    email.From.Add(new MailboxAddress("YourApp", "tranphucthinhthpt@gmail.com"));
                     email.To.Add(new MailboxAddress("", itemUser.Email));
                     email.Subject = "Đơn đặt hàng";
 
@@ -168,7 +168,7 @@ namespace FoodEcomerce.Reposiroty.Orderss
 
                     using var smtp = new SmtpClient();
                     await smtp.ConnectAsync("smtp.gmail.com", 587, MailKit.Security.SecureSocketOptions.StartTls);
-                    await smtp.AuthenticateAsync("vodangphat2002@gmail.com", "phnhagyuliyrokqx");
+                    await smtp.AuthenticateAsync("tranphucthinhthpt@gmail.com", "ormivargojebnrho");
                     await smtp.SendAsync(email);
                     await smtp.DisconnectAsync(true);
                     return new ResultModal() { Status = 200, Message = "Đặt hàng thành công", Success = true };

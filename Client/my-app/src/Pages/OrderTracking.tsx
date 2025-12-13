@@ -207,7 +207,7 @@ export default function OrderTracking() {
                               className="flex items-center gap-4 p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
                             >
                               <img
-                                src={getImageUrl(d.ImageUrl) || "/placeholder.svg"}
+                                src={d.ImageUrl ? getImageUrl(d.ImageUrl) : "/placeholder.svg"}
                                 alt={d.ProductName}
                                 className="w-16 h-16 rounded-lg object-cover border border-slate-200"
                               />

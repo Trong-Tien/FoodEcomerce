@@ -19,7 +19,7 @@ namespace FoodEcomerce.Services
 
             using var smtp = new SmtpClient();
             await smtp.ConnectAsync("smtp.gmail.com", 587, MailKit.Security.SecureSocketOptions.StartTls);
-            await smtp.AuthenticateAsync("vodangphat2002@gmail.com", "phnhagyuliyrokqx"); // app password
+            await smtp.AuthenticateAsync("tranphucthinhthpt@gmail.com", "ormivargojebnrho");
             await smtp.SendAsync(email);
             await smtp.DisconnectAsync(true);
         }

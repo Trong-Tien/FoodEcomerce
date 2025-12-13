@@ -158,7 +158,7 @@ const table = useMaterialReactTable({
       <button className="flex items-center gap-1 px-3 py-2 rounded-md bg-blue-50 text-blue-700 hover:bg-blue-100 text-sm" disabled={selectedIdOrder.length === 0} >
         <Download size={16} /> In đơn hàng
       </button>
-      <button className="flex items-center gap-1 px-3 py-2 rounded-md bg-red-50 text-red-700 hover:bg-red-100 text-sm" disabled={selectedIdOrder.length === 0} onClick={() => handleOrderChange(selectedIdOrder[0], 4)}>
+      <button className="flex items-center gap-1 px-3 py-2 rounded-md bg-red-50 text-red-700 hover:bg-red-100 text-sm" disabled={selectedIdOrder.length === 0} onClick={() => handleOrderChange(selectedIdOrder[0], 3)}>
         <Trash2 size={16} /> Hủy đơn hàng
       </button>
       <button  className="flex items-center gap-1 px-3 py-2 rounded-md bg-green-50 text-green-700 hover:bg-green-100 text-sm" onClick={() => handleOrderChange(selectedIdOrder[0], 1)}>

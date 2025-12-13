@@ -1,5 +1,4 @@
 import { useGetResult } from '@/Hooks/Result'
-import type { ReportTotal } from '@/Type/ReportTotal'
 import { Button } from '@mui/material'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
