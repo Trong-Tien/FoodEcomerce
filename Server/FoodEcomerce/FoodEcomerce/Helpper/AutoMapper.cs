@@ -69,7 +69,9 @@ namespace FoodEcomerce.Helpper
                 .ReverseMap();
 
             CreateMap<sp_WebFood_GetAllProduct, ProductListDTO>().ReverseMap();
-
+            CreateMap<sp_WebFood_getFoodReview, ProductReviewDTO>()
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.UserName))
+                .ReverseMap();
         }
     }
 }

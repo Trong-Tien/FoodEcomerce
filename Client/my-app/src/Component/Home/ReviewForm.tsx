@@ -58,10 +58,7 @@ export default function ReviewForm({ productId, onSuccess }: ReviewFormProps) {
         comment: comment,
         imageUrls: images
       }
-
-   
-      
-
+      console.log(dataRequest)
       const result = await foodReviewService.create(dataRequest);
 
       toast.success(result?.message || "Gửi đánh giá thành công!");

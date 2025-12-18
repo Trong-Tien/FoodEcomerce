@@ -17,6 +17,7 @@ type Review = {
   rating: number;
   comment: string;
   createdAt: string;
+  imageUrl: string;
   productReviewImages?: ReviewImage[];
 };
 
@@ -65,7 +66,7 @@ export default function ReviewList({ productId }: ReviewListProps) {
   return (
     <div className="w-full space-y-4">
       {reviews.map((r) => {
-        const images = r.productReviewImages || [];
+        const images = r.imageUrl || "";
         return (
           <div
             key={r.id}
@@ -104,12 +105,13 @@ export default function ReviewList({ productId }: ReviewListProps) {
             {/* Comment */}
             <p className="text-slate-700 leading-relaxed mb-4">{r.comment}</p>
 
-            {images.length > 0 && (
+            {images && (
               <div className="mt-4">
                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
-                  {images.map((img) => {
-                    const encodedPath = encodeURIComponent(img.imageUrl);
+                  {(Array.isArray(images) ? images : [images]).map((img) => {
+                    const encodedPath = encodeURIComponent(images);
                     const imgUrl = `https://foodecomerceapi.runasp.net/api/File/image?path=${encodedPath}`;
+
                     return (
                       <div
                         key={img.id}
@@ -126,6 +128,7 @@ export default function ReviewList({ productId }: ReviewListProps) {
                 </div>
               </div>
             )}
+
           </div>
         );
       })}

@@ -92,7 +92,7 @@ namespace FoodEcomerce.Abstract
         public IOrderStatusRepository OrderStatusRepository
          => _orderStatusRepository ??= new OrderStatusRepository(_dbContext, _mapper);
         public IProductReviewRepository productReviewRepository
-        => _productReviewRepository ??= new ProductReviewRepository(_dbContext, _mapper);
+        => _productReviewRepository ??= new ProductReviewRepository(_dbContext, _mapper , _storeDbcontext);
         public IResultRepository resultRepository
         => _resultRepository ??= new ResultRepository(_storeDbcontext);
 

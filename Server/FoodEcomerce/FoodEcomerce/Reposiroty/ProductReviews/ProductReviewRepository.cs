@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FoodEcomerce.DTO;
 using FoodEcomerce.Entity;
+using FoodEcomerce.Entity.StoreProcedure;
 using FoodEcomerce.Modal;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,11 +10,13 @@ namespace FoodEcomerce.Reposiroty.ProductReviews
     public class ProductReviewRepository : BaseRepository<ProductReview, ProductReviewModal, ProductReviewDTO, Guid>, IProductReviewRepository
     {
         private FoodDbContex _foodDbContex;
+        private StoreDbcontext _StoreDbcontext;
         private IMapper _mapper;
-        public ProductReviewRepository(FoodDbContex dbContext, IMapper mapper) : base(dbContext, mapper)
+        public ProductReviewRepository(FoodDbContex dbContext, IMapper mapper, StoreDbcontext StoreDbcontext) : base(dbContext, mapper)
         {
             _foodDbContex = dbContext;
             _mapper = mapper;
+            _StoreDbcontext = StoreDbcontext;
         }
 
         public async Task<ResultModal> CreateWithQuery(ProductReviewModal modal)
@@ -69,7 +72,8 @@ namespace FoodEcomerce.Reposiroty.ProductReviews
 
         public async Task<List<ProductReviewDTO>> GetReviewByProductId(Guid id)
         {
-            return _mapper.Map<List<ProductReviewDTO>>(await _foodDbContex.ProductReviews.Where(r => r.ProductId == id).Include(r => r.ProductReviewImages).Include(r => r.User).ToListAsync());
+            var testData = await _StoreDbcontext.sp_WebFood_getFoodReview.FromSql($"Execute sp_WebFood_getFoodReview @productId={id}").ToListAsync();
+            return _mapper.Map<List<ProductReviewDTO>>(await _StoreDbcontext.sp_WebFood_getFoodReview.FromSql($"Execute sp_WebFood_getFoodReview @productId={id}").ToListAsync());
         }
     }
 }
