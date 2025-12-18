@@ -12,6 +12,9 @@ import { orderStatusService } from "@/Services/orderStatusService"
 
 import type { Order } from "@/Type/Order"
 import type { OrderStatus } from "@/Type/OrderStatus"
+import { Button } from "@/Component/Common/Cart/Button"
+import type { PaymentType } from "@/Type/PaymentType"
+import { useCreatePaymentLink, type responsePayment } from "@/Hooks/Payment"
 
 interface OrderDetail {
   Id: string
@@ -31,6 +34,7 @@ const parseOrderDetails = (orderDetails?: string): OrderDetail[] => {
     return []
   }
 }
+
 
 const getImageUrl = (url: string) =>
   url.startsWith("http") ? url : `https://foodecomerceapi.runasp.net/api/File/image?path=${encodeURIComponent(url)}`
@@ -56,6 +60,7 @@ export default function OrderTracking() {
   const [statuses, setStatuses] = useState<OrderStatus[]>([])
   const [loading, setLoading] = useState(true)
   const [activeStatusId, setActiveStatusId] = useState<number | "all">("all")
+  const payment = useCreatePaymentLink()
 
   // Fetch orders & statuses
   useEffect(() => {
@@ -72,6 +77,29 @@ export default function OrderTracking() {
     }
     fetchData()
   }, [])
+
+  const handlePayment = async (
+    orderId: string,
+    amount: number,
+    description: string
+  ) => {
+    try {
+      const payload: PaymentType = {
+        orderId,
+        amount,
+        description,
+      };
+
+      const response: responsePayment = await payment.mutateAsync(payload);
+
+      if (response?.status === 200 && response?.url) {
+        window.location.href = response.url;
+      }
+    } catch (error) {
+      console.error("Payment error:", error);
+    }
+  };
+
 
   const statusMap = useMemo(() => {
     const map = new Map<number, string>()
@@ -99,11 +127,10 @@ export default function OrderTracking() {
         <div className="mb-8 flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:pb-0">
           <button
             onClick={() => setActiveStatusId("all")}
-            className={`px-6 py-2.5 rounded-full font-medium whitespace-nowrap transition-all duration-200 ${
-              activeStatusId === "all"
-                ? "bg-emerald-600 text-white shadow-lg shadow-emerald-600/30"
-                : "bg-white text-slate-700 border border-slate-200 hover:border-emerald-300 hover:text-emerald-600"
-            }`}
+            className={`px-6 py-2.5 rounded-full font-medium whitespace-nowrap transition-all duration-200 ${activeStatusId === "all"
+              ? "bg-emerald-600 text-white shadow-lg shadow-emerald-600/30"
+              : "bg-white text-slate-700 border border-slate-200 hover:border-emerald-300 hover:text-emerald-600"
+              }`}
           >
             Tất cả
           </button>
@@ -111,11 +138,10 @@ export default function OrderTracking() {
             <button
               key={s.id}
               onClick={() => setActiveStatusId(s.id)}
-              className={`px-6 py-2.5 rounded-full font-medium whitespace-nowrap transition-all duration-200 ${
-                activeStatusId === s.id
-                  ? "bg-emerald-600 text-white shadow-lg shadow-emerald-600/30"
-                  : "bg-white text-slate-700 border border-slate-200 hover:border-emerald-300 hover:text-emerald-600"
-              }`}
+              className={`px-6 py-2.5 rounded-full font-medium whitespace-nowrap transition-all duration-200 ${activeStatusId === s.id
+                ? "bg-emerald-600 text-white shadow-lg shadow-emerald-600/30"
+                : "bg-white text-slate-700 border border-slate-200 hover:border-emerald-300 hover:text-emerald-600"
+                }`}
             >
               {s.statusName}
             </button>
@@ -147,6 +173,7 @@ export default function OrderTracking() {
                   key={order.id}
                   className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden border border-slate-100"
                 >
+
                   <div className="bg-gradient-to-r from-slate-50 to-white px-6 py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
@@ -234,7 +261,17 @@ export default function OrderTracking() {
                         <p className="text-sm text-blue-900">
                           <span className="font-semibold">Ghi chú:</span> {order.note}
                         </p>
+                        {order?.paymentMenthodId === 2 && (
+                          <Button 
+                            onClick={()=>handlePayment(order.id, order.totalPrice + order.shippingFee , "test")}
+                            className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-lg shadow-md transition"
+                          >
+                            💳 Thanh toán ngay
+                          </Button>
+                        )}
+
                       </div>
+
                     )}
 
                   </div>

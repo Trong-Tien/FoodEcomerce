@@ -29,6 +29,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<CurrentUserService>();
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddHttpClient();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("*",

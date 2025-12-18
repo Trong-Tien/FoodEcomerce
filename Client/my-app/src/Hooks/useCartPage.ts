@@ -17,7 +17,6 @@ export function useCartPage() {
   const navigate = useNavigate()
   const { data } = useGetPaymentMethod(1, 10)
   const createOrders = useCreateOrders()
-
   const dataPayment: PaymentMethodType[] = data?.items ?? []
   const [selected, setSelected] = useState<number>(0)
   const [productCache, setProductCache] = useState<Record<string, any>>({})
@@ -111,18 +110,21 @@ export function useCartPage() {
     }
 
     try {
-      const response: ResponseType = await createOrders.mutateAsync(tempData)
-      if (response.status === 200) {
-        toast.success(`${response.message}`)
-        clear()
-        setShowSuccess(true)
-        setTimeout(() => {
-          setShowSuccess(false)
-          navigate({ to: "/" })
-        }, 3000)
-      } else {
-        toast.error(`${response.message}`)
-      }
+   
+        const response: ResponseType = await createOrders.mutateAsync(tempData)
+        if (response.status === 200) {
+          toast.success(`${response.message}`)
+          clear()
+          setShowSuccess(true)
+          setTimeout(() => {
+            setShowSuccess(false)
+            navigate({ to: "/" })
+          }, 3000)
+        } else {
+          toast.error(`${response.message}`)
+        }
+      
+
     } catch (error) {
       console.error("❌ Lỗi khi đặt hàng:", error)
       toast.error("Đặt hàng thất bại, vui lòng thử lại.")

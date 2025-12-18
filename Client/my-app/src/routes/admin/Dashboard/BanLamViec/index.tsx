@@ -1,5 +1,4 @@
 import { useGetResult } from '@/Hooks/Result'
-import type { ReportTotal } from '@/Type/ReportTotal'
 import { Button } from '@mui/material'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
@@ -69,7 +68,6 @@ function RouteComponent() {
   const [type, setType] = useState<number>(1);
   const handleType = (value: ReportType) => {
     setType(value);
-    console.log("Selected type:", value);
   };
   const { data } = useGetResult(type);
   return (

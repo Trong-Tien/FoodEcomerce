@@ -550,3 +550,4 @@ bin/obj
 /Server/FoodEcomerce/FoodEcomerce/wwwroot/UploadFiles/Images/Products
 /Server/FoodEcomerce/FoodEcomerce/wwwroot/UploadFiles/Images/Vouchers
 /Server/FoodEcomerce/FoodEcomerce/Helpper/APIKeysLocal.cs.cs
+/Server/FoodEcomerce/FoodEcomerce/Helpper/APIKeyVnpay.cs
