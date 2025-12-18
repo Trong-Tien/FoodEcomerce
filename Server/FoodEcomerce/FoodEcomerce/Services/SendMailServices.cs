@@ -8,7 +8,7 @@ namespace FoodEcomerce.Services
         public static async Task SendOtpEmail(string toEmail, string otp)
         {
             var email = new MimeMessage();
-            email.From.Add(new MailboxAddress("YourApp", "vodangphat2002@gmail.com"));
+            email.From.Add(new MailboxAddress("YourApp", "tranphucthinhthpt@gmail.com"));
             email.To.Add(new MailboxAddress("", toEmail));
             email.Subject = "Your OTP Code";
 
